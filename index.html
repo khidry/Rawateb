@@ -121,7 +121,6 @@
             .app-header, .app-main, .bottom-nav, .toast { display: none !important; }
             #printArea { display: block !important; width: 100%; direction: rtl; }
             
-            /* 3x3 Grid System */
             @page { size: A4 portrait; margin: 5mm; }
             .bulk-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
             
@@ -178,7 +177,7 @@
             <button class="icon-btn" onclick="document.getElementById('pwaPrompt').classList.add('hidden')" style="color:white"><span class="material-icons">close</span></button>
         </div>
         
-        <!-- 1. شاشة الإدخال والسجلات -->
+        <!-- 1. شاشة الإدخال والسجلات (الدوام الشامل) -->
         <div id="view-entry" class="view active">
             <div class="card">
                 <h2>إدارة دوام اليوم</h2>
@@ -233,8 +232,8 @@
                         
                         <tr class="bg-g-light sub-item" id="rowSalCash"><td class="td-label">— من الكاش</td><td class="td-sub-val" id="sumSalCashVal">0</td><td></td></tr>
                         <tr class="bg-g-light sub-item" id="rowSalTransfer"><td class="td-label">— من التحويل</td><td class="td-sub-val" id="sumSalTransferVal">0</td><td></td></tr>
-                        <tr class="bg-g-light sub-item" id="rowSalDrawer"><td class="td-label">— من درج الشحن</td><td class="td-sub-val" id="sumSalDrawerVal">0</td><td></td></tr>
-                        <tr class="bg-g-light sub-item" id="rowSalTailor"><td class="td-label">— من محل الخياط</td><td class="td-sub-val" id="sumSalTailorVal">0</td><td></td></tr>
+                        <tr class="bg-g-light sub-item" id="rowSalDrawer"><td class="td-label">— من الشحن</td><td class="td-sub-val" id="sumSalDrawerVal">0</td><td></td></tr>
+                        <tr class="bg-g-light sub-item" id="rowSalTailor"><td class="td-label">— من الخياط</td><td class="td-sub-val" id="sumSalTailorVal">0</td><td></td></tr>
 
                         <tr class="bg-g-light" id="rowUnusedOff">
                             <td class="td-label">اضافى من الاوف</td>
@@ -336,8 +335,8 @@
                         <div class="prefs-group">
                             <label><input type="checkbox" id="prefSalCash"> كاش</label>
                             <label><input type="checkbox" id="prefSalTransfer"> تحويل</label>
-                            <label><input type="checkbox" id="prefSalDrawer"> درج الشحن</label>
-                            <label><input type="checkbox" id="prefSalTailor"> محل الخياط</label>
+                            <label><input type="checkbox" id="prefSalDrawer"> الشحن</label>
+                            <label><input type="checkbox" id="prefSalTailor"> الخياط</label>
                         </div>
 
                         <div class="prefs-section-title">الإضافيات</div>
@@ -389,7 +388,7 @@
                                 <th>الموظف</th>
                                 <th style="color: #607d8b">أساسي كاش</th>
                                 <th style="color: #607d8b">أساسي تحويل</th>
-                                <th style="color: #607d8b">أساسي درج</th>
+                                <th style="color: #607d8b">أساسي شحن</th>
                                 <th style="color: #607d8b">أساسي خياط</th>
                                 <th style="color: var(--danger)">سلف</th>
                                 <th style="color: var(--danger)">آجل نظام</th>
@@ -413,6 +412,15 @@
 
         <!-- 4. شاشة الإعدادات -->
         <div id="view-settings" class="view">
+            <div class="card mb-15">
+                <h2>إعدادات الطباعة</h2>
+                <label style="display:flex; align-items:center; gap:10px; font-size: 14px; font-weight:bold; cursor:pointer;">
+                    <input type="checkbox" id="cleanPrintToggle" style="width: 22px; height: 22px; cursor:pointer;">
+                    طباعة نظيفة (إخفاء البنود الصفرية)
+                </label>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">عند التفعيل، أي بند قيمته (0) سيتم إخفاؤه تلقائياً من التطبيق ومن كروت الطباعة لتوفير المساحة.</p>
+            </div>
+
             <div class="card">
                 <h2>النظام والبيانات</h2>
                 <button id="forceReloadBtn" class="btn btn-warning w-100 mb-15"><span class="material-icons">refresh</span> تحديث إجباري للنسخة (مسح كاش المتصفح)</button>
@@ -521,7 +529,15 @@
             init: () => {
                 if (localStorage.getItem('ui_theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
                 
-                // PWA Prompt (iOS Standalone Check)
+                // Clean Print Init
+                const cleanPrintToggle = document.getElementById('cleanPrintToggle');
+                cleanPrintToggle.checked = localStorage.getItem('clean_print') === 'true';
+                cleanPrintToggle.addEventListener('change', (e) => {
+                    localStorage.setItem('clean_print', e.target.checked);
+                    AppController.renderLogs(); 
+                });
+
+                // PWA Prompt check
                 const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
                 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
                 if (isIos() && !isInStandaloneMode()) document.getElementById('pwaPrompt').classList.remove('hidden');
@@ -661,7 +677,8 @@
                 const fin = DataLayer.getFinancials(empId, month); 
 
                 const allowedVacations = emp.vacations !== undefined ? emp.vacations : 4;
-                const baseSalary = emp.salary, dailyHours = emp.hours, dailyRate = baseSalary / 30, hourlyRate = dailyRate / dailyHours;
+                const baseSalary = emp.salary, dailyHours = emp.hours;
+                const dailyRate = baseSalary / 30, hourlyRate = dailyRate / dailyHours;
                 let vacCount = 0, absCount = 0, actualHours = 0; const uniqueDays = new Set();
 
                 logs.forEach(l => {
@@ -697,6 +714,7 @@
                 const month = document.getElementById('filterMonth').value, empId = document.getElementById('filterEmployee').value;
                 const tbody = document.getElementById('logsTableBody'), sumCard = document.getElementById('summaryCard');
                 let filtered = DataLayer.logs.filter(l => l.date.startsWith(month));
+                const cleanPrint = localStorage.getItem('clean_print') === 'true';
                 
                 if (empId !== 'ALL') {
                     filtered = filtered.filter(l => l.empId === empId);
@@ -706,20 +724,27 @@
                         
                         document.getElementById('sumEmpName').textContent = s.emp.name; document.getElementById('sumBaseSalary').textContent = s.baseSalary.toFixed(0);
                         
-                        ['SalCash','SalTransfer','SalDrawer','SalTailor'].forEach(p => {
-                            document.getElementById('row'+p).classList.toggle('hidden', !prefs['show'+p]);
-                            document.getElementById('sum'+p+'Val').textContent = s.fin[p.charAt(0).toLowerCase()+p.slice(1)].toFixed(0);
-                        });
+                        document.getElementById('rowSalCash').classList.toggle('hidden', !prefs.showSalCash || (cleanPrint && s.fin.salCash === 0));
+                        document.getElementById('sumSalCashVal').textContent = s.fin.salCash.toFixed(0);
+                        
+                        document.getElementById('rowSalTransfer').classList.toggle('hidden', !prefs.showSalTransfer || (cleanPrint && s.fin.salTransfer === 0));
+                        document.getElementById('sumSalTransferVal').textContent = s.fin.salTransfer.toFixed(0);
+                        
+                        document.getElementById('rowSalDrawer').classList.toggle('hidden', !prefs.showSalDrawer || (cleanPrint && s.fin.salDrawer === 0));
+                        document.getElementById('sumSalDrawerVal').textContent = s.fin.salDrawer.toFixed(0);
+                        
+                        document.getElementById('rowSalTailor').classList.toggle('hidden', !prefs.showSalTailor || (cleanPrint && s.fin.salTailor === 0));
+                        document.getElementById('sumSalTailorVal').textContent = s.fin.salTailor.toFixed(0);
 
-                        document.getElementById('rowUnusedOff').classList.toggle('hidden', !prefs.showUnusedOff);
+                        document.getElementById('rowUnusedOff').classList.toggle('hidden', !prefs.showUnusedOff || (cleanPrint && s.unusedOffVal === 0));
                         document.getElementById('sumUnusedOffDays').textContent = `${s.unusedOffDays} أيام`;
                         document.getElementById('sumUnusedOffVal').textContent = s.unusedOffVal.toFixed(0);
                         
-                        document.getElementById('rowOvertime').classList.toggle('hidden', !prefs.showOvertime);
+                        document.getElementById('rowOvertime').classList.toggle('hidden', !prefs.showOvertime || (cleanPrint && s.overTimeVal === 0));
                         document.getElementById('sumOvertimeHrs').textContent = `${formatHours(s.overTimeHrs)} ساعة`;
                         document.getElementById('sumOvertimeVal').textContent = s.overTimeVal.toFixed(0);
                         
-                        document.getElementById('rowComm1').classList.toggle('hidden', !prefs.showSalesComm);
+                        document.getElementById('rowComm1').classList.toggle('hidden', !prefs.showSalesComm || (cleanPrint && s.comm1 === 0));
                         let comm1Arr = [];
                         if (s.fin.tabby > 0) comm1Arr.push(`${s.fin.tabby} تابى`);
                         if (s.fin.tamara > 0) comm1Arr.push(`${s.fin.tamara} تمارا`);
@@ -727,26 +752,31 @@
                         document.getElementById('sumComm1Text').textContent = comm1Arr.length > 0 ? comm1Arr.join(' و ') : '-';
                         document.getElementById('sumComm1Val').textContent = s.comm1.toFixed(0);
                         
-                        document.getElementById('rowComm2').classList.toggle('hidden', !prefs.showSimComm);
+                        document.getElementById('rowComm2').classList.toggle('hidden', !prefs.showSimComm || (cleanPrint && s.comm2 === 0));
                         let comm2Arr = [];
                         if (s.fin.simPhones > 0) comm2Arr.push(`${s.fin.simPhones} هواتف`);
                         if (s.fin.simHuawei > 0) comm2Arr.push(`${s.fin.simHuawei} هواوى`);
                         document.getElementById('sumComm2Text').textContent = comm2Arr.length > 0 ? comm2Arr.join(' و ') : '-';
                         document.getElementById('sumComm2Val').textContent = s.comm2.toFixed(0);
                         
-                        document.getElementById('rowAbsence').classList.toggle('hidden', !prefs.showAbsence);
+                        document.getElementById('rowAbsence').classList.toggle('hidden', !prefs.showAbsence || (cleanPrint && s.absenceVal === 0));
                         document.getElementById('sumAbsenceDays').textContent = `${s.effectiveAbs} أيام`;
                         document.getElementById('sumAbsenceVal').textContent = s.absenceVal.toFixed(0);
                         
-                        document.getElementById('rowDelay').classList.toggle('hidden', !prefs.showDelay);
+                        document.getElementById('rowDelay').classList.toggle('hidden', !prefs.showDelay || (cleanPrint && s.delayVal === 0));
                         document.getElementById('sumDelayHrs').textContent = `${formatHours(s.delayHrs)} ساعة`;
                         document.getElementById('sumDelayVal').textContent = s.delayVal.toFixed(0);
                         
                         document.getElementById('sumNet').textContent = s.netBeforeDeductions.toFixed(0);
                         
-                        document.getElementById('rowAdvances').classList.toggle('hidden', !prefs.showAdvances); document.getElementById('sumAdvancesVal').textContent = s.fin.advances.toFixed(0);
-                        document.getElementById('rowPurchases').classList.toggle('hidden', !prefs.showPurchases); document.getElementById('sumPurchasesVal').textContent = s.fin.purchases.toFixed(0);
-                        document.getElementById('rowShipping').classList.toggle('hidden', !prefs.showShipping); document.getElementById('sumShippingVal').textContent = s.fin.shippingCredit.toFixed(0);
+                        document.getElementById('rowAdvances').classList.toggle('hidden', !prefs.showAdvances || (cleanPrint && s.fin.advances === 0)); 
+                        document.getElementById('sumAdvancesVal').textContent = s.fin.advances.toFixed(0);
+                        
+                        document.getElementById('rowPurchases').classList.toggle('hidden', !prefs.showPurchases || (cleanPrint && s.fin.purchases === 0)); 
+                        document.getElementById('sumPurchasesVal').textContent = s.fin.purchases.toFixed(0);
+                        
+                        document.getElementById('rowShipping').classList.toggle('hidden', !prefs.showShipping || (cleanPrint && s.fin.shippingCredit === 0)); 
+                        document.getElementById('sumShippingVal').textContent = s.fin.shippingCredit.toFixed(0);
                         
                         document.getElementById('rowFinal').classList.toggle('hidden', prefs.showFinalNet === false);
                         document.getElementById('sumFinal').textContent = s.finalSalary.toFixed(0);
@@ -792,14 +822,14 @@
             printHTML: (htmlContent) => {
                 const printArea = document.getElementById('printArea');
                 printArea.innerHTML = htmlContent;
-                // Force a reflow so Webkit paints the DOM before calling print()
                 void printArea.offsetHeight; 
                 window.print();
             },
             
             generateSlipHTML: (s, isGlobal = false) => {
                 const prefs = s.emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true };
-                
+                const cleanPrint = localStorage.getItem('clean_print') === 'true';
+
                 let comm1Arr = [];
                 if (s.fin.tabby > 0) comm1Arr.push(`${s.fin.tabby} تابى`);
                 if (s.fin.tamara > 0) comm1Arr.push(`${s.fin.tamara} تمارا`);
@@ -816,24 +846,24 @@
                                 <table class="slip-table">
                                     <tr class="print-bg-g-light"><td colspan="2" class="print-td-right">الراتب الأساسي</td><td class="print-td-left">${s.baseSalary.toFixed(0)}</td></tr>`;
                             
-                if(prefs.showSalCash) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من الكاش</td><td class="print-td-sub-val">${s.fin.salCash.toFixed(0)}</td><td></td></tr>`;
-                if(prefs.showSalTransfer) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من التحويل</td><td class="print-td-sub-val">${s.fin.salTransfer.toFixed(0)}</td><td></td></tr>`;
-                if(prefs.showSalDrawer) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من درج الشحن</td><td class="print-td-sub-val">${s.fin.salDrawer.toFixed(0)}</td><td></td></tr>`;
-                if(prefs.showSalTailor) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من محل الخياط</td><td class="print-td-sub-val">${s.fin.salTailor.toFixed(0)}</td><td></td></tr>`;
+                if(prefs.showSalCash && (!cleanPrint || s.fin.salCash > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من الكاش</td><td class="print-td-sub-val">${s.fin.salCash.toFixed(0)}</td><td></td></tr>`;
+                if(prefs.showSalTransfer && (!cleanPrint || s.fin.salTransfer > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من التحويل</td><td class="print-td-sub-val">${s.fin.salTransfer.toFixed(0)}</td><td></td></tr>`;
+                if(prefs.showSalDrawer && (!cleanPrint || s.fin.salDrawer > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من الشحن</td><td class="print-td-sub-val">${s.fin.salDrawer.toFixed(0)}</td><td></td></tr>`;
+                if(prefs.showSalTailor && (!cleanPrint || s.fin.salTailor > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من الخياط</td><td class="print-td-sub-val">${s.fin.salTailor.toFixed(0)}</td><td></td></tr>`;
 
-                if(prefs.showUnusedOff) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى من الاوف</td><td class="print-td-center">${s.unusedOffDays} أيام</td><td class="print-td-left">${s.unusedOffVal.toFixed(0)}</td></tr>`;
-                if(prefs.showOvertime) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى</td><td class="print-td-center">${formatHours(s.overTimeHrs)} ساعة</td><td class="print-td-left">${s.overTimeVal.toFixed(0)}</td></tr>`;
-                if(prefs.showSalesComm) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. مبيعات</td><td class="print-td-center">${comm1Text}</td><td class="print-td-left">${s.comm1.toFixed(0)}</td></tr>`;
-                if(prefs.showSimComm) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. شرائح</td><td class="print-td-center">${comm2Text}</td><td class="print-td-left">${s.comm2.toFixed(0)}</td></tr>`;
+                if(prefs.showUnusedOff && (!cleanPrint || s.unusedOffVal > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى من الاوف</td><td class="print-td-center">${s.unusedOffDays} أيام</td><td class="print-td-left">${s.unusedOffVal.toFixed(0)}</td></tr>`;
+                if(prefs.showOvertime && (!cleanPrint || s.overTimeVal > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى</td><td class="print-td-center">${formatHours(s.overTimeHrs)} ساعة</td><td class="print-td-left">${s.overTimeVal.toFixed(0)}</td></tr>`;
+                if(prefs.showSalesComm && (!cleanPrint || s.comm1 > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. مبيعات</td><td class="print-td-center">${comm1Text}</td><td class="print-td-left">${s.comm1.toFixed(0)}</td></tr>`;
+                if(prefs.showSimComm && (!cleanPrint || s.comm2 > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. شرائح</td><td class="print-td-center">${comm2Text}</td><td class="print-td-left">${s.comm2.toFixed(0)}</td></tr>`;
                 
-                if(prefs.showAbsence) html += `<tr class="print-bg-r-light"><td class="print-td-right">غياب</td><td class="print-td-center">${s.effectiveAbs} أيام</td><td class="print-td-left">${s.absenceVal.toFixed(0)}</td></tr>`;
-                if(prefs.showDelay) html += `<tr class="print-bg-r-light"><td class="print-td-right">تأخير</td><td class="print-td-center">${formatHours(s.delayHrs)} ساعة</td><td class="print-td-left">${s.delayVal.toFixed(0)}</td></tr>`;
+                if(prefs.showAbsence && (!cleanPrint || s.absenceVal > 0)) html += `<tr class="print-bg-r-light"><td class="print-td-right">غياب</td><td class="print-td-center">${s.effectiveAbs} أيام</td><td class="print-td-left">${s.absenceVal.toFixed(0)}</td></tr>`;
+                if(prefs.showDelay && (!cleanPrint || s.delayVal > 0)) html += `<tr class="print-bg-r-light"><td class="print-td-right">تأخير</td><td class="print-td-center">${formatHours(s.delayHrs)} ساعة</td><td class="print-td-left">${s.delayVal.toFixed(0)}</td></tr>`;
                 
                 html += `<tr class="print-bg-g-dark"><td colspan="2" class="print-td-right">صافى المرتب</td><td class="print-td-left">${s.netBeforeDeductions.toFixed(0)}</td></tr>`;
                          
-                if(prefs.showAdvances) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">مسحوبات (سلف)</td><td class="print-td-left">${s.fin.advances.toFixed(0)}</td></tr>`;
-                if(prefs.showPurchases) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">آجل النظام</td><td class="print-td-left">${s.fin.purchases.toFixed(0)}</td></tr>`;
-                if(prefs.showShipping) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">آجل الشحن</td><td class="print-td-left">${s.fin.shippingCredit.toFixed(0)}</td></tr>`;
+                if(prefs.showAdvances && (!cleanPrint || s.fin.advances > 0)) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">مسحوبات (سلف)</td><td class="print-td-left">${s.fin.advances.toFixed(0)}</td></tr>`;
+                if(prefs.showPurchases && (!cleanPrint || s.fin.purchases > 0)) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">آجل النظام</td><td class="print-td-left">${s.fin.purchases.toFixed(0)}</td></tr>`;
+                if(prefs.showShipping && (!cleanPrint || s.fin.shippingCredit > 0)) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">آجل الشحن</td><td class="print-td-left">${s.fin.shippingCredit.toFixed(0)}</td></tr>`;
                 
                 if (prefs.showFinalNet !== false) html += `<tr class="print-bg-g-dark"><td colspan="2" class="print-td-right">المرتب بعد المسحوبات والاجل</td><td class="print-td-left">${s.finalSalary.toFixed(0)}</td></tr>`;
                 
