@@ -42,9 +42,6 @@
         .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; width: 100%; }
         .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; color: var(--primary); }
         
-        /* -------------------------------------
-           إصلاح تنسيق المربعات (CSS Grid Fix)
-           ------------------------------------- */
         .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; width: 100%; }
         .form-group { display: flex; flex-direction: column; width: 100%; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--text-main); }
@@ -61,11 +58,9 @@
         }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
         
-        /* تحويل المربعات لفوق بعضها في الشاشات الصغيرة لحمايتها من التداخل */
         @media (max-width: 480px) {
             .form-row { grid-template-columns: 1fr; gap: 12px; }
         }
-        /* ------------------------------------- */
 
         .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; }
         .btn:active { opacity: 0.8; }
@@ -92,7 +87,6 @@
         .list-group { list-style: none; }
         .list-group li { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background-color: var(--bg-color); border-radius: 6px; margin-bottom: 5px; }
 
-        /* Internal UI Slip Table */
         .ui-slip-table { width: 100%; border-collapse: collapse; font-weight: bold; font-size: 14px; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
         .ui-slip-table td { padding: 12px 10px; border: none; color: var(--text-main); }
         .ui-slip-table .bg-g-light { background-color: var(--green-light); border-bottom: 1px solid var(--bg-color); }
@@ -103,7 +97,6 @@
         .ui-slip-table .td-label { text-align: right; width: 35%; }
         .ui-slip-table .td-center { text-align: center; color: var(--text-muted); font-size: 13px; width: 40%; }
         
-        /* Sub Items */
         .sub-item td { font-size: 13px; color: var(--text-muted) !important; padding-top: 6px !important; padding-bottom: 6px !important; }
         .sub-item .td-label { padding-right: 25px !important; font-weight: normal; width: 35%; }
         .ui-slip-table .td-sub-val { text-align: left; padding-left: 20px; font-size: 16px; font-family: Arial, sans-serif; width: 40%; color: var(--text-muted); }
@@ -159,8 +152,8 @@
             .single-print-wrapper .print-td-left { font-size: 18px;}
         }
 
-        /* Checkbox Toggles Group */
-        .prefs-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 15px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border); }
+        .prefs-group { display: flex; flex-direction: column; gap: 12px; padding: 15px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border); }
+        @media (min-width: 500px) { .prefs-group { flex-direction: row; flex-wrap: wrap; } .prefs-group label { width: calc(50% - 10px); } }
         .prefs-group label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0; color: var(--text-main); }
         .prefs-group input[type="checkbox"] { width: 18px; height: 18px; margin: 0; flex-shrink: 0; cursor: pointer; }
         .prefs-section-title { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 8px; margin-top: 15px; }
@@ -180,13 +173,12 @@
 
     <main class="app-main">
 
-        <!-- رسالة تثبيت التطبيق -->
         <div id="pwaPrompt" class="install-banner hidden">
             <span>لتجربة أسرع وأفضل، قم بإضافة هذا التطبيق إلى الشاشة الرئيسية لجوالك (اضغط أيقونة المشاركة ⇪ ثم Add to Home Screen).</span>
             <button class="icon-btn" onclick="document.getElementById('pwaPrompt').classList.add('hidden')" style="color:white"><span class="material-icons">close</span></button>
         </div>
         
-        <!-- 1. شاشة الإدخال والسجلات (الدوام الشامل) -->
+        <!-- 1. شاشة الإدخال والسجلات -->
         <div id="view-entry" class="view active">
             <div class="card">
                 <h2>إدارة دوام اليوم</h2>
@@ -245,7 +237,7 @@
                         <tr class="bg-g-light sub-item" id="rowSalTailor"><td class="td-label">— من محل الخياط</td><td class="td-sub-val" id="sumSalTailorVal">0</td><td></td></tr>
 
                         <tr class="bg-g-light" id="rowUnusedOff">
-                            <td class="td-label">اضافى ايام من الاوف</td>
+                            <td class="td-label">اضافى من الاوف</td>
                             <td class="td-center" id="sumUnusedOffDays">0 أيام</td>
                             <td class="td-val" id="sumUnusedOffVal">0</td>
                         </tr>
@@ -255,13 +247,13 @@
                             <td class="td-val" id="sumOvertimeVal">0</td>
                         </tr>
                         <tr class="bg-g-light" id="rowComm1">
-                            <td class="td-label">عمولات مبيعات</td>
-                            <td class="td-center" id="sumComm1Text">0 تابى و 0 تمارا و 0 مورا</td>
+                            <td class="td-label">ع. مبيعات</td>
+                            <td class="td-center" id="sumComm1Text">-</td>
                             <td class="td-val" id="sumComm1Val">0</td>
                         </tr>
                         <tr class="bg-g-light" id="rowComm2">
-                            <td class="td-label">ع . شرائح</td>
-                            <td class="td-center" id="sumComm2Text">0 هواتف و 0 هواوى</td>
+                            <td class="td-label">ع. شرائح</td>
+                            <td class="td-center" id="sumComm2Text">-</td>
                             <td class="td-val" id="sumComm2Val">0</td>
                         </tr>
                         <tr class="bg-r-light" id="rowAbsence">
@@ -529,7 +521,7 @@
             init: () => {
                 if (localStorage.getItem('ui_theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
                 
-                // PWA Prompt check
+                // PWA Prompt (iOS Standalone Check)
                 const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
                 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
                 if (isIos() && !isInStandaloneMode()) document.getElementById('pwaPrompt').classList.remove('hidden');
@@ -728,11 +720,18 @@
                         document.getElementById('sumOvertimeVal').textContent = s.overTimeVal.toFixed(0);
                         
                         document.getElementById('rowComm1').classList.toggle('hidden', !prefs.showSalesComm);
-                        document.getElementById('sumComm1Text').textContent = `${s.fin.tabby} تابى و ${s.fin.tamara} تمارا و ${s.fin.mora} مورا`;
+                        let comm1Arr = [];
+                        if (s.fin.tabby > 0) comm1Arr.push(`${s.fin.tabby} تابى`);
+                        if (s.fin.tamara > 0) comm1Arr.push(`${s.fin.tamara} تمارا`);
+                        if (s.fin.mora > 0) comm1Arr.push(`${s.fin.mora} مورا`);
+                        document.getElementById('sumComm1Text').textContent = comm1Arr.length > 0 ? comm1Arr.join(' و ') : '-';
                         document.getElementById('sumComm1Val').textContent = s.comm1.toFixed(0);
                         
                         document.getElementById('rowComm2').classList.toggle('hidden', !prefs.showSimComm);
-                        document.getElementById('sumComm2Text').textContent = `${s.fin.simPhones} هواتف و ${s.fin.simHuawei} هواوى`;
+                        let comm2Arr = [];
+                        if (s.fin.simPhones > 0) comm2Arr.push(`${s.fin.simPhones} هواتف`);
+                        if (s.fin.simHuawei > 0) comm2Arr.push(`${s.fin.simHuawei} هواوى`);
+                        document.getElementById('sumComm2Text').textContent = comm2Arr.length > 0 ? comm2Arr.join(' و ') : '-';
                         document.getElementById('sumComm2Val').textContent = s.comm2.toFixed(0);
                         
                         document.getElementById('rowAbsence').classList.toggle('hidden', !prefs.showAbsence);
@@ -789,19 +788,29 @@
                 if (document.getElementById('filterEmployee').value === empId && document.getElementById('filterMonth').value === month) AppController.renderLogs();
             },
 
-            // --- Immediate Print execution to bypass iOS popup blockers ---
+            // --- Robust Printing ---
             printHTML: (htmlContent) => {
                 const printArea = document.getElementById('printArea');
                 printArea.innerHTML = htmlContent;
                 // Force a reflow so Webkit paints the DOM before calling print()
                 void printArea.offsetHeight; 
                 window.print();
-                // We do NOT clear printArea.innerHTML here, because on iOS window.print() is async.
-                // Clearing it causes a blank page. It will be overwritten on the next print anyway.
             },
             
-            generateSlipHTML: (s) => {
+            generateSlipHTML: (s, isGlobal = false) => {
                 const prefs = s.emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true };
+                
+                let comm1Arr = [];
+                if (s.fin.tabby > 0) comm1Arr.push(`${s.fin.tabby} تابى`);
+                if (s.fin.tamara > 0) comm1Arr.push(`${s.fin.tamara} تمارا`);
+                if (s.fin.mora > 0) comm1Arr.push(`${s.fin.mora} مورا`);
+                let comm1Text = comm1Arr.length > 0 ? comm1Arr.join(' و ') : '-';
+
+                let comm2Arr = [];
+                if (s.fin.simPhones > 0) comm2Arr.push(`${s.fin.simPhones} هواتف`);
+                if (s.fin.simHuawei > 0) comm2Arr.push(`${s.fin.simHuawei} هواوى`);
+                let comm2Text = comm2Arr.length > 0 ? comm2Arr.join(' و ') : '-';
+
                 let html = `<div class="slip-container">
                                 <div class="slip-header">${s.emp.name}</div>
                                 <table class="slip-table">
@@ -812,10 +821,10 @@
                 if(prefs.showSalDrawer) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من درج الشحن</td><td class="print-td-sub-val">${s.fin.salDrawer.toFixed(0)}</td><td></td></tr>`;
                 if(prefs.showSalTailor) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من محل الخياط</td><td class="print-td-sub-val">${s.fin.salTailor.toFixed(0)}</td><td></td></tr>`;
 
-                if(prefs.showUnusedOff) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى ايام من الاوف</td><td class="print-td-center">${s.unusedOffDays} أيام</td><td class="print-td-left">${s.unusedOffVal.toFixed(0)}</td></tr>`;
+                if(prefs.showUnusedOff) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى من الاوف</td><td class="print-td-center">${s.unusedOffDays} أيام</td><td class="print-td-left">${s.unusedOffVal.toFixed(0)}</td></tr>`;
                 if(prefs.showOvertime) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى</td><td class="print-td-center">${formatHours(s.overTimeHrs)} ساعة</td><td class="print-td-left">${s.overTimeVal.toFixed(0)}</td></tr>`;
-                if(prefs.showSalesComm) html += `<tr class="print-bg-g-light"><td class="print-td-right">عمولات مبيعات</td><td class="print-td-center">${s.fin.tabby} تابى و ${s.fin.tamara} تمارا و ${s.fin.mora} مورا</td><td class="print-td-left">${s.comm1.toFixed(0)}</td></tr>`;
-                if(prefs.showSimComm) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع . شرائح</td><td class="print-td-center">${s.fin.simPhones} هواتف و ${s.fin.simHuawei} هواوى</td><td class="print-td-left">${s.comm2.toFixed(0)}</td></tr>`;
+                if(prefs.showSalesComm) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. مبيعات</td><td class="print-td-center">${comm1Text}</td><td class="print-td-left">${s.comm1.toFixed(0)}</td></tr>`;
+                if(prefs.showSimComm) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. شرائح</td><td class="print-td-center">${comm2Text}</td><td class="print-td-left">${s.comm2.toFixed(0)}</td></tr>`;
                 
                 if(prefs.showAbsence) html += `<tr class="print-bg-r-light"><td class="print-td-right">غياب</td><td class="print-td-center">${s.effectiveAbs} أيام</td><td class="print-td-left">${s.absenceVal.toFixed(0)}</td></tr>`;
                 if(prefs.showDelay) html += `<tr class="print-bg-r-light"><td class="print-td-right">تأخير</td><td class="print-td-center">${formatHours(s.delayHrs)} ساعة</td><td class="print-td-left">${s.delayVal.toFixed(0)}</td></tr>`;
@@ -835,7 +844,7 @@
             exportEmployeePDF: () => {
                 const month = document.getElementById('filterMonth').value, empId = document.getElementById('filterEmployee').value;
                 const s = AppController.calculateSummary(empId, month); if (!s) return;
-                AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s)}</div>`);
+                AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s, false)}</div>`);
             },
 
             exportGlobalPDF: () => {
@@ -843,7 +852,7 @@
                 if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
 
                 let html = `<div class="global-print-title">مسير الرواتب (كروت مجمعة) لشهر: <span dir="ltr">${month}</span></div><div class="bulk-print-grid">`;
-                DataLayer.employees.forEach(emp => { const s = AppController.calculateSummary(emp.id, month); if(s) html += AppController.generateSlipHTML(s); });
+                DataLayer.employees.forEach(emp => { const s = AppController.calculateSummary(emp.id, month); if(s) html += AppController.generateSlipHTML(s, true); });
                 html += `</div>`; AppController.printHTML(html);
             },
 
