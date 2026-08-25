@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام إدارة الدوام والرواتب</title>
+    <title>الأنظمة المتكاملة</title>
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="الرواتب">
+    <meta name="apple-mobile-web-app-title" content="النظام">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <link rel="manifest" href='data:application/manifest+json;utf8,{"name":"نظام الرواتب","short_name":"الرواتب","display":"standalone","background_color":"#f4f6f8","theme_color":"#4CAF50","start_url":".","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135679.png","sizes":"512x512","type":"image/png"}]}'>
+    <link rel="manifest" href='data:application/manifest+json;utf8,{"name":"الأنظمة المتكاملة","short_name":"النظام","display":"standalone","background_color":"#f4f6f8","theme_color":"#4CAF50","start_url":".","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135679.png","sizes":"512x512","type":"image/png"}]}'>
 
     <style>
         :root {
@@ -27,14 +27,14 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); transition: background-color 0.3s, color 0.3s; padding-bottom: 70px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; padding-bottom: 90px; }
 
         .app-header { background-color: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
         .header-title { display: flex; align-items: center; gap: 10px; color: var(--primary); }
         .header-title h1 { font-size: 18px; margin: 0; }
         .icon-btn { background: none; border: none; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px;}
 
-        .app-main { padding: 15px; max-width: 1000px; margin: 0 auto; overflow-x: hidden; }
+        .app-main { padding: 15px; max-width: 1200px; margin: 0 auto; overflow-x: hidden; }
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -45,22 +45,9 @@
         .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; width: 100%; }
         .form-group { display: flex; flex-direction: column; width: 100%; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--text-main); }
-        input, select { 
-            width: 100%; 
-            padding: 12px 10px; 
-            border-radius: 8px; 
-            border: 1px solid var(--border); 
-            background-color: var(--bg-color); 
-            color: var(--text-main); 
-            font-family: inherit; 
-            font-size: 14px; 
-            box-sizing: border-box; 
-        }
+        input, select { width: 100%; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box; }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
-        
-        @media (max-width: 480px) {
-            .form-row { grid-template-columns: 1fr; gap: 12px; }
-        }
+        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; gap: 12px; } }
 
         .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; }
         .btn:active { opacity: 0.8; }
@@ -72,13 +59,22 @@
         .mt-10 { margin-top: 10px; } .mb-15 { margin-bottom: 15px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .flex-gap { display: flex; gap: 8px; width: 100%; }
+        .pos-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
-        .table-responsive { overflow-x: auto; width: 100%; }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 1000px; text-align: right; }
+        .table-responsive { overflow-x: auto; width: 100%; position: relative; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 850px; text-align: right; }
         .data-table th, .data-table td { padding: 8px 5px; border-bottom: 1px solid var(--border); font-size: 13px; }
         .data-table th { background-color: var(--bg-color); font-weight: bold; white-space: nowrap; }
-        .fin-input { width: 55px; padding: 6px; font-size: 12px; text-align: center; border: 1px solid var(--border); border-radius: 4px; background: var(--card-bg); color: var(--text-main); }
         
+        .sticky-col { position: sticky; right: 0; z-index: 2; box-shadow: -2px 0 5px rgba(0,0,0,0.05); border-left: 1px solid var(--border); }
+        th.sticky-col { background-color: var(--bg-color); z-index: 3; }
+        td.sticky-col { background-color: var(--card-bg); }
+        [data-theme="dark"] td.sticky-col { background-color: var(--card-bg); }
+
+        .fin-input { width: 65px; padding: 6px; font-size: 12px; text-align: center; border: 1px solid var(--border); border-radius: 4px; background: var(--card-bg); color: var(--text-main); }
+        .fin-input:read-only { background-color: var(--bg-color); color: var(--text-muted); cursor: not-allowed; }
+        .fin-input-sm { width: 33px; padding: 6px 2px; font-size: 11px; text-align: center; border: 1px solid var(--border); border-radius: 4px; background: var(--card-bg); color: var(--text-main); }
+
         .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .status-work { background-color: var(--primary); color: white; }
         .status-vacation { background-color: var(--warning); color: white; }
@@ -87,83 +83,99 @@
         .list-group { list-style: none; }
         .list-group li { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background-color: var(--bg-color); border-radius: 6px; margin-bottom: 5px; }
 
-        .ui-slip-table { width: 100%; border-collapse: collapse; font-weight: bold; font-size: 14px; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-        .ui-slip-table td { padding: 12px 10px; border: none; color: var(--text-main); }
-        .ui-slip-table .bg-g-light { background-color: var(--green-light); border-bottom: 1px solid var(--bg-color); }
-        .ui-slip-table .bg-r-light { background-color: var(--red-light); border-bottom: 1px solid var(--bg-color); }
-        .ui-slip-table .bg-g-dark { background-color: var(--green-dark); border-top: 2px solid var(--border); border-bottom: 2px solid var(--border); }
-        
-        .ui-slip-table .td-val { text-align: left; padding-left: 15px !important; font-size: 18px; font-family: Arial, sans-serif; width: 25%; }
-        .ui-slip-table .td-label { text-align: right; width: 35%; }
-        .ui-slip-table .td-center { text-align: center; color: var(--text-muted); font-size: 13px; width: 40%; }
-        
-        .sub-item td { font-size: 13px; color: var(--text-muted) !important; padding-top: 6px !important; padding-bottom: 6px !important; }
-        .sub-item .td-label { padding-right: 25px !important; font-weight: normal; width: 35%; }
-        .ui-slip-table .td-sub-val { text-align: left; padding-left: 20px; font-size: 16px; font-family: Arial, sans-serif; width: 40%; color: var(--text-muted); }
+        /* UI Slip Table */
+        .slip-container { border: 1px solid var(--text-main); padding: 10px; border-radius: 8px; background: var(--card-bg); margin-bottom: 15px; font-family: 'Segoe UI', Arial, sans-serif; color: var(--text-main); }
+        .slip-header { text-align: center; padding-bottom: 5px; font-size: 20px; font-weight: bold; border-bottom: 2px solid var(--text-main); margin-bottom: 10px; color: var(--text-main); }
+        .slip-table { width: 100%; border-collapse: collapse; font-weight: bold; font-size: 14px; }
+        .slip-table td { padding: 8px 5px; border: none; color: var(--text-main); }
+        .slip-bg-g-light { background-color: var(--green-light) !important; border-bottom: 2px solid var(--card-bg); }
+        .slip-bg-r-light { background-color: var(--red-light) !important; border-bottom: 2px solid var(--card-bg); }
+        .slip-bg-g-dark { background-color: var(--green-dark) !important; border-top: 2px solid var(--text-main); border-bottom: 2px solid var(--text-main); }
+        .slip-td-right { text-align: right; width: 38%; padding-right: 15px !important; }
+        .slip-td-center { text-align: center; width: 38%; font-size: 12px; color: var(--text-muted); }
+        .slip-td-left { text-align: left; width: 24%; padding-left: 15px !important; font-size: 18px; font-family: Arial, sans-serif; }
+        .slip-sub-item td { font-size: 12px; color: var(--text-muted) !important; padding-top: 4px !important; padding-bottom: 4px !important; }
+        .slip-sub-item .slip-td-right { padding-right: 30px !important; font-weight: normal; }
+        .slip-td-sub-val { text-align: left; padding-left: 20px; font-size: 14px; font-family: Arial, sans-serif; width: 38%; color: var(--text-muted); }
 
-        .text-info { color: var(--info); }
-        .text-danger { color: var(--danger); }
-        .hidden { display: none !important; }
+        .text-info { color: var(--info); } .text-danger { color: var(--danger); } .hidden { display: none !important; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--nav-bg); display: flex; justify-content: space-around; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); padding: 10px 0; z-index: 100; }
-        .nav-item { background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 4px; width: 25%; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--nav-bg); display: flex; justify-content: flex-start; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); padding: 5px; z-index: 1000; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .bottom-nav::-webkit-scrollbar { display: none; }
+        .nav-item { flex: 0 0 auto; min-width: 75px; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 4px; padding: 5px 8px; }
+        .nav-item .material-icons { font-size: 24px; }
         .nav-item.active { color: var(--nav-active); font-weight: bold; }
 
-        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background-color: var(--text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 30px; font-size: 13px; z-index: 1000; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: opacity 0.3s; }
-
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background-color: var(--text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 30px; font-size: 13px; z-index: 1500; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: opacity 0.3s; }
         .install-banner { background-color: var(--info); color: white; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: var(--shadow); }
         .install-banner span { font-size: 13px; font-weight: bold; line-height: 1.5;}
 
-        /* Print Specific Styles */
-        #printArea { display: none; }
-        @media print {
-            body { background: #fff !important; color: #000 !important; }
-            .app-header, .app-main, .bottom-nav, .toast { display: none !important; }
-            #printArea { display: block !important; width: 100%; direction: rtl; }
-            
-            @page { size: A4 portrait; margin: 5mm; }
-            .bulk-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-            
-            .slip-container { border: 1px solid #333; padding: 5px; border-radius: 4px; page-break-inside: avoid; background: #fff; margin-bottom: 5px; font-family: 'Segoe UI', Arial, sans-serif; }
-            .slip-header { text-align: center; padding-bottom: 3px; font-size: 16px; font-weight: bold; border-bottom: 1px solid #333; margin-bottom: 5px; }
-            .slip-table { width: 100%; border-collapse: collapse; font-weight: bold; font-size: 10px; }
-            .slip-table td { padding: 4px 2px; border: none; color: #000; }
-            
-            .print-bg-g-light { background-color: #eaf1e3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 1px solid #fff; }
-            .print-bg-r-light { background-color: #f7e6e1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 1px solid #fff; }
-            .print-bg-g-dark { background-color: #c0d8a5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-top: 1px solid #000; border-bottom: 1px solid #000; }
-            
-            .print-td-right { text-align: right; width: 38%; padding-right: 5px !important; }
-            .print-td-center { text-align: center; width: 38%; font-size: 9px; }
-            .print-td-left { text-align: left; width: 24%; padding-left: 5px !important; font-size: 12px; font-family: Arial, sans-serif; }
-            
-            .print-sub-item td { font-size: 9px; color: #444 !important; padding-top: 2px !important; padding-bottom: 2px !important; }
-            .print-sub-item .print-td-right { padding-right: 15px !important; font-weight: normal; }
-            .print-td-sub-val { text-align: left; padding-left: 10px; font-size: 11px; font-family: Arial, sans-serif; width: 38%; color: #444; }
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-card { background: var(--card-bg); width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 20px; position: relative; transform: translateY(20px); transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-close { position: absolute; top: 15px; left: 15px; cursor: pointer; color: var(--danger); background: none; border: none; font-size: 24px; padding: 5px; }
 
-            .global-print-title { text-align: center; font-size: 14px; font-weight: bold; background: #eaf1e3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 5px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #000;}
-            
-            /* Center single print */
-            .single-print-wrapper { width: 50%; margin: 0 auto; padding-top: 20px;}
-            .single-print-wrapper .slip-container { padding: 15px; border-width: 2px;}
-            .single-print-wrapper .slip-header { font-size: 24px; padding-bottom:10px; margin-bottom: 15px;}
-            .single-print-wrapper .slip-table { font-size: 14px;}
-            .single-print-wrapper .print-td-left { font-size: 18px;}
-        }
+        /* POS Summary */
+        .pos-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; background: var(--bg-color); padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
+        .pos-box { text-align: center; } 
+        .pos-box span { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 5px; font-weight: bold; } 
+        .pos-box strong { font-size: 16px; color: var(--text-main); }
+        .pos-total { padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); }
 
         .prefs-group { display: flex; flex-direction: column; gap: 12px; padding: 15px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border); }
         @media (min-width: 500px) { .prefs-group { flex-direction: row; flex-wrap: wrap; } .prefs-group label { width: calc(50% - 10px); } }
         .prefs-group label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0; color: var(--text-main); }
         .prefs-group input[type="checkbox"] { width: 18px; height: 18px; margin: 0; flex-shrink: 0; cursor: pointer; }
         .prefs-section-title { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 8px; margin-top: 15px; }
+
+        /* Print Settings */
+        #printArea { display: none; }
+        @media print {
+            body { background: #fff !important; color: #000 !important; }
+            .app-header, .app-main, .bottom-nav, .toast, .modal-overlay { display: none !important; }
+            #printArea { display: block !important; width: 100%; direction: rtl; }
+            
+            @page { size: A4 portrait; margin: 5mm; }
+            .bulk-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+            
+            .print-container { border: 1px solid #000; padding: 5px; margin-bottom: 5px; border-radius: 4px; page-break-inside: avoid; background: #fff !important; font-family: 'Segoe UI', Arial, sans-serif; }
+            .print-header { text-align: center; padding-bottom: 3px; font-size: 16px; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 5px; color: #000 !important;}
+            .print-table { width: 100%; border-collapse: collapse; font-weight: bold; font-size: 10px; }
+            .print-table td { padding: 4px 2px; border: none; color: #000 !important; }
+            
+            .print-bg-g-light { background-color: #eaf1e3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 1px solid #fff; }
+            .print-bg-r-light { background-color: #f7e6e1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 1px solid #fff; }
+            .print-bg-g-dark { background-color: #c0d8a5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-top: 1px solid #000; border-bottom: 1px solid #000; }
+            
+            .print-td-right { text-align: right; width: 38%; padding-right: 5px !important; }
+            .print-td-center { text-align: center; width: 38%; font-size: 9px; color: #333 !important;}
+            .print-td-left { text-align: left; width: 24%; padding-left: 5px !important; font-size: 12px; font-family: Arial, sans-serif; }
+            
+            .print-sub-item td { font-size: 9px; color: #333 !important; padding-top: 2px !important; padding-bottom: 2px !important; }
+            .print-sub-item .print-td-right { padding-right: 15px !important; font-weight: normal; }
+            .print-td-sub-val { text-align: left; padding-left: 10px; font-size: 11px; font-family: Arial, sans-serif; width: 38%; color: #333 !important; }
+
+            .global-print-title { text-align: center; font-size: 14px; font-weight: bold; background: #eaf1e3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 5px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #000;}
+            
+            .single-print-wrapper { width: 50%; margin: 0 auto; padding-top: 20px;}
+            .single-print-wrapper .print-container { padding: 15px; border-width: 2px;}
+            .single-print-wrapper .print-header { font-size: 24px; padding-bottom:10px; margin-bottom: 15px;}
+            .single-print-wrapper .print-table { font-size: 14px;}
+            .single-print-wrapper .print-td-left { font-size: 18px;}
+        }
     </style>
 </head>
 <body>
 
+    <!-- القائمة المنسدلة للبيان (تعمل تلقائياً) -->
+    <datalist id="descList"></datalist>
+
     <header class="app-header">
         <div class="header-title">
             <span class="material-icons">account_balance</span>
-            <h1>الدوام والرواتب</h1>
+            <h1>الأنظمة المتكاملة</h1>
         </div>
         <div class="header-actions">
             <button id="themeToggle" class="icon-btn"><span class="material-icons">dark_mode</span></button>
@@ -173,27 +185,19 @@
     <main class="app-main">
 
         <div id="pwaPrompt" class="install-banner hidden">
-            <span>لتجربة أسرع وأفضل، قم بإضافة هذا التطبيق إلى الشاشة الرئيسية لجوالك (اضغط أيقونة المشاركة ⇪ ثم Add to Home Screen).</span>
+            <span>لتجربة أسرع وأفضل، أضف التطبيق للشاشة الرئيسية لجوالك (اضغط أيقونة المشاركة ⇪ ثم Add to Home Screen).</span>
             <button class="icon-btn" onclick="document.getElementById('pwaPrompt').classList.add('hidden')" style="color:white"><span class="material-icons">close</span></button>
         </div>
         
-        <!-- 1. شاشة الإدخال والسجلات (الدوام الشامل) -->
+        <!-- 1. شاشة الإدخال والسجلات -->
         <div id="view-entry" class="view active">
             <div class="card">
                 <h2>إدارة دوام اليوم</h2>
                 <form id="entryForm">
                     <input type="hidden" id="editingLogId">
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>الموظف</label>
-                            <select id="entryEmployee" required onchange="AppController.updateEntryFormState()">
-                                <option value="" disabled selected>اختر الموظف...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>التاريخ</label>
-                            <input type="date" id="entryDate" required onchange="AppController.updateEntryFormState()">
-                        </div>
+                        <div class="form-group"><label>الموظف</label><select id="entryEmployee" required onchange="AppController.updateEntryFormState()"><option value="" disabled selected>اختر الموظف...</option></select></div>
+                        <div class="form-group"><label>التاريخ</label><input type="date" id="entryDate" required onchange="AppController.updateEntryFormState()"></div>
                     </div>
                     <div class="form-row">
                         <div class="form-group"><label>وقت الحضور</label><input type="time" id="entryTimeIn"></div>
@@ -207,89 +211,13 @@
             <div class="card">
                 <h2>سجلات الدوام والرواتب</h2>
                 <div class="form-row mb-15">
-                    <div class="form-group">
-                        <label>الشهر</label>
-                        <input type="month" id="filterMonth" onchange="AppController.renderLogs()">
-                    </div>
-                    <div class="form-group">
-                        <label>الموظف (لعرض التفاصيل)</label>
-                        <select id="filterEmployee" onchange="AppController.renderLogs()">
-                            <option value="ALL">عرض الكل</option>
-                        </select>
-                    </div>
+                    <div class="form-group"><label>الشهر</label><input type="month" id="filterMonth" onchange="AppController.renderLogs()"></div>
+                    <div class="form-group"><label>الموظف (لعرض التفاصيل)</label><select id="filterEmployee" onchange="AppController.renderLogs()"><option value="ALL">عرض الكل</option></select></div>
                 </div>
 
-                <!-- ملخص راتب الموظف الداخلي -->
-                <div id="summaryCard" class="hidden mb-15" style="border: 2px solid var(--primary); padding: 15px; border-radius: 8px;">
-                    <h3 style="font-size: 18px; margin-bottom: 15px; text-align: center;">كشف راتب: <span id="sumEmpName"></span></h3>
-                    
-                    <table class="ui-slip-table">
-                        <tr class="bg-g-light">
-                            <td class="td-label">الراتب الأساسي</td>
-                            <td></td>
-                            <td class="td-val" id="sumBaseSalary">0</td>
-                        </tr>
-                        
-                        <tr class="bg-g-light sub-item" id="rowSalCash"><td class="td-label">— من الكاش</td><td class="td-sub-val" id="sumSalCashVal">0</td><td></td></tr>
-                        <tr class="bg-g-light sub-item" id="rowSalTransfer"><td class="td-label">— من التحويل</td><td class="td-sub-val" id="sumSalTransferVal">0</td><td></td></tr>
-                        <tr class="bg-g-light sub-item" id="rowSalDrawer"><td class="td-label">— من الشحن</td><td class="td-sub-val" id="sumSalDrawerVal">0</td><td></td></tr>
-                        <tr class="bg-g-light sub-item" id="rowSalTailor"><td class="td-label">— من الخياط</td><td class="td-sub-val" id="sumSalTailorVal">0</td><td></td></tr>
-
-                        <tr class="bg-g-light" id="rowUnusedOff">
-                            <td class="td-label">اضافى من الاوف</td>
-                            <td class="td-center" id="sumUnusedOffDays">0 أيام</td>
-                            <td class="td-val" id="sumUnusedOffVal">0</td>
-                        </tr>
-                        <tr class="bg-g-light" id="rowOvertime">
-                            <td class="td-label">اضافى</td>
-                            <td class="td-center" id="sumOvertimeHrs">0:00 ساعة</td>
-                            <td class="td-val" id="sumOvertimeVal">0</td>
-                        </tr>
-                        <tr class="bg-g-light" id="rowComm1">
-                            <td class="td-label">ع. مبيعات</td>
-                            <td class="td-center" id="sumComm1Text">-</td>
-                            <td class="td-val" id="sumComm1Val">0</td>
-                        </tr>
-                        <tr class="bg-g-light" id="rowComm2">
-                            <td class="td-label">ع. شرائح</td>
-                            <td class="td-center" id="sumComm2Text">-</td>
-                            <td class="td-val" id="sumComm2Val">0</td>
-                        </tr>
-                        <tr class="bg-r-light" id="rowAbsence">
-                            <td class="td-label">غياب</td>
-                            <td class="td-center" id="sumAbsenceDays">0 أيام</td>
-                            <td class="td-val" id="sumAbsenceVal">0</td>
-                        </tr>
-                        <tr class="bg-r-light" id="rowDelay">
-                            <td class="td-label">تأخير</td>
-                            <td class="td-center" id="sumDelayHrs">0:00 ساعة</td>
-                            <td class="td-val" id="sumDelayVal">0</td>
-                        </tr>
-                        <tr class="bg-g-dark">
-                            <td colspan="2" class="td-label">صافى المرتب</td>
-                            <td class="td-val" id="sumNet">0</td>
-                        </tr>
-                        <tr class="bg-r-light" id="rowAdvances">
-                            <td colspan="2" class="td-label">مسحوبات (سلف)</td>
-                            <td class="td-val" id="sumAdvancesVal">0</td>
-                        </tr>
-                        <tr class="bg-r-light" id="rowPurchases">
-                            <td colspan="2" class="td-label">آجل النظام</td>
-                            <td class="td-val" id="sumPurchasesVal">0</td>
-                        </tr>
-                        <tr class="bg-r-light" id="rowShipping">
-                            <td colspan="2" class="td-label">آجل الشحن</td>
-                            <td class="td-val" id="sumShippingVal">0</td>
-                        </tr>
-                        <tr class="bg-g-dark" id="rowFinal">
-                            <td colspan="2" class="td-label" style="font-size: 15px;">المرتب بعد المسحوبات والاجل</td>
-                            <td class="td-val" id="sumFinal">0</td>
-                        </tr>
-                    </table>
-
-                    <button class="btn btn-info w-100" onclick="AppController.exportEmployeePDF()">
-                        <span class="material-icons">print</span> طباعة كرت الراتب 
-                    </button>
+                <div id="summaryCard" class="hidden mb-15">
+                    <div id="slipDisplayArea"></div>
+                    <button class="btn btn-info w-100 mt-10" onclick="AppController.exportEmployeePDF()"><span class="material-icons">print</span> طباعة كرت الراتب</button>
                 </div>
 
                 <div class="table-responsive">
@@ -301,133 +229,204 @@
             </div>
         </div>
 
-        <!-- 2. شاشة إدارة الموظفين -->
-        <div id="view-staff" class="view">
-            <div class="card">
-                <h2>إضافة وتعديل الموظفين</h2>
-                <form id="staffForm" class="mb-15">
-                    <input type="hidden" id="editEmpId">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>اسم الموظف</label>
-                            <input type="text" id="newEmpName" placeholder="الاسم" required>
-                        </div>
-                        <div class="form-group">
-                            <label>الراتب الأساسي</label>
-                            <input type="number" id="newEmpSalary" placeholder="ريال" required min="1">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>ساعات العمل (يومياً)</label>
-                            <input type="number" id="newEmpHours" placeholder="مثال: 8" required min="1" max="24" value="8">
-                        </div>
-                        <div class="form-group">
-                            <label>أيام الإجازة المسموحة</label>
-                            <input type="number" id="newEmpVacations" placeholder="مثال: 4" required min="0" max="30" value="4">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label style="border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 5px; color: var(--primary);">تفعيل بنود الكرت لهذا الموظف:</label>
-                        
-                        <div class="prefs-section-title">مصادر الراتب الأساسي</div>
-                        <div class="prefs-group">
-                            <label><input type="checkbox" id="prefSalCash"> كاش</label>
-                            <label><input type="checkbox" id="prefSalTransfer"> تحويل</label>
-                            <label><input type="checkbox" id="prefSalDrawer"> الشحن</label>
-                            <label><input type="checkbox" id="prefSalTailor"> الخياط</label>
-                        </div>
-
-                        <div class="prefs-section-title">الإضافيات</div>
-                        <div class="prefs-group">
-                            <label><input type="checkbox" id="prefUnusedOff" checked> أيام من الأوف</label>
-                            <label><input type="checkbox" id="prefOvertime" checked> الإضافي (ساعات)</label>
-                        </div>
-
-                        <div class="prefs-section-title">العمولات</div>
-                        <div class="prefs-group">
-                            <label><input type="checkbox" id="prefSalesComm" checked> مبيعات (تابي/تمارا/مورا)</label>
-                            <label><input type="checkbox" id="prefSimComm" checked> الشرائح (هواتف/هواوي)</label>
-                        </div>
-
-                        <div class="prefs-section-title">الاستقطاعات والآجل</div>
-                        <div class="prefs-group">
-                            <label><input type="checkbox" id="prefAbsence" checked> الغياب</label>
-                            <label><input type="checkbox" id="prefDelay" checked> التأخير (ساعات)</label>
-                            <label><input type="checkbox" id="prefAdvances" checked> مسحوبات (سلف)</label>
-                            <label><input type="checkbox" id="prefPurchases" checked> آجل النظام</label>
-                            <label><input type="checkbox" id="prefShipping" checked> آجل الشحن</label>
-                            <label><input type="checkbox" id="prefFinalNet" checked> المرتب النهائي المستحق</label>
-                        </div>
-                    </div>
-
-                    <div class="flex-gap mt-10">
-                        <button type="submit" class="btn btn-primary" id="btnSubmitStaff"><span class="material-icons">add</span> حفظ البيانات</button>
-                        <button type="button" class="btn btn-outline hidden" id="btnCancelEdit" onclick="AppController.cancelEditEmployee()">إلغاء التعديل</button>
-                    </div>
-                </form>
-                
-                <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 15px;">قائمة الموظفين</h3>
-                <ul id="staffList" class="list-group"></ul>
-            </div>
-        </div>
-
-        <!-- 3. شاشة الإدارة المالية -->
-        <div id="view-financials" class="view">
+        <!-- 2. شاشة المبيعات (ش. هواتف) -->
+        <div id="view-phones" class="view">
             <div class="card">
                 <div class="flex-between mb-15">
-                    <h2>المالية (للشهر المحدد ينسخ من السابق)</h2>
-                    <input type="month" id="finMonth" onchange="AppController.renderFinancials()" style="width: auto; padding: 5px;">
+                    <h2>مبيعات الهواتف (ش. هواتف)</h2>
+                    <input type="date" id="phonesDate" required onchange="PosController.loadPhonesData()">
                 </div>
                 
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>الموظف</th>
-                                <th style="color: #607d8b">أساسي كاش</th>
-                                <th style="color: #607d8b">أساسي تحويل</th>
-                                <th style="color: #607d8b">أساسي شحن</th>
-                                <th style="color: #607d8b">أساسي خياط</th>
-                                <th style="color: var(--danger)">سلف</th>
-                                <th style="color: var(--danger)">آجل نظام</th>
-                                <th style="color: var(--danger)">آجل شحن</th>
-                                <th style="color: var(--primary)">تابي</th>
-                                <th style="color: var(--primary)">تمارا</th>
-                                <th style="color: var(--primary)">مورا</th>
-                                <th style="color: var(--primary)">هواتف</th>
-                                <th style="color: var(--primary)">هواوي</th>
+                                <th class="sticky-col" style="min-width: 100px;">الحساب</th>
+                                <th>رصيد أمس</th>
+                                <th style="color:var(--primary)">شحن (+)</th>
+                                <th style="color:var(--danger)">الرصيد (-)</th>
+                                <th>التكلفة (=)</th>
+                                <th style="color:var(--info)">ت. المبيع</th>
+                                <th style="text-align:center;">الشرائح</th>
+                                <th style="text-align:center;">تراكمي الشهر</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phonesTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="pos-summary">
+                    <div class="pos-box"><span>رصيد أمس</span><strong id="phonesPrevTotal">0</strong></div>
+                    <div class="pos-box"><span>ت. المبيعات</span><strong id="phonesTotalSales">0</strong></div>
+                    <div class="pos-box"><span>إضافة / خصم</span><strong id="phonesNetAddSub" dir="ltr">0</strong></div>
+                    
+                    <div class="pos-box pos-total" style="background:var(--card-bg);"><span>الصندوق اليوم</span><strong id="phonesFinalTotal">0</strong></div>
+                    <div class="pos-box pos-total" style="background:var(--info); border-color:var(--info);">
+                        <span style="color:#e0f7fa">أرصدة الحسابات</span><strong id="phonesTotalBalances" style="color:#fff">0</strong>
+                    </div>
+                    <div class="pos-box pos-total" style="background:#333; border-color:#000;">
+                        <span style="color:#ccc">الربح التراكمي</span><strong id="phonesProfit" style="color:#fff" dir="ltr">0</strong>
+                    </div>
+                </div>
+
+                <div class="pos-actions-grid">
+                    <button class="btn btn-outline" onclick="PosController.openTransactionsModal('phones')"><span class="material-icons">sync_alt</span> الإضافة والخصم</button>
+                    <button class="btn btn-outline" onclick="PosController.openExpensesModal('phones')"><span class="material-icons">money_off</span> المصروفات والرواتب</button>
+                    <button class="btn btn-outline" onclick="PosController.openLedgerModal('phones')"><span class="material-icons">menu_book</span> مدين ودائن</button>
+                    <button class="btn btn-primary" onclick="PosController.openEmpSimsModal('phones')"><span class="material-icons">sim_card</span> مبيعات الموظفين</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. شاشة المبيعات (ش. هواوي) -->
+        <div id="view-huawei" class="view">
+            <div class="card">
+                <div class="flex-between mb-15">
+                    <h2>مبيعات هواوي (ش. هواوي)</h2>
+                    <input type="date" id="huaweiDate" required onchange="PosController.loadHuaweiData()">
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="sticky-col" style="min-width: 100px;">الحساب</th>
+                                <th>رصيد أمس</th>
+                                <th style="color:var(--primary)">شحن (+)</th>
+                                <th style="color:var(--danger)">الرصيد (-)</th>
+                                <th>التكلفة (=)</th>
+                                <th style="color:var(--info)">ت. المبيع</th>
+                                <th style="text-align:center;">الشرائح</th>
+                                <th style="text-align:center;">تراكمي الشهر</th>
+                            </tr>
+                        </thead>
+                        <tbody id="huaweiTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="pos-summary">
+                    <div class="pos-box"><span>رصيد أمس</span><strong id="huaweiPrevTotal">0</strong></div>
+                    <div class="pos-box"><span>ت. المبيعات</span><strong id="huaweiTotalSales">0</strong></div>
+                    <div class="pos-box"><span>إضافة / خصم</span><strong id="huaweiNetAddSub" dir="ltr">0</strong></div>
+                    
+                    <div class="pos-box pos-total" style="background:var(--card-bg);"><span>الصندوق اليوم</span><strong id="huaweiFinalTotal">0</strong></div>
+                    <div class="pos-box pos-total" style="background:var(--info); border-color:var(--info);">
+                        <span style="color:#e0f7fa">أرصدة الحسابات</span><strong id="huaweiTotalBalances" style="color:#fff">0</strong>
+                    </div>
+                    <div class="pos-box pos-total" style="background:#333; border-color:#000;">
+                        <span style="color:#ccc">الربح التراكمي</span><strong id="huaweiProfit" style="color:#fff" dir="ltr">0</strong>
+                    </div>
+                </div>
+
+                <div class="pos-actions-grid">
+                    <button class="btn btn-outline" onclick="PosController.openTransactionsModal('huawei')"><span class="material-icons">sync_alt</span> الإضافة والخصم</button>
+                    <button class="btn btn-outline" onclick="PosController.openExpensesModal('huawei')"><span class="material-icons">money_off</span> المصروفات والرواتب</button>
+                    <button class="btn btn-outline" onclick="PosController.openLedgerModal('huawei')"><span class="material-icons">menu_book</span> مدين ودائن</button>
+                    <button class="btn btn-primary" onclick="PosController.openEmpSimsModal('huawei')"><span class="material-icons">sim_card</span> مبيعات الموظفين</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. شاشة إدارة الموظفين -->
+        <div id="view-staff" class="view">
+            <div class="card">
+                <h2>إضافة وتعديل الموظفين</h2>
+                <form id="staffForm" class="mb-15">
+                    <input type="hidden" id="editEmpId">
+                    <div class="form-row">
+                        <div class="form-group"><label>اسم الموظف</label><input type="text" id="newEmpName" required></div>
+                        <div class="form-group"><label>الراتب الأساسي</label><input type="number" id="newEmpSalary" required min="1"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>ساعات العمل (يومياً)</label><input type="number" id="newEmpHours" required min="1" max="24" value="8"></div>
+                        <div class="form-group"><label>أيام الإجازة المسموحة</label><input type="number" id="newEmpVacations" required min="0" max="30" value="4"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 5px; color: var(--primary);">تفعيل بنود الكرت للموظف:</label>
+                        <div class="prefs-section-title">مصادر الراتب الأساسي</div>
+                        <div class="prefs-group">
+                            <label><input type="checkbox" id="prefSalCash"> كاش</label> <label><input type="checkbox" id="prefSalTransfer"> تحويل</label>
+                            <label><input type="checkbox" id="prefSalDrawer"> الشحن</label> <label><input type="checkbox" id="prefSalTailor"> الخياط</label>
+                        </div>
+                        <div class="prefs-section-title">الإضافيات والعمولات</div>
+                        <div class="prefs-group">
+                            <label><input type="checkbox" id="prefUnusedOff" checked> إضافي من الأوف</label> <label><input type="checkbox" id="prefOvertime" checked> الإضافي</label>
+                            <label><input type="checkbox" id="prefSalesComm" checked> ع. المبيعات (تابي/تمارا/مورا)</label> <label><input type="checkbox" id="prefSimComm" checked> ع. الشرائح (هواتف/هواوي)</label>
+                        </div>
+                        <div class="prefs-section-title">الاستقطاعات والآجل</div>
+                        <div class="prefs-group">
+                            <label><input type="checkbox" id="prefAbsence" checked> الغياب</label> <label><input type="checkbox" id="prefDelay" checked> التأخير</label>
+                            <label><input type="checkbox" id="prefAdvances" checked> السلف</label> <label><input type="checkbox" id="prefPurchases" checked> آجل النظام</label>
+                            <label><input type="checkbox" id="prefShipping" checked> آجل الشحن</label> <label><input type="checkbox" id="prefFinalNet" checked> الصافي النهائي</label>
+                        </div>
+                    </div>
+                    <div class="flex-gap mt-10">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitStaff"><span class="material-icons">add</span> حفظ البيانات</button>
+                        <button type="button" class="btn btn-outline hidden" id="btnCancelEdit" onclick="AppController.cancelEditEmployee()">إلغاء التعديل</button>
+                    </div>
+                </form>
+                <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 15px;">قائمة الموظفين</h3>
+                <ul id="staffList" class="list-group"></ul>
+            </div>
+        </div>
+
+        <!-- 5. شاشة الإدارة المالية (الرواتب) -->
+        <div id="view-financials" class="view">
+            <div class="card">
+                <div class="flex-between mb-15">
+                    <h2>المالية (للشهر المحدد ينسخ من السابق)</h2>
+                    <input type="month" id="finMonth" onchange="AppController.renderFinancials()" style="width: auto; padding: 5px;">
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="sticky-col">الموظف</th>
+                                <th style="color: #607d8b">أساسي كاش</th><th style="color: #607d8b">تحويل</th><th style="color: #607d8b">شحن</th><th style="color: #607d8b">خياط</th>
+                                <th style="color: var(--danger)">سلف</th><th style="color: var(--danger)">آجل نظام</th><th style="color: var(--danger)">آجل شحن</th>
+                                <th style="color: var(--primary)">تابي</th><th style="color: var(--primary)">تمارا</th><th style="color: var(--primary)">مورا</th>
+                                <th style="color: var(--primary)">هواتف</th><th style="color: var(--primary)">هواوي</th>
                             </tr>
                         </thead>
                         <tbody id="finTableBody"></tbody>
                     </table>
                 </div>
-
-                <button class="btn btn-primary w-100 mt-10" onclick="AppController.exportGlobalPDF()">
-                    <span class="material-icons">print</span> طباعة مسير الرواتب (3×3 كروت بالصفحة)
-                </button>
+                <button class="btn btn-primary w-100 mt-10" onclick="AppController.exportGlobalPDF()"><span class="material-icons">print</span> طباعة مسير الرواتب (مجمع)</button>
             </div>
         </div>
 
-        <!-- 4. شاشة الإعدادات -->
+        <!-- 6. شاشة الإعدادات -->
         <div id="view-settings" class="view">
+            
+            <div class="card mb-15">
+                <h2>إعدادات الأرصدة الافتتاحية (لمرة واحدة)</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>رصيد الصندوق أول المدة (ش. هواتف)</label>
+                        <input type="number" id="initBoxPhones" onchange="AppController.saveInitBox('phones', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>رصيد الصندوق أول المدة (ش. هواوي)</label>
+                        <input type="number" id="initBoxHuawei" onchange="AppController.saveInitBox('huawei', this.value)">
+                    </div>
+                </div>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">هذا الرصيد سيُستخدم كـ "رصيد أمس" في أول يوم عمل للنظام فقط ليبدأ منه الحساب التراكمي للصندوق.</p>
+            </div>
+
             <div class="card mb-15">
                 <h2>إعدادات الطباعة</h2>
                 <label style="display:flex; align-items:center; gap:10px; font-size: 14px; font-weight:bold; cursor:pointer;">
-                    <input type="checkbox" id="cleanPrintToggle" style="width: 22px; height: 22px; cursor:pointer;">
-                    طباعة نظيفة (إخفاء البنود الصفرية)
+                    <input type="checkbox" id="cleanPrintToggle" style="width: 22px; height: 22px;"> طباعة نظيفة (إخفاء البنود الصفرية من الكروت)
                 </label>
-                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">عند التفعيل، أي بند قيمته (0) سيتم إخفاؤه تلقائياً من التطبيق ومن كروت الطباعة لتوفير المساحة.</p>
             </div>
-
+            
             <div class="card">
                 <h2>النظام والبيانات</h2>
-                <button id="forceReloadBtn" class="btn btn-warning w-100 mb-15"><span class="material-icons">refresh</span> تحديث إجباري للنسخة (مسح كاش المتصفح)</button>
-                <button id="backupBtn" class="btn btn-outline w-100 mb-10"><span class="material-icons">cloud_download</span> حفظ نسخة في Google Drive / الجهاز</button>
+                <button id="forceReloadBtn" class="btn btn-warning w-100 mb-15"><span class="material-icons">refresh</span> تحديث إجباري ومسح الكاش</button>
+                <button id="backupBtn" class="btn btn-outline w-100 mb-10"><span class="material-icons">cloud_download</span> حفظ نسخة احتياطية</button>
                 <label class="btn btn-outline w-100 mb-15" style="display:block; text-align:center; cursor:pointer;">
-                    <span class="material-icons" style="vertical-align:middle;">cloud_upload</span> استرجاع نسخة من Google Drive
-                    <input type="file" id="restoreFile" accept=".json" class="hidden">
+                    <span class="material-icons" style="vertical-align:middle;">cloud_upload</span> استرجاع نسخة <input type="file" id="restoreFile" accept=".json" class="hidden">
                 </label>
                 <button id="clearDataBtn" class="btn btn-danger w-100"><span class="material-icons">delete_forever</span> مسح كل البيانات نهائياً</button>
             </div>
@@ -435,11 +434,75 @@
 
     </main>
 
-    <!-- منطقة الطباعة المخفية -->
+    <!-- Modals Overlay -->
+    <div id="modalOverlay" class="modal-overlay">
+        <!-- Modal 1: Transactions -->
+        <div id="modalTransactions" class="modal-card hidden">
+            <button class="modal-close" onclick="PosController.closeModal()">&times;</button>
+            <h2 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px; margin-top:0;">الإضافة والخصم <span id="transModuleName" style="font-size:12px; color:var(--text-muted)"></span></h2>
+            <div class="table-responsive">
+                <table class="data-table" style="min-width: 100%;">
+                    <thead><tr><th style="color:var(--primary)">إضافة (+)</th><th style="color:var(--danger)">خصم (-)</th><th>البيان (العميل/المورد)</th><th>حذف</th></tr></thead>
+                    <tbody id="transTableBody"></tbody>
+                </table>
+            </div>
+            <div class="pos-summary mt-15" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="pos-box"><span>إجمالي الإضافة</span><strong id="transTotalAdd" class="text-info">0</strong></div>
+                <div class="pos-box"><span>إجمالي الخصم</span><strong id="transTotalSub" class="text-danger">0</strong></div>
+                <div class="pos-box pos-total" style="background:var(--card-bg); border-color:var(--border);"><span>الفرق (الصافي)</span><strong id="transNet">0</strong></div>
+            </div>
+        </div>
+
+        <!-- Modal 2: Expenses & Salaries -->
+        <div id="modalExpenses" class="modal-card hidden">
+            <button class="modal-close" onclick="PosController.closeModal()">&times;</button>
+            <h2 style="color:var(--danger); border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px; margin-top:0;">المصروفات والرواتب <span id="expModuleName" style="font-size:12px; color:var(--text-muted)"></span></h2>
+            <p style="font-size:12px; color:var(--text-muted)">المبالغ المسجلة هنا تُخصم فوراً من الصندوق اليومي.</p>
+            <div class="table-responsive">
+                <table class="data-table" style="min-width: 100%;">
+                    <thead><tr><th style="color:var(--danger)">المبلغ (-)</th><th>البيان (نوع المصروف)</th><th>حذف</th></tr></thead>
+                    <tbody id="expTableBody"></tbody>
+                </table>
+            </div>
+            <div class="pos-summary mt-15">
+                <div class="pos-box pos-total" style="grid-column: 1 / -1; background:var(--red-light); border-color:var(--danger);">
+                    <span>إجمالي المصروفات لليوم</span><strong id="expTotalAmt" style="color:var(--danger)">0</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal 3: Ledger -->
+        <div id="modalLedger" class="modal-card hidden">
+            <button class="modal-close" onclick="PosController.closeModal()">&times;</button>
+            <h2 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px; margin-top:0;">العملاء والموردين <span id="ledgerModuleName" style="font-size:12px; color:var(--text-muted)"></span></h2>
+            <div class="table-responsive">
+                <table class="data-table" style="min-width: 100%;">
+                    <thead><tr><th>البيان (الاسم)</th><th style="color:var(--primary)">مدين (عليه لنا)</th><th style="color:var(--danger)">دائن (له علينا)</th></tr></thead>
+                    <tbody id="ledgerTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal 4: Employee Sims -->
+        <div id="modalEmpSims" class="modal-card hidden">
+            <button class="modal-close" onclick="PosController.closeModal()">&times;</button>
+            <h2 style="color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:15px; margin-top:0;">مبيعات الموظفين اليومية <span id="simsModuleName" style="font-size:12px; color:var(--text-muted)"></span></h2>
+            <div class="table-responsive">
+                <table class="data-table" style="min-width: 100%;">
+                    <thead><tr><th>الموظف</th><th>إدخال عدد اليوم</th><th style="color:var(--info)">تراكمي الشهر</th></tr></thead>
+                    <tbody id="empSimsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Area -->
     <div id="printArea"></div>
 
     <nav class="bottom-nav">
         <button class="nav-item active" data-target="view-entry"><span class="material-icons">edit_calendar</span>الدوام</button>
+        <button class="nav-item" data-target="view-phones"><span class="material-icons">phone_iphone</span>الهواتف</button>
+        <button class="nav-item" data-target="view-huawei"><span class="material-icons">router</span>هواوي</button>
         <button class="nav-item" data-target="view-staff"><span class="material-icons">people</span>الموظفين</button>
         <button class="nav-item" data-target="view-financials"><span class="material-icons">payments</span>المالية</button>
         <button class="nav-item" data-target="view-settings"><span class="material-icons">settings</span>الإعدادات</button>
@@ -448,107 +511,231 @@
     <div id="toast" class="toast hidden"></div>
 
     <script>
-        // --- Storage ---
         const StorageManager = {
             get: (key) => JSON.parse(localStorage.getItem(key)) || [],
             set: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
             clearAll: () => localStorage.clear()
         };
 
-        // --- Data Layer ---
         const DataLayer = {
-            employees: StorageManager.get('db_employees'),
-            logs: StorageManager.get('db_logs'),
-            financials: StorageManager.get('db_financials'), 
+            settings: StorageManager.get('db_settings') || { initBoxPhones: 0, initBoxHuawei: 0 },
+            employees: StorageManager.get('db_employees'), logs: StorageManager.get('db_logs'), financials: StorageManager.get('db_financials'), 
+            posDaily: StorageManager.get('db_pos_daily'), posTrans: StorageManager.get('db_pos_trans'), posSims: StorageManager.get('db_pos_sims'),
+            posExpenses: StorageManager.get('db_pos_expenses'),
 
-            addEmployee: (name, salary, hours, vacations, prefs) => {
-                DataLayer.employees.push({ id: 'emp_' + Date.now(), name, salary: parseFloat(salary), hours: parseFloat(hours), vacations: parseFloat(vacations), prefs: prefs });
-                StorageManager.set('db_employees', DataLayer.employees);
-            },
-            updateEmployee: (id, name, salary, hours, vacations, prefs) => {
-                const idx = DataLayer.employees.findIndex(e => e.id === id);
-                if(idx > -1) {
-                    DataLayer.employees[idx].name = name; DataLayer.employees[idx].salary = parseFloat(salary);
-                    DataLayer.employees[idx].hours = parseFloat(hours); DataLayer.employees[idx].vacations = parseFloat(vacations);
-                    DataLayer.employees[idx].prefs = prefs; StorageManager.set('db_employees', DataLayer.employees);
-                }
-            },
-            deleteEmployee: (id) => {
-                DataLayer.employees = DataLayer.employees.filter(e => e.id !== id);
-                StorageManager.set('db_employees', DataLayer.employees);
-            },
-            saveLog: (empId, date, timeIn, timeOut, status, logId = null) => {
-                if (logId) {
-                    const idx = DataLayer.logs.findIndex(l => l.id === logId);
-                    if (idx > -1) { DataLayer.logs[idx].timeIn = timeIn; DataLayer.logs[idx].timeOut = timeOut; DataLayer.logs[idx].status = status; }
-                } else {
-                    DataLayer.logs.push({ id: 'log_' + Date.now() + Math.floor(Math.random()*100), empId, date, timeIn: timeIn||'', timeOut: timeOut||'', status });
-                }
-                StorageManager.set('db_logs', DataLayer.logs);
-            },
-            deleteLog: (id) => {
-                DataLayer.logs = DataLayer.logs.filter(l => l.id !== id);
-                StorageManager.set('db_logs', DataLayer.logs);
-            },
-            getFinancials: (empId, month) => {
-                let fin = DataLayer.financials.find(f => f.empId === empId && f.month === month);
-                if (!fin) {
-                    let prevFins = DataLayer.financials.filter(f => f.empId === empId && f.month < month).sort((a,b) => b.month.localeCompare(a.month));
-                    if(prevFins.length > 0) {
-                        fin = { ...prevFins[0], month: month }; 
-                    } else {
-                        fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: 0, salTransfer: 0, salDrawer: 0, salTailor: 0 };
-                    }
-                }
-                if (fin.tamara === undefined) fin.tamara = 0; if (fin.shippingCredit === undefined) fin.shippingCredit = 0;
-                if (fin.salCash === undefined) { fin.salCash = 0; fin.salTransfer = 0; fin.salDrawer = 0; fin.salTailor = 0; }
-                return fin;
-            },
-            updateFinancials: (empId, month, field, value) => {
-                let finIndex = DataLayer.financials.findIndex(f => f.empId === empId && f.month === month);
-                let valNum = parseFloat(value) || 0;
-                if (finIndex > -1) {
-                    DataLayer.financials[finIndex][field] = valNum;
-                } else {
-                    let newFin = DataLayer.getFinancials(empId, month); 
-                    newFin[field] = valNum;
-                    DataLayer.financials.push(newFin);
-                }
-                StorageManager.set('db_financials', DataLayer.financials);
+            saveSettings: (key, val) => { DataLayer.settings[key] = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); },
+            
+            addEmployee: (name, salary, hours, vacations, prefs) => { DataLayer.employees.push({ id: 'emp_' + Date.now(), name, salary: parseFloat(salary), hours: parseFloat(hours), vacations: parseFloat(vacations), prefs: prefs }); StorageManager.set('db_employees', DataLayer.employees); },
+            updateEmployee: (id, name, salary, hours, vacations, prefs) => { const idx = DataLayer.employees.findIndex(e => e.id === id); if(idx > -1) { DataLayer.employees[idx].name = name; DataLayer.employees[idx].salary = parseFloat(salary); DataLayer.employees[idx].hours = parseFloat(hours); DataLayer.employees[idx].vacations = parseFloat(vacations); DataLayer.employees[idx].prefs = prefs; StorageManager.set('db_employees', DataLayer.employees); } },
+            deleteEmployee: (id) => { DataLayer.employees = DataLayer.employees.filter(e => e.id !== id); StorageManager.set('db_employees', DataLayer.employees); },
+            
+            saveLog: (empId, date, timeIn, timeOut, status, logId = null) => { if (logId) { const idx = DataLayer.logs.findIndex(l => l.id === logId); if (idx > -1) { DataLayer.logs[idx].timeIn = timeIn; DataLayer.logs[idx].timeOut = timeOut; DataLayer.logs[idx].status = status; } } else { DataLayer.logs.push({ id: 'log_' + Date.now() + Math.floor(Math.random()*100), empId, date, timeIn: timeIn||'', timeOut: timeOut||'', status }); } StorageManager.set('db_logs', DataLayer.logs); },
+            deleteLog: (id) => { DataLayer.logs = DataLayer.logs.filter(l => l.id !== id); StorageManager.set('db_logs', DataLayer.logs); },
+            
+            getFinancials: (empId, month) => { let fin = DataLayer.financials.find(f => f.empId === empId && f.month === month); if (!fin) { let prevFins = DataLayer.financials.filter(f => f.empId === empId && f.month < month).sort((a,b) => b.month.localeCompare(a.month)); if(prevFins.length > 0) { fin = { ...prevFins[0], month: month }; } else { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: 0, salTransfer: 0, salDrawer: 0, salTailor: 0 }; } } if (fin.tamara === undefined) fin.tamara = 0; if (fin.shippingCredit === undefined) fin.shippingCredit = 0; if (fin.salCash === undefined) { fin.salCash = 0; fin.salTransfer = 0; fin.salDrawer = 0; fin.salTailor = 0; } return fin; },
+            updateFinancials: (empId, month, field, value) => { let finIndex = DataLayer.financials.findIndex(f => f.empId === empId && f.month === month); let valNum = parseFloat(value) || 0; if (finIndex > -1) { DataLayer.financials[finIndex][field] = valNum; } else { let newFin = DataLayer.getFinancials(empId, month); newFin[field] = valNum; DataLayer.financials.push(newFin); } StorageManager.set('db_financials', DataLayer.financials); },
+
+            getPosDaily: (module, date) => { let rec = DataLayer.posDaily.find(p => p.module === module && p.date === date); if(!rec) { rec = { module, date, accounts: {}, totalCash: 0 }; } return rec; },
+            getPosPrevDaily: (module, currentDate) => { let past = DataLayer.posDaily.filter(p => p.module === module && p.date < currentDate).sort((a,b) => b.date.localeCompare(a.date)); return past.length > 0 ? past[0] : null; },
+            savePosDaily: (module, date, data) => { let idx = DataLayer.posDaily.findIndex(p => p.module === module && p.date === date); if(idx > -1) DataLayer.posDaily[idx] = data; else DataLayer.posDaily.push(data); StorageManager.set('db_pos_daily', DataLayer.posDaily); },
+            
+            getPosTrans: (module, date) => DataLayer.posTrans.filter(t => t.module === module && t.date === date),
+            getAllPosTrans: (module) => DataLayer.posTrans.filter(t => t.module === module),
+            savePosTrans: (module, date, type, desc, amount, id=null) => { if(id) { let idx = DataLayer.posTrans.findIndex(t=>t.id===id); if(idx>-1){ DataLayer.posTrans[idx].type=type; DataLayer.posTrans[idx].desc=desc; DataLayer.posTrans[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posTrans.push({ id: 'tr_'+Date.now()+Math.random(), module, date, type, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_trans', DataLayer.posTrans); },
+            deletePosTrans: (id) => { DataLayer.posTrans = DataLayer.posTrans.filter(t => t.id !== id); StorageManager.set('db_pos_trans', DataLayer.posTrans); },
+            
+            getPosExpenses: (module, date) => (DataLayer.posExpenses || []).filter(e => e.module === module && e.date === date),
+            savePosExpense: (module, date, desc, amount, id=null) => { if(!DataLayer.posExpenses) DataLayer.posExpenses = []; if(id) { let idx = DataLayer.posExpenses.findIndex(e=>e.id===id); if(idx>-1){ DataLayer.posExpenses[idx].desc=desc; DataLayer.posExpenses[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posExpenses.push({ id: 'exp_'+Date.now()+Math.random(), module, date, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_expenses', DataLayer.posExpenses); },
+            deletePosExpense: (id) => { if(!DataLayer.posExpenses) return; DataLayer.posExpenses = DataLayer.posExpenses.filter(e => e.id !== id); StorageManager.set('db_pos_expenses', DataLayer.posExpenses); },
+
+            getEmpSimsDaily: (module, date) => DataLayer.posSims.filter(s => s.module === module && s.date === date),
+            saveEmpSimsDaily: (module, date, empId, count) => { 
+                let idx = DataLayer.posSims.findIndex(s => s.module === module && s.date === date && s.empId === empId); 
+                let numCount = parseInt(count) || 0; 
+                if(idx > -1) DataLayer.posSims[idx].count = numCount; else DataLayer.posSims.push({ module, date, empId, count: numCount }); 
+                StorageManager.set('db_pos_sims', DataLayer.posSims); 
+                
+                let month = date.substring(0,7);
+                let total = DataLayer.posSims.filter(s => s.module === module && s.empId === empId && s.date.startsWith(month)).reduce((sum, s) => sum + s.count, 0); 
+                let fieldMap = { 'phones': 'simPhones', 'huawei': 'simHuawei' }; 
+                DataLayer.updateFinancials(empId, month, fieldMap[module], total);
             }
         };
 
-        const formatHours = (decimalHours) => {
-            let hrs = Math.floor(Math.abs(decimalHours));
-            let mins = Math.round((Math.abs(decimalHours) - hrs) * 60);
-            if(mins === 60){ hrs++; mins = 0;}
-            return `${hrs}:${mins.toString().padStart(2, '0')}`;
+        const formatHours = (decimalHours) => { let hrs = Math.floor(Math.abs(decimalHours)); let mins = Math.round((Math.abs(decimalHours) - hrs) * 60); if(mins === 60){ hrs++; mins = 0;} return `${hrs}:${mins.toString().padStart(2, '0')}`; };
+
+        const PosController = {
+            modules: {
+                'phones': { title: 'الهواتف', accs: ['م. سوا', 'م. موبايلى', 'م. بطاقاتى', 'ي. سوا', 'ي. موبايلى', 'ي. فريندى', 'ي. ليبارا', 'ي. سلام', 'ي. ريدبل'] },
+                'huawei': { title: 'هواوي', accs: ['م. مسار', 'م. سوا', 'ي. سوا', 'ي. موبايلى', 'ي. فريندى', 'ي. سلام', 'ي. ريدبل', 'ي. زين'] }
+            },
+            currentModalModule: null, currentModalDate: null,
+
+            updateDatalist: () => {
+                const list = document.getElementById('descList'); const unique = new Set();
+                DataLayer.posTrans.forEach(t => { if(t.desc) unique.add(t.desc.trim()); });
+                (DataLayer.posExpenses || []).forEach(e => { if(e.desc) unique.add(e.desc.trim()); });
+                list.innerHTML = Array.from(unique).map(d => `<option value="${d}">`).join('');
+            },
+
+            loadModuleData: (modId) => {
+                const date = document.getElementById(modId + 'Date').value; if(!date) return;
+                const tbody = document.getElementById(modId + 'TableBody'); tbody.innerHTML = '';
+                const accs = PosController.modules[modId].accs; let month = date.substring(0, 7);
+                
+                let todayData = DataLayer.getPosDaily(modId, date); let prevData = DataLayer.getPosPrevDaily(modId, date); 
+                let totalSales = 0; let totalBalances = 0;
+                
+                let cumulativeSims1 = Array(accs.length).fill(0);
+                let cumulativeSims2 = Array(accs.length).fill(0);
+
+                let monthData = DataLayer.posDaily.filter(p => p.module === modId && p.date.startsWith(month) && p.date <= date);
+                monthData.forEach(dayRecord => { 
+                    for(let i=0; i<accs.length; i++) { 
+                        if(dayRecord.accounts[i]) { 
+                            cumulativeSims1[i] += (parseFloat(dayRecord.accounts[i].sims1) || 0) + (parseFloat(dayRecord.accounts[i].sims) || 0);
+                            cumulativeSims2[i] += (parseFloat(dayRecord.accounts[i].sims2) || 0);
+                        } 
+                    } 
+                });
+
+                accs.forEach((acc, idx) => {
+                    let prevBal = prevData?.accounts[idx]?.balance || 0;
+                    let todayRec = todayData.accounts[idx]?.recharge || ''; let todayBal = todayData.accounts[idx]?.balance || ''; let todaySal = todayData.accounts[idx]?.sales || '';
+                    let todaySims1 = todayData.accounts[idx]?.sims1 !== undefined ? todayData.accounts[idx]?.sims1 : (todayData.accounts[idx]?.sims || '');
+                    let todaySims2 = todayData.accounts[idx]?.sims2 || '';
+                    
+                    let numRec = parseFloat(todayRec)||0; let numBal = parseFloat(todayBal)||0; let numSal = parseFloat(todaySal)||0;
+                    let cost = (prevBal + numRec) - numBal; totalSales += numSal; totalBalances += numBal;
+
+                    let isDoubleSim = (acc === 'ي. سوا' || acc === 'ي. فريندى');
+
+                    let simsHTML = isDoubleSim 
+                        ? `<div style="display:flex; gap:2px; justify-content:center; min-width: 74px;"><input type="number" class="fin-input-sm" value="${todaySims1}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sims1', this.value)"><input type="number" class="fin-input-sm" value="${todaySims2}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sims2', this.value)"></div>`
+                        : `<input type="number" class="fin-input" value="${todaySims1}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sims1', this.value)">`;
+                        
+                    let cumHTML = isDoubleSim
+                        ? `<span style="color:var(--info)">${cumulativeSims1[idx]}</span> <span style="color:#ccc">|</span> <span style="color:var(--danger)">${cumulativeSims2[idx]}</span>`
+                        : `<span style="color:var(--primary)">${cumulativeSims1[idx]}</span>`;
+
+                    tbody.innerHTML += `<tr>
+                        <td class="sticky-col"><strong>${acc}</strong></td>
+                        <td>${prevBal}</td>
+                        <td><input type="number" class="fin-input" value="${todayRec}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'recharge', this.value)"></td>
+                        <td><input type="number" class="fin-input" value="${todayBal}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'balance', this.value)"></td>
+                        <td><input type="number" class="fin-input" value="${cost}" readonly></td>
+                        <td><input type="number" class="fin-input" value="${todaySal}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sales', this.value)"></td>
+                        <td style="text-align:center;">${simsHTML}</td>
+                        <td style="font-weight:bold; text-align:center; font-size:14px;">${cumHTML}</td>
+                    </tr>`;
+                });
+
+                let prevCash = prevData?.totalCash;
+                if(prevCash === undefined) prevCash = DataLayer.settings[modId === 'phones' ? 'initBoxPhones' : 'initBoxHuawei'] || 0;
+
+                let trans = DataLayer.getPosTrans(modId, date);
+                let totalAdd = trans.filter(t=>t.type==='add').reduce((s,t)=>s+t.amount,0); let totalSub = trans.filter(t=>t.type==='sub').reduce((s,t)=>s+t.amount,0);
+                let netTrans = totalAdd - totalSub; 
+                
+                let expenses = DataLayer.getPosExpenses(modId, date);
+                let dailyExp = expenses.reduce((s,e) => s + e.amount, 0);
+
+                let finalCash = prevCash + totalSales + netTrans - dailyExp;
+
+                // Profit Logic (Balance Sheet Equation)
+                let allTrans = DataLayer.getAllPosTrans(modId);
+                // إجمالي المدين (عليه لنا = sub) - إجمالي الدائن (له علينا = add)
+                let netLedger = allTrans.filter(t=>t.type==='sub').reduce((s,t)=>s+t.amount,0) - allTrans.filter(t=>t.type==='add').reduce((s,t)=>s+t.amount,0);
+                
+                // رأس المال
+                let initialCap = modId === 'phones' ? 35000 : 15000;
+                
+                // الربح = الصندوق + الأرصدة + صافي المدين - رأس المال
+                let profit = finalCash + totalBalances + netLedger - initialCap;
+
+                todayData.totalCash = finalCash; DataLayer.savePosDaily(modId, date, todayData);
+                document.getElementById(modId + 'PrevTotal').textContent = prevCash.toFixed(0); 
+                document.getElementById(modId + 'TotalSales').textContent = totalSales.toFixed(0);
+                document.getElementById(modId + 'NetAddSub').textContent = (netTrans > 0 ? '+' : '') + netTrans.toFixed(0); 
+                document.getElementById(modId + 'FinalTotal').textContent = finalCash.toFixed(0);
+                document.getElementById(modId + 'TotalBalances').textContent = totalBalances.toFixed(0);
+                document.getElementById(modId + 'Profit').textContent = (profit > 0 ? '+' : '') + profit.toFixed(0);
+                document.getElementById(modId + 'Profit').style.color = profit >= 0 ? '#fff' : '#ffcdd2';
+            },
+            saveCell: (modId, date, accIdx, field, val) => { let data = DataLayer.getPosDaily(modId, date); if(!data.accounts[accIdx]) data.accounts[accIdx] = {}; data.accounts[accIdx][field] = parseFloat(val) || 0; DataLayer.savePosDaily(modId, date, data); PosController.loadModuleData(modId); },
+            loadPhonesData: () => PosController.loadModuleData('phones'), loadHuaweiData: () => PosController.loadModuleData('huawei'),
+
+            showModal: (id) => { PosController.updateDatalist(); document.querySelectorAll('.modal-card').forEach(m => m.classList.add('hidden')); document.getElementById('modalOverlay').classList.add('active'); document.getElementById(id).classList.remove('hidden'); },
+            closeModal: () => { document.getElementById('modalOverlay').classList.remove('active'); },
+
+            openTransactionsModal: (modId) => { PosController.currentModalModule = modId; PosController.currentModalDate = document.getElementById(modId + 'Date').value; document.getElementById('transModuleName').textContent = `(${PosController.modules[modId].title} - ${PosController.currentModalDate})`; PosController.renderTransTable(); PosController.showModal('modalTransactions'); },
+            renderTransTable: () => {
+                const modId = PosController.currentModalModule; const date = PosController.currentModalDate; const tbody = document.getElementById('transTableBody'); tbody.innerHTML = ''; const trans = DataLayer.getPosTrans(modId, date); let totAdd = 0; let totSub = 0;
+                trans.forEach(t => {
+                    if(t.type==='add') totAdd+=t.amount; else totSub+=t.amount;
+                    tbody.innerHTML += `<tr><td><input type="number" class="fin-input" style="width:100%" value="${t.type==='add'?t.amount:''}" onchange="PosController.saveTrans('${t.id}', 'add', this.value, null)"></td><td><input type="number" class="fin-input" style="width:100%" value="${t.type==='sub'?t.amount:''}" onchange="PosController.saveTrans('${t.id}', 'sub', this.value, null)"></td><td><input type="text" list="descList" class="fin-input" style="width:100%; text-align:right;" value="${t.desc}" onchange="PosController.saveTrans('${t.id}', null, null, this.value)"></td><td><button class="icon-btn text-danger" onclick="PosController.deleteTrans('${t.id}')"><span class="material-icons" style="font-size:16px;">delete</span></button></td></tr>`;
+                });
+                tbody.innerHTML += `<tr><td><input type="number" class="fin-input" style="width:100%" placeholder="جديد" onchange="PosController.saveTrans('new', 'add', this.value, this.parentElement.parentElement.querySelector('.desc-input').value)"></td><td><input type="number" class="fin-input" style="width:100%" placeholder="جديد" onchange="PosController.saveTrans('new', 'sub', this.value, this.parentElement.parentElement.querySelector('.desc-input').value)"></td><td><input type="text" list="descList" class="fin-input desc-input" style="width:100%; text-align:right;" placeholder="جديد..." onchange="PosController.saveTrans('new', null, null, this.value)"></td><td></td></tr>`;
+                document.getElementById('transTotalAdd').textContent = totAdd; document.getElementById('transTotalSub').textContent = totSub; document.getElementById('transNet').textContent = totAdd - totSub; PosController.loadModuleData(modId); 
+            },
+            saveTrans: (id, type, amount, desc) => { if(id === 'new') { if(!desc && !amount) return; DataLayer.savePosTrans(PosController.currentModalModule, PosController.currentModalDate, type||'add', desc||'بدون بيان', amount); } else { let t = DataLayer.posTrans.find(x=>x.id===id); if(!t) return; if(type) { t.type = type; t.amount = amount; } if(desc !== null) { t.desc = desc; } DataLayer.savePosTrans(t.module, t.date, t.type, t.desc, t.amount, id); } PosController.renderTransTable(); },
+            deleteTrans: (id) => { DataLayer.deletePosTrans(id); PosController.renderTransTable(); },
+
+            openExpensesModal: (modId) => { PosController.currentModalModule = modId; PosController.currentModalDate = document.getElementById(modId + 'Date').value; document.getElementById('expModuleName').textContent = `(${PosController.modules[modId].title} - ${PosController.currentModalDate})`; PosController.renderExpTable(); PosController.showModal('modalExpenses'); },
+            renderExpTable: () => {
+                const modId = PosController.currentModalModule; const date = PosController.currentModalDate; const tbody = document.getElementById('expTableBody'); tbody.innerHTML = ''; const exps = DataLayer.getPosExpenses(modId, date); let totExp = 0;
+                exps.forEach(e => { totExp+=e.amount; tbody.innerHTML += `<tr><td><input type="number" class="fin-input" style="width:100%" value="${e.amount}" onchange="PosController.saveExp('${e.id}', this.value, null)"></td><td><input type="text" list="descList" class="fin-input" style="width:100%; text-align:right;" value="${e.desc}" onchange="PosController.saveExp('${e.id}', null, this.value)"></td><td><button class="icon-btn text-danger" onclick="PosController.deleteExp('${e.id}')"><span class="material-icons" style="font-size:16px;">delete</span></button></td></tr>`; });
+                tbody.innerHTML += `<tr><td><input type="number" class="fin-input" style="width:100%" placeholder="جديد" onchange="PosController.saveExp('new', this.value, this.parentElement.parentElement.querySelector('.desc-input').value)"></td><td><input type="text" list="descList" class="fin-input desc-input" style="width:100%; text-align:right;" placeholder="جديد..." onchange="PosController.saveExp('new', null, this.value)"></td><td></td></tr>`;
+                document.getElementById('expTotalAmt').textContent = totExp; PosController.loadModuleData(modId); 
+            },
+            saveExp: (id, amount, desc) => { if(id === 'new') { if(!desc && !amount) return; DataLayer.savePosExpense(PosController.currentModalModule, PosController.currentModalDate, desc||'مصروف', amount); } else { let e = (DataLayer.posExpenses||[]).find(x=>x.id===id); if(!e) return; if(amount!==null) e.amount = parseFloat(amount)||0; if(desc!==null) e.desc = desc; DataLayer.savePosExpense(e.module, e.date, e.desc, e.amount, id); } PosController.renderExpTable(); },
+            deleteExp: (id) => { DataLayer.deletePosExpense(id); PosController.renderExpTable(); },
+
+            openLedgerModal: (modId) => {
+                document.getElementById('ledgerModuleName').textContent = `(${PosController.modules[modId].title})`; const tbody = document.getElementById('ledgerTableBody'); tbody.innerHTML = ''; const trans = DataLayer.getAllPosTrans(modId); let ledger = {};
+                trans.forEach(t => { let d = t.desc.trim(); if(!d) d = 'غير محدد'; if(!ledger[d]) ledger[d] = 0; ledger[d] += (t.type === 'sub' ? t.amount : -t.amount); });
+                for(let [entity, bal] of Object.entries(ledger)) { if(bal === 0) continue; let maden = bal > 0 ? bal : ''; let daen = bal < 0 ? Math.abs(bal) : ''; tbody.innerHTML += `<tr><td><strong>${entity}</strong></td><td style="color:var(--primary)">${maden}</td><td style="color:var(--danger)">${daen}</td></tr>`; }
+                PosController.showModal('modalLedger');
+            },
+
+            openEmpSimsModal: (modId) => {
+                PosController.currentModalModule = modId; PosController.currentModalDate = document.getElementById(modId + 'Date').value; let month = PosController.currentModalDate.substring(0,7);
+                document.getElementById('simsModuleName').textContent = `(${PosController.modules[modId].title} - ${PosController.currentModalDate})`;
+                const tbody = document.getElementById('empSimsTableBody'); tbody.innerHTML = '';
+                
+                DataLayer.employees.forEach(emp => {
+                    let todaySimsObj = DataLayer.getEmpSimsDaily(modId, PosController.currentModalDate).find(s=>s.empId===emp.id);
+                    let todaySims = todaySimsObj ? todaySimsObj.count : '';
+                    let monthTotal = DataLayer.posSims.filter(s => s.module === modId && s.empId === emp.id && s.date.startsWith(month)).reduce((sum, s) => sum + s.count, 0);
+                    tbody.innerHTML += `<tr><td><strong>${emp.name}</strong></td><td><input type="number" class="fin-input" style="width:100%" value="${todaySims}" onchange="PosController.saveEmpSims('${emp.id}', this.value)"></td><td style="color:var(--info); font-weight:bold; font-size:15px;">${monthTotal}</td></tr>`;
+                });
+                PosController.showModal('modalEmpSims');
+            },
+            saveEmpSims: (empId, count) => { DataLayer.saveEmpSimsDaily(PosController.currentModalModule, PosController.currentModalDate, empId, count); PosController.openEmpSimsModal(PosController.currentModalModule); }
         };
 
         const AppController = {
             init: () => {
                 if (localStorage.getItem('ui_theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
                 
-                // Clean Print Init
                 const cleanPrintToggle = document.getElementById('cleanPrintToggle');
                 cleanPrintToggle.checked = localStorage.getItem('clean_print') === 'true';
-                cleanPrintToggle.addEventListener('change', (e) => {
-                    localStorage.setItem('clean_print', e.target.checked);
-                    AppController.renderLogs(); 
-                });
+                cleanPrintToggle.addEventListener('change', (e) => { localStorage.setItem('clean_print', e.target.checked); AppController.renderLogs(); });
 
-                // PWA Prompt check
+                document.getElementById('initBoxPhones').value = DataLayer.settings.initBoxPhones || '';
+                document.getElementById('initBoxHuawei').value = DataLayer.settings.initBoxHuawei || '';
+
                 const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
                 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
                 if (isIos() && !isInStandaloneMode()) document.getElementById('pwaPrompt').classList.remove('hidden');
 
-                const today = new Date();
-                const currentMonth = today.toISOString().substring(0, 7);
+                const today = new Date(); const currentMonth = today.toISOString().substring(0, 7);
                 document.getElementById('entryDate').valueAsDate = today;
-                document.getElementById('filterMonth').value = currentMonth;
-                document.getElementById('finMonth').value = currentMonth;
+                document.getElementById('filterMonth').value = currentMonth; document.getElementById('finMonth').value = currentMonth;
+                document.getElementById('phonesDate').valueAsDate = today; document.getElementById('huaweiDate').valueAsDate = today;
 
                 AppController.populateDropdowns(); AppController.renderStaff(); AppController.renderLogs();
+                PosController.loadPhonesData(); PosController.loadHuaweiData();
 
                 document.getElementById('themeToggle').addEventListener('click', () => {
                     const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -562,6 +749,8 @@
                         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                         document.getElementById(target).classList.add('active'); e.currentTarget.classList.add('active');
                         if (target === 'view-financials') AppController.renderFinancials();
+                        if (target === 'view-phones') PosController.loadPhonesData();
+                        if (target === 'view-huawei') PosController.loadHuaweiData();
                     });
                 });
 
@@ -570,219 +759,91 @@
                 document.getElementById('clearDataBtn').addEventListener('click', AppController.clearAll);
                 document.getElementById('backupBtn').addEventListener('click', AppController.backupJSON);
                 document.getElementById('restoreFile').addEventListener('change', AppController.restoreJSON);
-                document.getElementById('forceReloadBtn').addEventListener('click', () => {
-                    window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime();
-                });
+                document.getElementById('forceReloadBtn').addEventListener('click', () => { window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); });
+            },
+
+            saveInitBox: (mod, val) => {
+                DataLayer.saveSettings(mod === 'phones' ? 'initBoxPhones' : 'initBoxHuawei', val);
+                PosController.loadPhonesData(); PosController.loadHuaweiData();
+                AppController.showToast('تم حفظ الرصيد الافتتاحي');
             },
             
-            showToast: (msg, type = 'success') => {
-                const t = document.getElementById('toast');
-                t.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`;
-                t.style.backgroundColor = type === 'success' ? 'var(--text-main)' : 'var(--danger)';
-                t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
-            },
-            
-            populateDropdowns: () => {
-                const eSel = document.getElementById('entryEmployee'), fSel = document.getElementById('filterEmployee');
-                eSel.innerHTML = '<option value="" disabled selected>اختر الموظف...</option>';
-                fSel.innerHTML = '<option value="ALL">عرض الكل</option>';
-                DataLayer.employees.forEach(emp => { eSel.appendChild(new Option(emp.name, emp.id)); fSel.appendChild(new Option(emp.name, emp.id)); });
-            },
-            
-            renderStaff: () => {
-                const list = document.getElementById('staffList'); list.innerHTML = '';
-                DataLayer.employees.forEach(emp => {
-                    let vac = emp.vacations !== undefined ? emp.vacations : 4;
-                    list.innerHTML += `<li><div><strong>${emp.name}</strong><br><small style="color:var(--text-muted)">الراتب: ${emp.salary} | ساعات: ${emp.hours} | إجازات: ${vac}</small></div>
-                        <div class="flex-gap"><button class="icon-btn text-info" onclick="AppController.loadEditEmployee('${emp.id}')"><span class="material-icons">edit</span></button>
-                        <button class="icon-btn text-danger" onclick="AppController.handleDeleteEmployee('${emp.id}')"><span class="material-icons">delete</span></button></div></li>`;
-                });
-            },
-            handleSaveEmployee: (e) => {
-                e.preventDefault();
-                const id = document.getElementById('editEmpId').value, name = document.getElementById('newEmpName').value;
-                const salary = document.getElementById('newEmpSalary').value, hours = document.getElementById('newEmpHours').value, vac = document.getElementById('newEmpVacations').value;
-                const prefs = {
-                    showSalCash: document.getElementById('prefSalCash').checked, showSalTransfer: document.getElementById('prefSalTransfer').checked,
-                    showSalDrawer: document.getElementById('prefSalDrawer').checked, showSalTailor: document.getElementById('prefSalTailor').checked,
-                    showUnusedOff: document.getElementById('prefUnusedOff').checked, showOvertime: document.getElementById('prefOvertime').checked,
-                    showSalesComm: document.getElementById('prefSalesComm').checked, showSimComm: document.getElementById('prefSimComm').checked,
-                    showAbsence: document.getElementById('prefAbsence').checked, showDelay: document.getElementById('prefDelay').checked,
-                    showAdvances: document.getElementById('prefAdvances').checked, showPurchases: document.getElementById('prefPurchases').checked,
-                    showShipping: document.getElementById('prefShipping').checked, showFinalNet: document.getElementById('prefFinalNet').checked
-                };
-                if(id) { DataLayer.updateEmployee(id, name, salary, hours, vac, prefs); AppController.showToast('تم تعديل الموظف'); } 
-                else { DataLayer.addEmployee(name, salary, hours, vac, prefs); AppController.showToast('تمت الإضافة'); }
-                AppController.cancelEditEmployee(); AppController.populateDropdowns(); AppController.renderStaff(); AppController.updateEntryFormState();
-            },
-            loadEditEmployee: (id) => {
-                const emp = DataLayer.employees.find(e => e.id === id); if(!emp) return;
-                document.getElementById('editEmpId').value = emp.id; document.getElementById('newEmpName').value = emp.name;
-                document.getElementById('newEmpSalary').value = emp.salary; document.getElementById('newEmpHours').value = emp.hours;
-                document.getElementById('newEmpVacations').value = emp.vacations !== undefined ? emp.vacations : 4;
-                const prefs = emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true };
-                ['SalCash','SalTransfer','SalDrawer','SalTailor','UnusedOff','Overtime','SalesComm','SimComm','Absence','Delay','Advances','Purchases','Shipping','FinalNet'].forEach(p => {
-                    let el = document.getElementById('pref'+p); if(el) el.checked = prefs['show'+p] || false;
-                    if(p!=='SalCash'&&p!=='SalTransfer'&&p!=='SalDrawer'&&p!=='SalTailor'&&prefs['show'+p]===undefined) el.checked = true;
-                });
-                document.getElementById('btnSubmitStaff').innerHTML = '<span class="material-icons">save</span> حفظ التعديلات';
-                document.getElementById('btnCancelEdit').classList.remove('hidden'); window.scrollTo(0,0);
-            },
-            cancelEditEmployee: () => {
-                document.getElementById('staffForm').reset(); document.getElementById('editEmpId').value = '';
-                document.getElementById('btnSubmitStaff').innerHTML = '<span class="material-icons">add</span> حفظ البيانات'; document.getElementById('btnCancelEdit').classList.add('hidden');
-                document.querySelectorAll('.prefs-group input[type="checkbox"]').forEach(cb => cb.checked = !cb.id.startsWith('prefSal'));
-            },
+            showToast: (msg, type = 'success') => { const t = document.getElementById('toast'); t.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`; t.style.backgroundColor = type === 'success' ? 'var(--text-main)' : 'var(--danger)'; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); },
+            populateDropdowns: () => { const eSel = document.getElementById('entryEmployee'), fSel = document.getElementById('filterEmployee'); eSel.innerHTML = '<option value="" disabled selected>اختر الموظف...</option>'; fSel.innerHTML = '<option value="ALL">عرض الكل</option>'; DataLayer.employees.forEach(emp => { eSel.appendChild(new Option(emp.name, emp.id)); fSel.appendChild(new Option(emp.name, emp.id)); }); },
+            renderStaff: () => { const list = document.getElementById('staffList'); list.innerHTML = ''; DataLayer.employees.forEach(emp => { let vac = emp.vacations !== undefined ? emp.vacations : 4; list.innerHTML += `<li><div><strong>${emp.name}</strong><br><small style="color:var(--text-muted)">الراتب: ${emp.salary} | ساعات: ${emp.hours} | إجازات: ${vac}</small></div><div class="flex-gap" style="width:auto;"><button class="icon-btn text-info" onclick="AppController.loadEditEmployee('${emp.id}')"><span class="material-icons">edit</span></button><button class="icon-btn text-danger" onclick="AppController.handleDeleteEmployee('${emp.id}')"><span class="material-icons">delete</span></button></div></li>`; }); },
+            handleSaveEmployee: (e) => { e.preventDefault(); const id = document.getElementById('editEmpId').value, name = document.getElementById('newEmpName').value; const salary = document.getElementById('newEmpSalary').value, hours = document.getElementById('newEmpHours').value, vac = document.getElementById('newEmpVacations').value; const prefs = { showSalCash: document.getElementById('prefSalCash').checked, showSalTransfer: document.getElementById('prefSalTransfer').checked, showSalDrawer: document.getElementById('prefSalDrawer').checked, showSalTailor: document.getElementById('prefSalTailor').checked, showUnusedOff: document.getElementById('prefUnusedOff').checked, showOvertime: document.getElementById('prefOvertime').checked, showSalesComm: document.getElementById('prefSalesComm').checked, showSimComm: document.getElementById('prefSimComm').checked, showAbsence: document.getElementById('prefAbsence').checked, showDelay: document.getElementById('prefDelay').checked, showAdvances: document.getElementById('prefAdvances').checked, showPurchases: document.getElementById('prefPurchases').checked, showShipping: document.getElementById('prefShipping').checked, showFinalNet: document.getElementById('prefFinalNet').checked }; if(id) { DataLayer.updateEmployee(id, name, salary, hours, vac, prefs); AppController.showToast('تم تعديل الموظف'); } else { DataLayer.addEmployee(name, salary, hours, vac, prefs); AppController.showToast('تمت الإضافة'); } AppController.cancelEditEmployee(); AppController.populateDropdowns(); AppController.renderStaff(); AppController.updateEntryFormState(); },
+            loadEditEmployee: (id) => { const emp = DataLayer.employees.find(e => e.id === id); if(!emp) return; document.getElementById('editEmpId').value = emp.id; document.getElementById('newEmpName').value = emp.name; document.getElementById('newEmpSalary').value = emp.salary; document.getElementById('newEmpHours').value = emp.hours; document.getElementById('newEmpVacations').value = emp.vacations !== undefined ? emp.vacations : 4; const prefs = emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true }; ['SalCash','SalTransfer','SalDrawer','SalTailor','UnusedOff','Overtime','SalesComm','SimComm','Absence','Delay','Advances','Purchases','Shipping','FinalNet'].forEach(p => { let el = document.getElementById('pref'+p); if(el) el.checked = prefs['show'+p] || false; if(p!=='SalCash'&&p!=='SalTransfer'&&p!=='SalDrawer'&&p!=='SalTailor'&&prefs['show'+p]===undefined) el.checked = true; }); document.getElementById('btnSubmitStaff').innerHTML = '<span class="material-icons">save</span> حفظ التعديلات'; document.getElementById('btnCancelEdit').classList.remove('hidden'); window.scrollTo(0,0); },
+            cancelEditEmployee: () => { document.getElementById('staffForm').reset(); document.getElementById('editEmpId').value = ''; document.getElementById('btnSubmitStaff').innerHTML = '<span class="material-icons">add</span> حفظ البيانات'; document.getElementById('btnCancelEdit').classList.add('hidden'); document.querySelectorAll('.prefs-group input[type="checkbox"]').forEach(cb => cb.checked = !cb.id.startsWith('prefSal')); },
             handleDeleteEmployee: (id) => { if(confirm('تأكيد الحذف؟')) { DataLayer.deleteEmployee(id); AppController.populateDropdowns(); AppController.renderStaff(); } },
-            
-            updateEntryFormState: () => {
-                const empId = document.getElementById('entryEmployee').value, date = document.getElementById('entryDate').value;
-                const btnVacAbs = document.getElementById('btnVacationAbsent'), editingLogIdEl = document.getElementById('editingLogId');
-                if (!empId || !date) { btnVacAbs.classList.add('hidden'); return; }
-
-                const openLog = DataLayer.logs.find(l => l.empId === empId && l.date === date && l.status === 'WORK' && l.timeIn && !l.timeOut);
-                if (openLog) { editingLogIdEl.value = openLog.id; document.getElementById('entryTimeIn').value = openLog.timeIn; document.getElementById('entryTimeOut').value = ''; } 
-                else { editingLogIdEl.value = ''; document.getElementById('entryTimeIn').value = ''; document.getElementById('entryTimeOut').value = ''; }
-
-                const emp = DataLayer.employees.find(e => e.id === empId); const allowedVacations = emp ? (emp.vacations !== undefined ? emp.vacations : 4) : 4;
-                const existingVac = DataLayer.logs.find(l => l.empId === empId && l.date === date && (l.status === 'VACATION' || l.status === 'ABSENT'));
-                const vacCount = DataLayer.logs.filter(l => l.empId === empId && l.date.startsWith(date.substring(0, 7)) && (l.status === 'VACATION' || l.status === 'ABSENT')).length;
-
-                btnVacAbs.classList.remove('hidden');
-                if (vacCount < allowedVacations || (existingVac && existingVac.status === 'VACATION')) {
-                    btnVacAbs.innerHTML = '<span class="material-icons">beach_access</span> تسجيل إجازة'; btnVacAbs.className = 'btn btn-warning w-100 mt-10'; btnVacAbs.dataset.status = 'VACATION';
-                } else {
-                    btnVacAbs.innerHTML = '<span class="material-icons">person_off</span> تسجيل غياب'; btnVacAbs.className = 'btn btn-danger w-100 mt-10'; btnVacAbs.dataset.status = 'ABSENT';
-                }
-            },
-            handleSaveWork: (e) => {
-                e.preventDefault();
-                const empId = document.getElementById('entryEmployee').value, date = document.getElementById('entryDate').value;
-                const tIn = document.getElementById('entryTimeIn').value, tOut = document.getElementById('entryTimeOut').value;
-                if (!tIn && !tOut) return AppController.showToast('أدخل وقت', 'error');
-                DataLayer.saveLog(empId, date, tIn, tOut, 'WORK', document.getElementById('editingLogId').value);
-                AppController.showToast('تم الحفظ'); AppController.renderLogs(); AppController.updateEntryFormState();
-            },
-            logVacationOrAbsent: () => {
-                const empId = document.getElementById('entryEmployee').value, date = document.getElementById('entryDate').value, status = document.getElementById('btnVacationAbsent').dataset.status;
-                const existing = DataLayer.logs.find(l => l.empId === empId && l.date === date && (l.status === 'VACATION' || l.status === 'ABSENT'));
-                DataLayer.saveLog(empId, date, '', '', status, existing ? existing.id : null);
-                AppController.showToast('تم التسجيل'); AppController.renderLogs(); AppController.updateEntryFormState();
-            },
+            updateEntryFormState: () => { const empId = document.getElementById('entryEmployee').value, date = document.getElementById('entryDate').value; const btnVacAbs = document.getElementById('editingLogId'); if (!empId || !date) { document.getElementById('btnVacationAbsent').classList.add('hidden'); return; } const openLog = DataLayer.logs.find(l => l.empId === empId && l.date === date && l.status === 'WORK' && l.timeIn && !l.timeOut); if (openLog) { btnVacAbs.value = openLog.id; document.getElementById('entryTimeIn').value = openLog.timeIn; document.getElementById('entryTimeOut').value = ''; } else { btnVacAbs.value = ''; document.getElementById('entryTimeIn').value = ''; document.getElementById('entryTimeOut').value = ''; } const emp = DataLayer.employees.find(e => e.id === empId); const allowedVacations = emp ? (emp.vacations !== undefined ? emp.vacations : 4) : 4; const existingVac = DataLayer.logs.find(l => l.empId === empId && l.date === date && (l.status === 'VACATION' || l.status === 'ABSENT')); const vacCount = DataLayer.logs.filter(l => l.empId === empId && l.date.startsWith(date.substring(0, 7)) && (l.status === 'VACATION' || l.status === 'ABSENT')).length; const btnV = document.getElementById('btnVacationAbsent'); btnV.classList.remove('hidden'); if (vacCount < allowedVacations || (existingVac && existingVac.status === 'VACATION')) { btnV.innerHTML = '<span class="material-icons">beach_access</span> تسجيل إجازة'; btnV.className = 'btn btn-warning w-100 mt-10'; btnV.dataset.status = 'VACATION'; } else { btnV.innerHTML = '<span class="material-icons">person_off</span> تسجيل غياب'; btnV.className = 'btn btn-danger w-100 mt-10'; btnV.dataset.status = 'ABSENT'; } },
+            handleSaveWork: (e) => { e.preventDefault(); const empId = document.getElementById('entryEmployee').value, date = document.getElementById('entryDate').value; const tIn = document.getElementById('entryTimeIn').value, tOut = document.getElementById('entryTimeOut').value; if (!tIn && !tOut) return AppController.showToast('أدخل وقت', 'error'); DataLayer.saveLog(empId, date, tIn, tOut, 'WORK', document.getElementById('editingLogId').value); AppController.showToast('تم الحفظ'); AppController.renderLogs(); AppController.updateEntryFormState(); },
+            logVacationOrAbsent: () => { const empId = document.getElementById('entryEmployee').value, date = document.getElementById('entryDate').value, status = document.getElementById('btnVacationAbsent').dataset.status; const existing = DataLayer.logs.find(l => l.empId === empId && l.date === date && (l.status === 'VACATION' || l.status === 'ABSENT')); DataLayer.saveLog(empId, date, '', '', status, existing ? existing.id : null); AppController.showToast('تم التسجيل'); AppController.renderLogs(); AppController.updateEntryFormState(); },
             handleDeleteLog: (id) => { if(confirm('حذف السجل؟')) { DataLayer.deleteLog(id); AppController.renderLogs(); AppController.updateEntryFormState(); } },
 
             calculateSummary: (empId, month) => {
                 const emp = DataLayer.employees.find(e => e.id === empId); if (!emp) return null;
                 const logs = DataLayer.logs.filter(l => l.empId === empId && l.date.startsWith(month));
                 const fin = DataLayer.getFinancials(empId, month); 
-
                 const allowedVacations = emp.vacations !== undefined ? emp.vacations : 4;
-                const baseSalary = emp.salary, dailyHours = emp.hours;
-                const dailyRate = baseSalary / 30, hourlyRate = dailyRate / dailyHours;
+                const baseSalary = emp.salary, dailyHours = emp.hours; const dailyRate = baseSalary / 30, hourlyRate = dailyRate / dailyHours;
                 let vacCount = 0, absCount = 0, actualHours = 0; const uniqueDays = new Set();
-
-                logs.forEach(l => {
-                    if (l.status === 'VACATION') vacCount++; else if (l.status === 'ABSENT') absCount++;
-                    else if (l.status === 'WORK' && l.timeIn && l.timeOut) {
-                        uniqueDays.add(l.date);
-                        let d1 = new Date(`2000-01-01T${l.timeIn}`), d2 = new Date(`2000-01-01T${l.timeOut}`);
-                        if (d2 < d1) d2.setDate(d2.getDate() + 1); actualHours += (d2 - d1) / (1000 * 60 * 60);
-                    }
-                });
-
-                let expectedHours = uniqueDays.size * dailyHours;
-                let effectiveVac = vacCount, effectiveAbs = absCount;
+                logs.forEach(l => { if (l.status === 'VACATION') vacCount++; else if (l.status === 'ABSENT') absCount++; else if (l.status === 'WORK' && l.timeIn && l.timeOut) { uniqueDays.add(l.date); let d1 = new Date(`2000-01-01T${l.timeIn}`), d2 = new Date(`2000-01-01T${l.timeOut}`); if (d2 < d1) d2.setDate(d2.getDate() + 1); actualHours += (d2 - d1) / (1000 * 60 * 60); } });
+                let expectedHours = uniqueDays.size * dailyHours; let effectiveVac = vacCount, effectiveAbs = absCount;
                 if (effectiveVac > allowedVacations) { effectiveAbs += (effectiveVac - allowedVacations); effectiveVac = allowedVacations; }
-
-                let diffHours = actualHours - expectedHours;
-                let overTimeHrs = diffHours > 0 ? diffHours : 0; let delayHrs = diffHours < 0 ? Math.abs(diffHours) : 0;
+                let diffHours = actualHours - expectedHours; let overTimeHrs = diffHours > 0 ? diffHours : 0; let delayHrs = diffHours < 0 ? Math.abs(diffHours) : 0;
                 let overTimeVal = overTimeHrs * hourlyRate; let delayVal = delayHrs * hourlyRate;
-
-                let unusedOffDays = allowedVacations - effectiveVac; let unusedOffVal = unusedOffDays * dailyRate;
-                let absenceVal = effectiveAbs * dailyRate;
-
+                let unusedOffDays = allowedVacations - effectiveVac; let unusedOffVal = unusedOffDays * dailyRate; let absenceVal = effectiveAbs * dailyRate;
                 let comm1 = (fin.tabby * 20) + (fin.tamara * 20) + (fin.mora * 100); let comm2 = (fin.simPhones * 5) + (fin.simHuawei * 5); let commissions = comm1 + comm2;
                 let deductions = fin.advances + fin.purchases + fin.shippingCredit; 
-
-                let netBeforeDeductions = baseSalary + unusedOffVal + overTimeVal + commissions - absenceVal - delayVal;
-                let finalSalary = netBeforeDeductions - deductions;
-
+                let netBeforeDeductions = baseSalary + unusedOffVal + overTimeVal + commissions - absenceVal - delayVal; let finalSalary = netBeforeDeductions - deductions;
                 return { emp, month, logs, fin, baseSalary, allowedVacations, unusedOffDays, unusedOffVal, overTimeHrs, overTimeVal, delayHrs, delayVal, effectiveVac, effectiveAbs, absenceVal, commissions, comm1, comm2, deductions, netBeforeDeductions, finalSalary };
+            },
+
+            generateSlipHTML: (s, context = 'ui') => {
+                const prefs = s.emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true };
+                const cleanPrint = localStorage.getItem('clean_print') === 'true';
+
+                let comm1Arr = []; if (s.fin.tabby > 0) comm1Arr.push(`${s.fin.tabby} تابى`); if (s.fin.tamara > 0) comm1Arr.push(`${s.fin.tamara} تمارا`); if (s.fin.mora > 0) comm1Arr.push(`${s.fin.mora} مورا`);
+                let comm1Text = comm1Arr.length > 0 ? comm1Arr.join(' و ') : '-';
+                let comm2Arr = []; if (s.fin.simPhones > 0) comm2Arr.push(`${s.fin.simPhones} هواتف`); if (s.fin.simHuawei > 0) comm2Arr.push(`${s.fin.simHuawei} هواوى`);
+                let comm2Text = comm2Arr.length > 0 ? comm2Arr.join(' و ') : '-';
+
+                const p = context === 'print' ? 'print' : 'slip';
+                let html = `<div class="${p}-container"><div class="${p}-header">${s.emp.name}</div><table class="${p}-table"><tr class="${p}-bg-g-light"><td colspan="2" class="${p}-td-right" style="width: 77%;">الراتب الأساسي</td><td class="${p}-td-left">${s.baseSalary.toFixed(0)}</td></tr>`;
+                            
+                if(prefs.showSalCash && (!cleanPrint || s.fin.salCash > 0)) html += `<tr class="${p}-bg-g-light ${p}-sub-item"><td class="${p}-td-right">— من الكاش</td><td class="${p}-td-sub-val">${s.fin.salCash.toFixed(0)}</td><td></td></tr>`;
+                if(prefs.showSalTransfer && (!cleanPrint || s.fin.salTransfer > 0)) html += `<tr class="${p}-bg-g-light ${p}-sub-item"><td class="${p}-td-right">— من التحويل</td><td class="${p}-td-sub-val">${s.fin.salTransfer.toFixed(0)}</td><td></td></tr>`;
+                if(prefs.showSalDrawer && (!cleanPrint || s.fin.salDrawer > 0)) html += `<tr class="${p}-bg-g-light ${p}-sub-item"><td class="${p}-td-right">— من الشحن</td><td class="${p}-td-sub-val">${s.fin.salDrawer.toFixed(0)}</td><td></td></tr>`;
+                if(prefs.showSalTailor && (!cleanPrint || s.fin.salTailor > 0)) html += `<tr class="${p}-bg-g-light ${p}-sub-item"><td class="${p}-td-right">— من الخياط</td><td class="${p}-td-sub-val">${s.fin.salTailor.toFixed(0)}</td><td></td></tr>`;
+
+                if(prefs.showUnusedOff && (!cleanPrint || s.unusedOffVal > 0)) html += `<tr class="${p}-bg-g-light"><td class="${p}-td-right">اضافى من الاوف</td><td class="${p}-td-center">${s.unusedOffDays} أيام</td><td class="${p}-td-left">${s.unusedOffVal.toFixed(0)}</td></tr>`;
+                if(prefs.showOvertime && (!cleanPrint || s.overTimeVal > 0)) html += `<tr class="${p}-bg-g-light"><td class="${p}-td-right">اضافى</td><td class="${p}-td-center">${formatHours(s.overTimeHrs)} ساعة</td><td class="${p}-td-left">${s.overTimeVal.toFixed(0)}</td></tr>`;
+                if(prefs.showSalesComm && (!cleanPrint || s.comm1 > 0)) html += `<tr class="${p}-bg-g-light"><td class="${p}-td-right">ع. مبيعات</td><td class="${p}-td-center">${comm1Text}</td><td class="${p}-td-left">${s.comm1.toFixed(0)}</td></tr>`;
+                if(prefs.showSimComm && (!cleanPrint || s.comm2 > 0)) html += `<tr class="${p}-bg-g-light"><td class="${p}-td-right">ع. شرائح</td><td class="${p}-td-center">${comm2Text}</td><td class="${p}-td-left">${s.comm2.toFixed(0)}</td></tr>`;
+                
+                if(prefs.showAbsence && (!cleanPrint || s.absenceVal > 0)) html += `<tr class="${p}-bg-r-light"><td class="${p}-td-right">غياب</td><td class="${p}-td-center">${s.effectiveAbs} أيام</td><td class="${p}-td-left">${s.absenceVal.toFixed(0)}</td></tr>`;
+                if(prefs.showDelay && (!cleanPrint || s.delayVal > 0)) html += `<tr class="${p}-bg-r-light"><td class="${p}-td-right">تأخير</td><td class="${p}-td-center">${formatHours(s.delayHrs)} ساعة</td><td class="${p}-td-left">${s.delayVal.toFixed(0)}</td></tr>`;
+                
+                html += `<tr class="${p}-bg-g-dark"><td colspan="2" class="${p}-td-right">صافى المرتب</td><td class="${p}-td-left">${s.netBeforeDeductions.toFixed(0)}</td></tr>`;
+                         
+                if(prefs.showAdvances && (!cleanPrint || s.fin.advances > 0)) html += `<tr class="${p}-bg-r-light"><td colspan="2" class="${p}-td-right">مسحوبات (سلف)</td><td class="${p}-td-left">${s.fin.advances.toFixed(0)}</td></tr>`;
+                if(prefs.showPurchases && (!cleanPrint || s.fin.purchases > 0)) html += `<tr class="${p}-bg-r-light"><td colspan="2" class="${p}-td-right">آجل النظام</td><td class="${p}-td-left">${s.fin.purchases.toFixed(0)}</td></tr>`;
+                if(prefs.showShipping && (!cleanPrint || s.fin.shippingCredit > 0)) html += `<tr class="${p}-bg-r-light"><td colspan="2" class="${p}-td-right">آجل الشحن</td><td class="${p}-td-left">${s.fin.shippingCredit.toFixed(0)}</td></tr>`;
+                
+                if (prefs.showFinalNet !== false) html += `<tr class="${p}-bg-g-dark"><td colspan="2" class="${p}-td-right">المرتب بعد المسحوبات والاجل</td><td class="${p}-td-left">${s.finalSalary.toFixed(0)}</td></tr>`;
+                
+                html += `</table></div>`; return html;
             },
 
             renderLogs: () => {
                 const month = document.getElementById('filterMonth').value, empId = document.getElementById('filterEmployee').value;
                 const tbody = document.getElementById('logsTableBody'), sumCard = document.getElementById('summaryCard');
                 let filtered = DataLayer.logs.filter(l => l.date.startsWith(month));
-                const cleanPrint = localStorage.getItem('clean_print') === 'true';
                 
                 if (empId !== 'ALL') {
                     filtered = filtered.filter(l => l.empId === empId);
                     const s = AppController.calculateSummary(empId, month);
-                    if(s) {
-                        const prefs = s.emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true };
-                        
-                        document.getElementById('sumEmpName').textContent = s.emp.name; document.getElementById('sumBaseSalary').textContent = s.baseSalary.toFixed(0);
-                        
-                        document.getElementById('rowSalCash').classList.toggle('hidden', !prefs.showSalCash || (cleanPrint && s.fin.salCash === 0));
-                        document.getElementById('sumSalCashVal').textContent = s.fin.salCash.toFixed(0);
-                        
-                        document.getElementById('rowSalTransfer').classList.toggle('hidden', !prefs.showSalTransfer || (cleanPrint && s.fin.salTransfer === 0));
-                        document.getElementById('sumSalTransferVal').textContent = s.fin.salTransfer.toFixed(0);
-                        
-                        document.getElementById('rowSalDrawer').classList.toggle('hidden', !prefs.showSalDrawer || (cleanPrint && s.fin.salDrawer === 0));
-                        document.getElementById('sumSalDrawerVal').textContent = s.fin.salDrawer.toFixed(0);
-                        
-                        document.getElementById('rowSalTailor').classList.toggle('hidden', !prefs.showSalTailor || (cleanPrint && s.fin.salTailor === 0));
-                        document.getElementById('sumSalTailorVal').textContent = s.fin.salTailor.toFixed(0);
-
-                        document.getElementById('rowUnusedOff').classList.toggle('hidden', !prefs.showUnusedOff || (cleanPrint && s.unusedOffVal === 0));
-                        document.getElementById('sumUnusedOffDays').textContent = `${s.unusedOffDays} أيام`;
-                        document.getElementById('sumUnusedOffVal').textContent = s.unusedOffVal.toFixed(0);
-                        
-                        document.getElementById('rowOvertime').classList.toggle('hidden', !prefs.showOvertime || (cleanPrint && s.overTimeVal === 0));
-                        document.getElementById('sumOvertimeHrs').textContent = `${formatHours(s.overTimeHrs)} ساعة`;
-                        document.getElementById('sumOvertimeVal').textContent = s.overTimeVal.toFixed(0);
-                        
-                        document.getElementById('rowComm1').classList.toggle('hidden', !prefs.showSalesComm || (cleanPrint && s.comm1 === 0));
-                        let comm1Arr = [];
-                        if (s.fin.tabby > 0) comm1Arr.push(`${s.fin.tabby} تابى`);
-                        if (s.fin.tamara > 0) comm1Arr.push(`${s.fin.tamara} تمارا`);
-                        if (s.fin.mora > 0) comm1Arr.push(`${s.fin.mora} مورا`);
-                        document.getElementById('sumComm1Text').textContent = comm1Arr.length > 0 ? comm1Arr.join(' و ') : '-';
-                        document.getElementById('sumComm1Val').textContent = s.comm1.toFixed(0);
-                        
-                        document.getElementById('rowComm2').classList.toggle('hidden', !prefs.showSimComm || (cleanPrint && s.comm2 === 0));
-                        let comm2Arr = [];
-                        if (s.fin.simPhones > 0) comm2Arr.push(`${s.fin.simPhones} هواتف`);
-                        if (s.fin.simHuawei > 0) comm2Arr.push(`${s.fin.simHuawei} هواوى`);
-                        document.getElementById('sumComm2Text').textContent = comm2Arr.length > 0 ? comm2Arr.join(' و ') : '-';
-                        document.getElementById('sumComm2Val').textContent = s.comm2.toFixed(0);
-                        
-                        document.getElementById('rowAbsence').classList.toggle('hidden', !prefs.showAbsence || (cleanPrint && s.absenceVal === 0));
-                        document.getElementById('sumAbsenceDays').textContent = `${s.effectiveAbs} أيام`;
-                        document.getElementById('sumAbsenceVal').textContent = s.absenceVal.toFixed(0);
-                        
-                        document.getElementById('rowDelay').classList.toggle('hidden', !prefs.showDelay || (cleanPrint && s.delayVal === 0));
-                        document.getElementById('sumDelayHrs').textContent = `${formatHours(s.delayHrs)} ساعة`;
-                        document.getElementById('sumDelayVal').textContent = s.delayVal.toFixed(0);
-                        
-                        document.getElementById('sumNet').textContent = s.netBeforeDeductions.toFixed(0);
-                        
-                        document.getElementById('rowAdvances').classList.toggle('hidden', !prefs.showAdvances || (cleanPrint && s.fin.advances === 0)); 
-                        document.getElementById('sumAdvancesVal').textContent = s.fin.advances.toFixed(0);
-                        
-                        document.getElementById('rowPurchases').classList.toggle('hidden', !prefs.showPurchases || (cleanPrint && s.fin.purchases === 0)); 
-                        document.getElementById('sumPurchasesVal').textContent = s.fin.purchases.toFixed(0);
-                        
-                        document.getElementById('rowShipping').classList.toggle('hidden', !prefs.showShipping || (cleanPrint && s.fin.shippingCredit === 0)); 
-                        document.getElementById('sumShippingVal').textContent = s.fin.shippingCredit.toFixed(0);
-                        
-                        document.getElementById('rowFinal').classList.toggle('hidden', prefs.showFinalNet === false);
-                        document.getElementById('sumFinal').textContent = s.finalSalary.toFixed(0);
-                        
-                        sumCard.classList.remove('hidden');
-                    }
+                    if(s) { document.getElementById('slipDisplayArea').innerHTML = AppController.generateSlipHTML(s, 'slip'); sumCard.classList.remove('hidden'); }
                 } else { sumCard.classList.add('hidden'); }
 
                 tbody.innerHTML = '';
@@ -797,7 +858,7 @@
                 DataLayer.employees.forEach(emp => {
                     const fin = DataLayer.getFinancials(emp.id, month);
                     tbody.innerHTML += `<tr>
-                        <td><strong>${emp.name}</strong></td>
+                        <td class="sticky-col"><strong>${emp.name}</strong></td>
                         <td><input type="number" class="fin-input" value="${fin.salCash}" onchange="AppController.updateFin('${emp.id}','salCash',this.value)"></td>
                         <td><input type="number" class="fin-input" value="${fin.salTransfer}" onchange="AppController.updateFin('${emp.id}','salTransfer',this.value)"></td>
                         <td><input type="number" class="fin-input" value="${fin.salDrawer}" onchange="AppController.updateFin('${emp.id}','salDrawer',this.value)"></td>
@@ -812,99 +873,29 @@
                         <td><input type="number" class="fin-input" value="${fin.simHuawei}" onchange="AppController.updateFin('${emp.id}','simHuawei',this.value)"></td></tr>`;
                 });
             },
-            updateFin: (empId, field, val) => {
-                const month = document.getElementById('finMonth').value;
-                DataLayer.updateFinancials(empId, month, field, val); AppController.showToast('تم الحفظ التلقائي');
-                if (document.getElementById('filterEmployee').value === empId && document.getElementById('filterMonth').value === month) AppController.renderLogs();
-            },
+            updateFin: (empId, field, val) => { const month = document.getElementById('finMonth').value; DataLayer.updateFinancials(empId, month, field, val); AppController.showToast('تم الحفظ التلقائي'); if (document.getElementById('filterEmployee').value === empId && document.getElementById('filterMonth').value === month) AppController.renderLogs(); },
 
-            // --- Robust Printing ---
             printHTML: (htmlContent) => {
-                const printArea = document.getElementById('printArea');
-                printArea.innerHTML = htmlContent;
-                void printArea.offsetHeight; 
-                window.print();
-            },
-            
-            generateSlipHTML: (s, isGlobal = false) => {
-                const prefs = s.emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true };
-                const cleanPrint = localStorage.getItem('clean_print') === 'true';
-
-                let comm1Arr = [];
-                if (s.fin.tabby > 0) comm1Arr.push(`${s.fin.tabby} تابى`);
-                if (s.fin.tamara > 0) comm1Arr.push(`${s.fin.tamara} تمارا`);
-                if (s.fin.mora > 0) comm1Arr.push(`${s.fin.mora} مورا`);
-                let comm1Text = comm1Arr.length > 0 ? comm1Arr.join(' و ') : '-';
-
-                let comm2Arr = [];
-                if (s.fin.simPhones > 0) comm2Arr.push(`${s.fin.simPhones} هواتف`);
-                if (s.fin.simHuawei > 0) comm2Arr.push(`${s.fin.simHuawei} هواوى`);
-                let comm2Text = comm2Arr.length > 0 ? comm2Arr.join(' و ') : '-';
-
-                let html = `<div class="slip-container">
-                                <div class="slip-header">${s.emp.name}</div>
-                                <table class="slip-table">
-                                    <tr class="print-bg-g-light"><td colspan="2" class="print-td-right">الراتب الأساسي</td><td class="print-td-left">${s.baseSalary.toFixed(0)}</td></tr>`;
-                            
-                if(prefs.showSalCash && (!cleanPrint || s.fin.salCash > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من الكاش</td><td class="print-td-sub-val">${s.fin.salCash.toFixed(0)}</td><td></td></tr>`;
-                if(prefs.showSalTransfer && (!cleanPrint || s.fin.salTransfer > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من التحويل</td><td class="print-td-sub-val">${s.fin.salTransfer.toFixed(0)}</td><td></td></tr>`;
-                if(prefs.showSalDrawer && (!cleanPrint || s.fin.salDrawer > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من الشحن</td><td class="print-td-sub-val">${s.fin.salDrawer.toFixed(0)}</td><td></td></tr>`;
-                if(prefs.showSalTailor && (!cleanPrint || s.fin.salTailor > 0)) html += `<tr class="print-bg-g-light print-sub-item"><td class="print-td-right">— من الخياط</td><td class="print-td-sub-val">${s.fin.salTailor.toFixed(0)}</td><td></td></tr>`;
-
-                if(prefs.showUnusedOff && (!cleanPrint || s.unusedOffVal > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى من الاوف</td><td class="print-td-center">${s.unusedOffDays} أيام</td><td class="print-td-left">${s.unusedOffVal.toFixed(0)}</td></tr>`;
-                if(prefs.showOvertime && (!cleanPrint || s.overTimeVal > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">اضافى</td><td class="print-td-center">${formatHours(s.overTimeHrs)} ساعة</td><td class="print-td-left">${s.overTimeVal.toFixed(0)}</td></tr>`;
-                if(prefs.showSalesComm && (!cleanPrint || s.comm1 > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. مبيعات</td><td class="print-td-center">${comm1Text}</td><td class="print-td-left">${s.comm1.toFixed(0)}</td></tr>`;
-                if(prefs.showSimComm && (!cleanPrint || s.comm2 > 0)) html += `<tr class="print-bg-g-light"><td class="print-td-right">ع. شرائح</td><td class="print-td-center">${comm2Text}</td><td class="print-td-left">${s.comm2.toFixed(0)}</td></tr>`;
-                
-                if(prefs.showAbsence && (!cleanPrint || s.absenceVal > 0)) html += `<tr class="print-bg-r-light"><td class="print-td-right">غياب</td><td class="print-td-center">${s.effectiveAbs} أيام</td><td class="print-td-left">${s.absenceVal.toFixed(0)}</td></tr>`;
-                if(prefs.showDelay && (!cleanPrint || s.delayVal > 0)) html += `<tr class="print-bg-r-light"><td class="print-td-right">تأخير</td><td class="print-td-center">${formatHours(s.delayHrs)} ساعة</td><td class="print-td-left">${s.delayVal.toFixed(0)}</td></tr>`;
-                
-                html += `<tr class="print-bg-g-dark"><td colspan="2" class="print-td-right">صافى المرتب</td><td class="print-td-left">${s.netBeforeDeductions.toFixed(0)}</td></tr>`;
-                         
-                if(prefs.showAdvances && (!cleanPrint || s.fin.advances > 0)) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">مسحوبات (سلف)</td><td class="print-td-left">${s.fin.advances.toFixed(0)}</td></tr>`;
-                if(prefs.showPurchases && (!cleanPrint || s.fin.purchases > 0)) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">آجل النظام</td><td class="print-td-left">${s.fin.purchases.toFixed(0)}</td></tr>`;
-                if(prefs.showShipping && (!cleanPrint || s.fin.shippingCredit > 0)) html += `<tr class="print-bg-r-light"><td colspan="2" class="print-td-right">آجل الشحن</td><td class="print-td-left">${s.fin.shippingCredit.toFixed(0)}</td></tr>`;
-                
-                if (prefs.showFinalNet !== false) html += `<tr class="print-bg-g-dark"><td colspan="2" class="print-td-right">المرتب بعد المسحوبات والاجل</td><td class="print-td-left">${s.finalSalary.toFixed(0)}</td></tr>`;
-                
-                html += `</table></div>`;
-                return html;
+                const printArea = document.getElementById('printArea'); printArea.innerHTML = htmlContent;
+                setTimeout(() => { window.print(); }, 200);
             },
 
             exportEmployeePDF: () => {
                 const month = document.getElementById('filterMonth').value, empId = document.getElementById('filterEmployee').value;
                 const s = AppController.calculateSummary(empId, month); if (!s) return;
-                AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s, false)}</div>`);
+                AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}</div>`);
             },
 
             exportGlobalPDF: () => {
-                const month = document.getElementById('finMonth').value;
-                if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
-
+                const month = document.getElementById('finMonth').value; if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
                 let html = `<div class="global-print-title">مسير الرواتب (كروت مجمعة) لشهر: <span dir="ltr">${month}</span></div><div class="bulk-print-grid">`;
-                DataLayer.employees.forEach(emp => { const s = AppController.calculateSummary(emp.id, month); if(s) html += AppController.generateSlipHTML(s, true); });
+                DataLayer.employees.forEach(emp => { const s = AppController.calculateSummary(emp.id, month); if(s) html += AppController.generateSlipHTML(s, 'print'); });
                 html += `</div>`; AppController.printHTML(html);
             },
 
             clearAll: () => { if(confirm('تنبيه: سيتم مسح كافة البيانات بشكل نهائي! هل أنت متأكد؟')) { StorageManager.clearAll(); location.reload(); } },
-            backupJSON: () => {
-                const b = new Blob([JSON.stringify({ employees: DataLayer.employees, logs: DataLayer.logs, financials: DataLayer.financials })], { type: 'application/json' });
-                const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `backup_${new Date().toISOString().substring(0,10)}.json`; l.click();
-            },
-            restoreJSON: (e) => {
-                const file = e.target.files[0]; if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        if(data.employees) StorageManager.set('db_employees', data.employees);
-                        if(data.logs) StorageManager.set('db_logs', data.logs);
-                        if(data.financials) StorageManager.set('db_financials', data.financials);
-                        alert('تم استرجاع البيانات بنجاح!');
-                        window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); 
-                    } catch { alert('ملف غير صالح'); }
-                }; reader.readAsText(file);
-            }
+            backupJSON: () => { const b = new Blob([JSON.stringify({ employees: DataLayer.employees, logs: DataLayer.logs, financials: DataLayer.financials, posDaily: DataLayer.posDaily, posTrans: DataLayer.posTrans, posSims: DataLayer.posSims, posExpenses: DataLayer.posExpenses, settings: DataLayer.settings })], { type: 'application/json' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `backup_${new Date().toISOString().substring(0,10)}.json`; l.click(); },
+            restoreJSON: (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const data = JSON.parse(event.target.result); if(data.employees) StorageManager.set('db_employees', data.employees); if(data.logs) StorageManager.set('db_logs', data.logs); if(data.financials) StorageManager.set('db_financials', data.financials); if(data.posDaily) StorageManager.set('db_pos_daily', data.posDaily); if(data.posTrans) StorageManager.set('db_pos_trans', data.posTrans); if(data.posSims) StorageManager.set('db_pos_sims', data.posSims); if(data.posExpenses) StorageManager.set('db_pos_expenses', data.posExpenses); if(data.settings) StorageManager.set('db_settings', data.settings); alert('تم استرجاع البيانات بنجاح!'); window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); } catch { alert('ملف غير صالح'); } }; reader.readAsText(file); }
         };
 
         document.addEventListener('DOMContentLoaded', AppController.init);
