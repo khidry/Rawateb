@@ -423,14 +423,20 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>رصيد الصندوق أول المدة (ش. هواتف)</label>
-                        <input type="number" id="initBoxPhones" onchange="AppController.saveInitBox('phones', this.value)">
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="number" id="initBoxPhones" onchange="AppController.saveInitBox('phones', this.value)" style="flex:1;">
+                            <button type="button" id="initBoxPhonesUnlockBtn" class="icon-btn hidden" onclick="AppController.unlockInitBox('phones')" title="فتح للتعديل"><span class="material-icons">lock</span></button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>رصيد الصندوق أول المدة (ش. هواوي)</label>
-                        <input type="number" id="initBoxHuawei" onchange="AppController.saveInitBox('huawei', this.value)">
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="number" id="initBoxHuawei" onchange="AppController.saveInitBox('huawei', this.value)" style="flex:1;">
+                            <button type="button" id="initBoxHuaweiUnlockBtn" class="icon-btn hidden" onclick="AppController.unlockInitBox('huawei')" title="فتح للتعديل"><span class="material-icons">lock</span></button>
+                        </div>
                     </div>
                 </div>
-                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">هذا الرصيد سيُستخدم كـ "رصيد أمس" في أول يوم عمل للنظام فقط ليبدأ منه الحساب التراكمي للصندوق.</p>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">هذا الرصيد سيُستخدم كـ "رصيد أمس" في أول يوم عمل للنظام فقط ليبدأ منه الحساب التراكمي للصندوق. بمجرد الحفظ يتم تثبيت الخانة، ولازم رمز الدخول لفتحها للتعديل تاني.</p>
             </div>
 
             <div class="card mb-15">
@@ -609,6 +615,7 @@
 
             getPosDaily: (module, date) => { let rec = DataLayer.posDaily.find(p => p.module === module && p.date === date); if(!rec) { rec = { module, date, accounts: {}, totalCash: 0 }; } return rec; },
             getPosPrevDaily: (module, currentDate) => { let past = DataLayer.posDaily.filter(p => p.module === module && p.date < currentDate).sort((a,b) => b.date.localeCompare(a.date)); return past.length > 0 ? past[0] : null; },
+            getLastDataDateInMonth: (module, month, upperBoundDate) => { let dates = DataLayer.posDaily.filter(p => p.module === module && p.date.startsWith(month) && p.date <= upperBoundDate).map(p => p.date); return dates.length > 0 ? dates.sort().slice(-1)[0] : null; },
             savePosDaily: (module, date, data) => { let idx = DataLayer.posDaily.findIndex(p => p.module === module && p.date === date); if(idx > -1) DataLayer.posDaily[idx] = data; else DataLayer.posDaily.push(data); StorageManager.set('db_pos_daily', DataLayer.posDaily); },
             
             getPosTrans: (module, date) => DataLayer.posTrans.filter(t => t.module === module && t.date === date),
@@ -848,6 +855,7 @@
 
                 document.getElementById('initBoxPhones').value = DataLayer.settings.initBoxPhones || '';
                 document.getElementById('initBoxHuawei').value = DataLayer.settings.initBoxHuawei || '';
+                AppController.applyInitBoxLockState('phones'); AppController.applyInitBoxLockState('huawei');
 
                 const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
                 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
@@ -892,8 +900,32 @@
             saveCommRate: (key, val) => { DataLayer.saveCommRate(key, val); AppController.showToast('تم حفظ نسبة العمولة'); },
             saveInitBox: (mod, val) => {
                 DataLayer.saveSettings(mod === 'phones' ? 'initBoxPhones' : 'initBoxHuawei', val);
+                DataLayer.settings[mod === 'phones' ? 'initBoxPhonesLocked' : 'initBoxHuaweiLocked'] = true;
+                StorageManager.set('db_settings', DataLayer.settings);
+                AppController.applyInitBoxLockState(mod);
                 PosController.loadPhonesData(); PosController.loadHuaweiData();
-                AppController.showToast('تم حفظ الرصيد الافتتاحي');
+                AppController.showToast('تم حفظ وتثبيت الرصيد الافتتاحي');
+            },
+            applyInitBoxLockState: (mod) => {
+                const inputId = mod === 'phones' ? 'initBoxPhones' : 'initBoxHuawei';
+                const btnId = mod === 'phones' ? 'initBoxPhonesUnlockBtn' : 'initBoxHuaweiUnlockBtn';
+                const locked = !!DataLayer.settings[mod === 'phones' ? 'initBoxPhonesLocked' : 'initBoxHuaweiLocked'];
+                document.getElementById(inputId).readOnly = locked;
+                document.getElementById(btnId).classList.toggle('hidden', !locked);
+            },
+            unlockInitBox: (mod) => {
+                const storedPin = localStorage.getItem('db_pin');
+                if (storedPin) {
+                    const val = prompt('أدخل رمز الدخول لفتح تعديل الرصيد الافتتاحي:');
+                    if (val === null) return;
+                    if (btoa(val) !== storedPin) return alert('رمز غير صحيح');
+                } else {
+                    if (!confirm('لا يوجد رمز دخول مفعّل حاليًا لحماية هذه الخانة. تحب تفتحها للتعديل؟ (يفضّل تعمل رمز دخول من قسم "الأمان" أولاً)')) return;
+                }
+                DataLayer.settings[mod === 'phones' ? 'initBoxPhonesLocked' : 'initBoxHuaweiLocked'] = false;
+                StorageManager.set('db_settings', DataLayer.settings);
+                AppController.applyInitBoxLockState(mod);
+                AppController.showToast('تم فتح الخانة للتعديل');
             },
             
             showToast: (msg, type = 'success') => { const t = document.getElementById('toast'); t.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`; t.style.backgroundColor = type === 'success' ? 'var(--text-main)' : 'var(--danger)'; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); },
@@ -1054,11 +1086,20 @@
                 const month = document.getElementById('reportSimsMonth').value; if(!month) return AppController.showToast('اختر الشهر', 'error');
                 const lastDay = new Date(parseInt(month.substring(0,4)), parseInt(month.substring(5,7)), 0).getDate();
                 const endDate = `${month}-${String(lastDay).padStart(2,'0')}`;
-                const dataPhones = PosController.computeModuleData('phones', endDate);
-                const dataHuawei = PosController.computeModuleData('huawei', endDate);
+                // نثبّت الربح التراكمي عند آخر يوم فيه بيانات فعلية مسجلة خلال الشهر، مش عند تاريخ نهاية الشهر التقويمي (اللي ممكن يكون فاضي)
+                const lastDatePhones = DataLayer.getLastDataDateInMonth('phones', month, endDate) || endDate;
+                const lastDateHuawei = DataLayer.getLastDataDateInMonth('huawei', month, endDate) || endDate;
+                const dataPhones = PosController.computeModuleData('phones', lastDatePhones);
+                const dataHuawei = PosController.computeModuleData('huawei', lastDateHuawei);
 
                 const buildBranchTable = (title, data) => {
-                    let rows = data.rows.map(r => `<tr><td style="border:1px solid #000;padding:3px;">${r.acc}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${r.cumSims1 + r.cumSims2}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${r.cumProfit.toFixed(0)}</td></tr>`).join('');
+                    let rows = data.rows.map(r => {
+                        let simsCell;
+                        if (r.acc === 'ي. سوا') simsCell = `سوا: ${r.cumSims1} <br> جوي: ${r.cumSims2}`;
+                        else if (r.acc === 'ي. فريندى') simsCell = `فريندي: ${r.cumSims1} <br> فيرجن: ${r.cumSims2}`;
+                        else simsCell = `${r.cumSims1 + r.cumSims2}`;
+                        return `<tr><td style="border:1px solid #000;padding:3px;">${r.acc}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${simsCell}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${r.cumProfit.toFixed(0)}</td></tr>`;
+                    }).join('');
                     return `<h3 style="font-size:14px;margin:12px 0 5px;">${title}</h3><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#eaf1e3;"><th style="border:1px solid #000;padding:3px;">الحساب</th><th style="border:1px solid #000;padding:3px;">تراكمي الشرائح</th><th style="border:1px solid #000;padding:3px;">تراكمي الفايدة</th></tr></thead><tbody>${rows}<tr style="font-weight:bold;background:#f0f0f0;"><td style="border:1px solid #000;padding:3px;">إجمالي ${title}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumSims}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumProfit.toFixed(0)}</td></tr></tbody></table>`;
                 };
 
