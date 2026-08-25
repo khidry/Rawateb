@@ -39,17 +39,26 @@
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; width: 100%; }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; width: 100%; min-width: 0; overflow: hidden; }
         .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; color: var(--primary); }
         
-        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; width: 100%; }
-        .form-group { display: flex; flex-direction: column; width: 100%; min-width: 0; }
+        .form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin-bottom: 15px; width: 100%; min-width: 0; }
+        .form-group { display: flex; flex-direction: column; width: 100%; min-width: 0; overflow: hidden; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--text-main); }
-        input, select { width: 100%; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+        input, select { width: 100%; max-width: 100%; min-width: 0; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box; }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
-        /* أنواع date/time بتاخد اتجاه LTR داخليًا حتى في صفحة RTL، وإلا القيمة بتفيض بره حدود الصندوق على iOS. min-width:0 يمنع الصندوق إنه يكبر عن عرض عمود الـgrid */
-        input[type="date"], input[type="time"] { direction: ltr; text-align: right; min-width: 0; }
-        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; gap: 12px; } }
+        /* حقول التاريخ/الشهر/الوقت في iOS لها عرض داخلي أكبر أحيانًا من الحاوية. نثبت الاتجاه والعرض ونمنع الـoverflow. */
+        input[type="date"], input[type="month"], input[type="time"] {
+            direction: ltr;
+            text-align: center;
+            min-width: 0;
+            max-width: 100%;
+            width: 100%;
+            display: block;
+            overflow: hidden;
+            -webkit-appearance: auto;
+        }
+        @media (max-width: 480px) { .form-row { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
 
         .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; }
         .btn:active { opacity: 0.8; }
@@ -438,7 +447,7 @@
                         </div>
                     </div>
                 </div>
-                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">هذا الرصيد سيُستخدم كـ "رصيد أمس" في أول يوم عمل للنظام فقط ليبدأ منه الحساب التراكمي للصندوق. بمجرد الحفظ يتم تثبيت الخانة، ولازم رمز الدخول لفتحها للتعديل تاني.</p>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">هذا الرصيد سيُستخدم كـ "رصيد أمس" في أول يوم عمل للنظام فقط. يتم حفظه داخل بيانات النظام نفسها ويظل موجودًا بعد إغلاق التطبيق وإعادة فتحه، وتُستخدم خانة القفل فقط لمنع التعديل غير المقصود.</p>
             </div>
 
             <div class="card mb-15">
@@ -589,14 +598,29 @@
 
     <script>
         const StorageManager = {
-            get: (key) => JSON.parse(localStorage.getItem(key)) || [],
+            get: (key, fallback = []) => {
+                const raw = localStorage.getItem(key);
+                if (raw === null) return fallback;
+                try {
+                    const parsed = JSON.parse(raw);
+                    return parsed === null || parsed === undefined ? fallback : parsed;
+                } catch (e) {
+                    console.warn('تعذر قراءة البيانات المحفوظة:', key, e);
+                    return fallback;
+                }
+            },
             set: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
             clearAll: () => localStorage.clear()
         };
 
 
         const DataLayer = {
-            settings: StorageManager.get('db_settings') || { initBoxPhones: 0, initBoxHuawei: 0 },
+            // مهم: الإعدادات كائن وليست مصفوفة. الكود القديم كان يعيد [] عند عدم وجود db_settings،
+            // ثم JSON.stringify([]) كان يتجاهل الخصائص مثل initBoxPhones وinitBoxHuawei، فتختفي بعد إعادة فتح التطبيق.
+            settings: (() => {
+                const s = StorageManager.get('db_settings', {});
+                return (s && !Array.isArray(s) && typeof s === 'object') ? s : { initBoxPhones: 0, initBoxHuawei: 0 };
+            })(),
             employees: StorageManager.get('db_employees'), logs: StorageManager.get('db_logs'), financials: StorageManager.get('db_financials'), 
             posDaily: StorageManager.get('db_pos_daily'), posTrans: StorageManager.get('db_pos_trans'), posSims: StorageManager.get('db_pos_sims'),
             posExpenses: StorageManager.get('db_pos_expenses'), activityLog: StorageManager.get('db_activity_log'),
@@ -644,6 +668,8 @@
         };
 
         if (!DataLayer.settings.commRates) DataLayer.settings.commRates = { tabby: 20, tamara: 20, mora: 100, simRate: 5 };
+        // يضمن أن كائن الإعدادات الصحيح يُحفظ فعليًا، حتى لو كان الإصدار السابق قد أنشأ db_settings كمصفوفة.
+        StorageManager.set('db_settings', DataLayer.settings);
 
         const formatHours = (decimalHours) => { let hrs = Math.floor(Math.abs(decimalHours)); let mins = Math.round((Math.abs(decimalHours) - hrs) * 60); if(mins === 60){ hrs++; mins = 0;} return `${hrs}:${mins.toString().padStart(2, '0')}`; };
 
