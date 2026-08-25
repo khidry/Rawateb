@@ -43,10 +43,12 @@
         .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; color: var(--primary); }
         
         .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; width: 100%; }
-        .form-group { display: flex; flex-direction: column; width: 100%; }
+        .form-group { display: flex; flex-direction: column; width: 100%; min-width: 0; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--text-main); }
         input, select { width: 100%; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box; }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
+        /* أنواع date/time بتاخد اتجاه LTR داخليًا حتى في صفحة RTL، وإلا القيمة بتفيض بره حدود الصندوق على iOS. min-width:0 يمنع الصندوق إنه يكبر عن عرض عمود الـgrid */
+        input[type="date"], input[type="time"] { direction: ltr; text-align: right; min-width: 0; }
         @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; gap: 12px; } }
 
         .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; }
@@ -258,7 +260,7 @@
                     <table class="data-table" style="min-width: 980px;">
                         <thead>
                             <tr>
-                                <th class="sticky-col" style="min-width: 100px;">الحساب</th>
+                                <th class="sticky-col" style="min-width: 68px; font-size:12px;">الحساب</th>
                                 <th>رصيد أمس</th>
                                 <th style="color:var(--primary)">شحن (+)</th>
                                 <th style="color:var(--danger)">الرصيد (-)</th>
@@ -308,7 +310,7 @@
                     <table class="data-table" style="min-width: 980px;">
                         <thead>
                             <tr>
-                                <th class="sticky-col" style="min-width: 100px;">الحساب</th>
+                                <th class="sticky-col" style="min-width: 68px; font-size:12px;">الحساب</th>
                                 <th>رصيد أمس</th>
                                 <th style="color:var(--primary)">شحن (+)</th>
                                 <th style="color:var(--danger)">الرصيد (-)</th>
@@ -703,7 +705,10 @@
 
                 let rows = accs.map((acc, idx) => {
                     let prevBal = prevData?.accounts[idx]?.balance || 0;
-                    let todayRec = todayData.accounts[idx]?.recharge || ''; let todayBal = todayData.accounts[idx]?.balance || ''; let todaySal = todayData.accounts[idx]?.sales || '';
+                    let todayRec = todayData.accounts[idx]?.recharge || ''; let todaySal = todayData.accounts[idx]?.sales || '';
+                    let todayBalRaw = todayData.accounts[idx]?.balance;
+                    // الرصيد يبدأ تلقائي = رصيد أمس طالما لسه محدش عدّله يدوي؛ أول ما يتعدّل يدوي بيتحفظ بالقيمة الجديدة عادي
+                    let todayBal = (todayBalRaw !== undefined && todayBalRaw !== '') ? todayBalRaw : prevBal;
                     let todaySims1 = todayData.accounts[idx]?.sims1 !== undefined ? todayData.accounts[idx]?.sims1 : (todayData.accounts[idx]?.sims || '');
                     let todaySims2 = todayData.accounts[idx]?.sims2 || '';
                     let numRec = parseFloat(todayRec)||0; let numBal = parseFloat(todayBal)||0; let numSal = parseFloat(todaySal)||0;
@@ -753,7 +758,7 @@
                         : `<span style="color:var(--primary)">${r.cumSims1}</span>`;
 
                     tbody.innerHTML += `<tr>
-                        <td class="sticky-col"><strong>${r.acc}</strong></td>
+                        <td class="sticky-col" style="font-size:12px; padding:6px 4px;"><strong>${r.acc}</strong></td>
                         <td>${r.prevBal}</td>
                         <td><input type="number" class="fin-input" value="${r.todayRec}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'recharge', this.value)"></td>
                         <td><input type="number" class="fin-input" value="${r.todayBal}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'balance', this.value)"></td>
@@ -766,7 +771,7 @@
                 });
 
                 tbody.innerHTML += `<tr style="font-weight:bold; border-top:2px solid var(--text-main); background:var(--bg-color);">
-                    <td class="sticky-col" style="background:var(--bg-color);">الإجمالي</td>
+                    <td class="sticky-col" style="background:var(--bg-color); font-size:11px; padding:6px 4px;">الإجمالي</td>
                     <td>${data.totalPrevBal.toFixed(0)}</td>
                     <td>${data.totalRecSum.toFixed(0)}</td>
                     <td>${data.totalBalances.toFixed(0)}</td>
