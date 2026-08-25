@@ -39,26 +39,27 @@
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; width: 100%; min-width: 0; overflow: hidden; }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; width: 100%; }
         .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; color: var(--primary); }
         
-        .form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin-bottom: 15px; width: 100%; min-width: 0; }
-        .form-group { display: flex; flex-direction: column; width: 100%; min-width: 0; overflow: hidden; }
+        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; width: 100%; }
+        /* إصلاح خروج الصناديق عن الإطار */
+        .form-group { display: flex; flex-direction: column; width: 100%; min-width: 0; max-width: 100%; overflow: hidden; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--text-main); }
-        input, select { width: 100%; max-width: 100%; min-width: 0; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+        
+        input, select { width: 100%; max-width: 100%; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box; }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
-        /* حقول التاريخ/الشهر/الوقت في iOS لها عرض داخلي أكبر أحيانًا من الحاوية. نثبت الاتجاه والعرض ونمنع الـoverflow. */
-        input[type="date"], input[type="month"], input[type="time"] {
-            direction: ltr;
-            text-align: center;
-            min-width: 0;
-            max-width: 100%;
-            width: 100%;
-            display: block;
-            overflow: hidden;
-            -webkit-appearance: auto;
+        
+        /* توافق أفضل مع الآيفون لمنع التمدد */
+        input[type="date"], input[type="time"], input[type="month"] { 
+            direction: rtl; 
+            text-align: right; 
+            display: block; 
+            width: 100%; 
+            font-family: inherit;
         }
-        @media (max-width: 480px) { .form-row { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+
+        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; gap: 12px; } }
 
         .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; }
         .btn:active { opacity: 0.8; }
@@ -186,7 +187,7 @@
 </head>
 <body>
 
-    <!-- شاشة قفل الدخول (تظهر فقط لو تم تفعيل رمز دخول من الإعدادات) -->
+    <!-- شاشة قفل الدخول -->
     <div id="lockScreen" class="hidden">
         <div class="lock-card">
             <span class="material-icons" style="font-size:40px;color:var(--primary);">lock</span>
@@ -197,7 +198,6 @@
         </div>
     </div>
 
-    <!-- القائمة المنسدلة للبيان (تعمل تلقائياً) -->
     <datalist id="descList"></datalist>
 
     <header class="app-header">
@@ -265,6 +265,12 @@
                     <input type="date" id="phonesDate" required onchange="PosController.loadPhonesData()">
                 </div>
                 
+                <!-- رصيد أول المدة يظهر فقط هنا ولمرة واحدة -->
+                <div id="phonesInitBoxContainer" class="form-group mb-15 hidden" style="background: var(--primary); padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <label style="color: white; margin-bottom: 8px;">رصيد أول المدة للصندوق (يظهر لأول سجل فقط!)</label>
+                    <input type="number" id="phonesFirstBalance" onchange="PosController.saveFirstBalance('phones', this.value)" placeholder="أدخل الرصيد لمرة واحدة" style="background: #fff; border: none; font-size: 16px; font-weight: bold; text-align: center;">
+                </div>
+                
                 <div class="table-responsive">
                     <table class="data-table" style="min-width: 980px;">
                         <thead>
@@ -313,6 +319,12 @@
                 <div class="flex-between mb-15">
                     <h2>مبيعات هواوي (ش. هواوي)</h2>
                     <input type="date" id="huaweiDate" required onchange="PosController.loadHuaweiData()">
+                </div>
+                
+                <!-- رصيد أول المدة يظهر فقط هنا ولمرة واحدة -->
+                <div id="huaweiInitBoxContainer" class="form-group mb-15 hidden" style="background: var(--primary); padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <label style="color: white; margin-bottom: 8px;">رصيد أول المدة للصندوق (يظهر لأول سجل فقط!)</label>
+                    <input type="number" id="huaweiFirstBalance" onchange="PosController.saveFirstBalance('huawei', this.value)" placeholder="أدخل الرصيد لمرة واحدة" style="background: #fff; border: none; font-size: 16px; font-weight: bold; text-align: center;">
                 </div>
                 
                 <div class="table-responsive">
@@ -429,27 +441,6 @@
         <!-- 6. شاشة الإعدادات -->
         <div id="view-settings" class="view">
             
-            <div class="card mb-15">
-                <h2>إعدادات الأرصدة الافتتاحية (لمرة واحدة)</h2>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>رصيد الصندوق أول المدة (ش. هواتف)</label>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <input type="number" id="initBoxPhones" onchange="AppController.saveInitBox('phones', this.value)" style="flex:1;">
-                            <button type="button" id="initBoxPhonesUnlockBtn" class="icon-btn hidden" onclick="AppController.unlockInitBox('phones')" title="فتح للتعديل"><span class="material-icons">lock</span></button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>رصيد الصندوق أول المدة (ش. هواوي)</label>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <input type="number" id="initBoxHuawei" onchange="AppController.saveInitBox('huawei', this.value)" style="flex:1;">
-                            <button type="button" id="initBoxHuaweiUnlockBtn" class="icon-btn hidden" onclick="AppController.unlockInitBox('huawei')" title="فتح للتعديل"><span class="material-icons">lock</span></button>
-                        </div>
-                    </div>
-                </div>
-                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">هذا الرصيد سيُستخدم كـ "رصيد أمس" في أول يوم عمل للنظام فقط. يتم حفظه داخل بيانات النظام نفسها ويظل موجودًا بعد إغلاق التطبيق وإعادة فتحه، وتُستخدم خانة القفل فقط لمنع التعديل غير المقصود.</p>
-            </div>
-
             <div class="card mb-15">
                 <h2>إعدادات الطباعة</h2>
                 <label style="display:flex; align-items:center; gap:10px; font-size: 14px; font-weight:bold; cursor:pointer;">
@@ -598,32 +589,18 @@
 
     <script>
         const StorageManager = {
-            get: (key, fallback = []) => {
-                const raw = localStorage.getItem(key);
-                if (raw === null) return fallback;
-                try {
-                    const parsed = JSON.parse(raw);
-                    return parsed === null || parsed === undefined ? fallback : parsed;
-                } catch (e) {
-                    console.warn('تعذر قراءة البيانات المحفوظة:', key, e);
-                    return fallback;
-                }
-            },
+            getObj: (key) => JSON.parse(localStorage.getItem(key)) || {},
+            getArr: (key) => JSON.parse(localStorage.getItem(key)) || [],
             set: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
             clearAll: () => localStorage.clear()
         };
 
 
         const DataLayer = {
-            // مهم: الإعدادات كائن وليست مصفوفة. الكود القديم كان يعيد [] عند عدم وجود db_settings،
-            // ثم JSON.stringify([]) كان يتجاهل الخصائص مثل initBoxPhones وinitBoxHuawei، فتختفي بعد إعادة فتح التطبيق.
-            settings: (() => {
-                const s = StorageManager.get('db_settings', {});
-                return (s && !Array.isArray(s) && typeof s === 'object') ? s : { initBoxPhones: 0, initBoxHuawei: 0 };
-            })(),
-            employees: StorageManager.get('db_employees'), logs: StorageManager.get('db_logs'), financials: StorageManager.get('db_financials'), 
-            posDaily: StorageManager.get('db_pos_daily'), posTrans: StorageManager.get('db_pos_trans'), posSims: StorageManager.get('db_pos_sims'),
-            posExpenses: StorageManager.get('db_pos_expenses'), activityLog: StorageManager.get('db_activity_log'),
+            settings: StorageManager.getObj('db_settings'),
+            employees: StorageManager.getArr('db_employees'), logs: StorageManager.getArr('db_logs'), financials: StorageManager.getArr('db_financials'), 
+            posDaily: StorageManager.getArr('db_pos_daily'), posTrans: StorageManager.getArr('db_pos_trans'), posSims: StorageManager.getArr('db_pos_sims'),
+            posExpenses: StorageManager.getArr('db_pos_expenses'), activityLog: StorageManager.getArr('db_activity_log'),
 
             saveSettings: (key, val) => { DataLayer.settings[key] = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); },
             saveCommRate: (key, val) => { if(!DataLayer.settings.commRates) DataLayer.settings.commRates = {}; DataLayer.settings.commRates[key] = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); },
@@ -668,8 +645,6 @@
         };
 
         if (!DataLayer.settings.commRates) DataLayer.settings.commRates = { tabby: 20, tamara: 20, mora: 100, simRate: 5 };
-        // يضمن أن كائن الإعدادات الصحيح يُحفظ فعليًا، حتى لو كان الإصدار السابق قد أنشأ db_settings كمصفوفة.
-        StorageManager.set('db_settings', DataLayer.settings);
 
         const formatHours = (decimalHours) => { let hrs = Math.floor(Math.abs(decimalHours)); let mins = Math.round((Math.abs(decimalHours) - hrs) * 60); if(mins === 60){ hrs++; mins = 0;} return `${hrs}:${mins.toString().padStart(2, '0')}`; };
 
@@ -706,9 +681,6 @@
                     }
                 });
 
-                // تراكمي الفايدة لكل حساب = مجموع (ت. المبيعات - التكلفة) للأيام اللي فيها ت.المبيعات متسجلة فعليًا خلال الشهر
-                // - لو "ت. المبيعات" فاضية في يوم: نتجاهل مساهمة اليوم ده ونفضل عند آخر قيمة تراكمية صحيحة (مفيش هبوط وهمي)
-                // - لو "الرصيد" فاضي في يوم: نعتبره يساوي رصيد أمس (رصيد اليوم اللي قبله) عشان منحسبش تكلفة وهمية كبيرة بسبب فراغ الخانة
                 let sortedDates = [...new Set(monthData.map(d => d.date))].sort();
                 let priorRec = DataLayer.getPosPrevDaily(modId, month + '-01');
                 let runningPrevBalance = accs.map((_, idx) => priorRec?.accounts[idx]?.balance || 0);
@@ -733,7 +705,6 @@
                     let prevBal = prevData?.accounts[idx]?.balance || 0;
                     let todayRec = todayData.accounts[idx]?.recharge || ''; let todaySal = todayData.accounts[idx]?.sales || '';
                     let todayBalRaw = todayData.accounts[idx]?.balance;
-                    // الرصيد يبدأ تلقائي = رصيد أمس طالما لسه محدش عدّله يدوي؛ أول ما يتعدّل يدوي بيتحفظ بالقيمة الجديدة عادي
                     let todayBal = (todayBalRaw !== undefined && todayBalRaw !== '') ? todayBalRaw : prevBal;
                     let todaySims1 = todayData.accounts[idx]?.sims1 !== undefined ? todayData.accounts[idx]?.sims1 : (todayData.accounts[idx]?.sims || '');
                     let todaySims2 = todayData.accounts[idx]?.sims2 || '';
@@ -771,6 +742,18 @@
 
             loadModuleData: (modId) => {
                 const date = document.getElementById(modId + 'Date').value; if(!date) return;
+                
+                const pastRecords = DataLayer.posDaily.filter(p => p.module === modId && p.date < date);
+                const initContainer = document.getElementById(modId + 'InitBoxContainer');
+                if(initContainer) {
+                    if (pastRecords.length === 0) {
+                        initContainer.classList.remove('hidden');
+                        document.getElementById(modId + 'FirstBalance').value = DataLayer.settings[modId === 'phones' ? 'initBoxPhones' : 'initBoxHuawei'] || '';
+                    } else {
+                        initContainer.classList.add('hidden');
+                    }
+                }
+
                 const tbody = document.getElementById(modId + 'TableBody'); tbody.innerHTML = '';
                 const data = PosController.computeModuleData(modId, date);
 
@@ -817,6 +800,13 @@
                 document.getElementById(modId + 'Profit').textContent = (data.profit > 0 ? '+' : '') + data.profit.toFixed(0);
                 document.getElementById(modId + 'Profit').style.color = data.profit >= 0 ? '#fff' : '#ffcdd2';
             },
+            
+            saveFirstBalance: (modId, val) => {
+                DataLayer.saveSettings(modId === 'phones' ? 'initBoxPhones' : 'initBoxHuawei', val);
+                PosController.loadModuleData(modId);
+                AppController.showToast('تم حفظ رصيد أول المدة بنجاح');
+            },
+            
             saveCell: (modId, date, accIdx, field, val) => { let data = DataLayer.getPosDaily(modId, date); if(!data.accounts[accIdx]) data.accounts[accIdx] = {}; data.accounts[accIdx][field] = parseFloat(val) || 0; DataLayer.savePosDaily(modId, date, data); PosController.loadModuleData(modId); },
             loadPhonesData: () => PosController.loadModuleData('phones'), loadHuaweiData: () => PosController.loadModuleData('huawei'),
 
@@ -884,10 +874,6 @@
                 cleanPrintToggle.checked = localStorage.getItem('clean_print') === 'true';
                 cleanPrintToggle.addEventListener('change', (e) => { localStorage.setItem('clean_print', e.target.checked); AppController.renderLogs(); });
 
-                document.getElementById('initBoxPhones').value = DataLayer.settings.initBoxPhones || '';
-                document.getElementById('initBoxHuawei').value = DataLayer.settings.initBoxHuawei || '';
-                AppController.applyInitBoxLockState('phones'); AppController.applyInitBoxLockState('huawei');
-
                 const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
                 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
                 if (isIos() && !isInStandaloneMode()) document.getElementById('pwaPrompt').classList.remove('hidden');
@@ -929,35 +915,6 @@
             },
 
             saveCommRate: (key, val) => { DataLayer.saveCommRate(key, val); AppController.showToast('تم حفظ نسبة العمولة'); },
-            saveInitBox: (mod, val) => {
-                DataLayer.saveSettings(mod === 'phones' ? 'initBoxPhones' : 'initBoxHuawei', val);
-                DataLayer.settings[mod === 'phones' ? 'initBoxPhonesLocked' : 'initBoxHuaweiLocked'] = true;
-                StorageManager.set('db_settings', DataLayer.settings);
-                AppController.applyInitBoxLockState(mod);
-                PosController.loadPhonesData(); PosController.loadHuaweiData();
-                AppController.showToast('تم حفظ وتثبيت الرصيد الافتتاحي');
-            },
-            applyInitBoxLockState: (mod) => {
-                const inputId = mod === 'phones' ? 'initBoxPhones' : 'initBoxHuawei';
-                const btnId = mod === 'phones' ? 'initBoxPhonesUnlockBtn' : 'initBoxHuaweiUnlockBtn';
-                const locked = !!DataLayer.settings[mod === 'phones' ? 'initBoxPhonesLocked' : 'initBoxHuaweiLocked'];
-                document.getElementById(inputId).readOnly = locked;
-                document.getElementById(btnId).classList.toggle('hidden', !locked);
-            },
-            unlockInitBox: (mod) => {
-                const storedPin = localStorage.getItem('db_pin');
-                if (storedPin) {
-                    const val = prompt('أدخل رمز الدخول لفتح تعديل الرصيد الافتتاحي:');
-                    if (val === null) return;
-                    if (btoa(val) !== storedPin) return alert('رمز غير صحيح');
-                } else {
-                    if (!confirm('لا يوجد رمز دخول مفعّل حاليًا لحماية هذه الخانة. تحب تفتحها للتعديل؟ (يفضّل تعمل رمز دخول من قسم "الأمان" أولاً)')) return;
-                }
-                DataLayer.settings[mod === 'phones' ? 'initBoxPhonesLocked' : 'initBoxHuaweiLocked'] = false;
-                StorageManager.set('db_settings', DataLayer.settings);
-                AppController.applyInitBoxLockState(mod);
-                AppController.showToast('تم فتح الخانة للتعديل');
-            },
             
             showToast: (msg, type = 'success') => { const t = document.getElementById('toast'); t.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`; t.style.backgroundColor = type === 'success' ? 'var(--text-main)' : 'var(--danger)'; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); },
             populateDropdowns: () => { const eSel = document.getElementById('entryEmployee'), fSel = document.getElementById('filterEmployee'), rSel = document.getElementById('reportEmpSelect'); eSel.innerHTML = '<option value="" disabled selected>اختر الموظف...</option>'; fSel.innerHTML = '<option value="ALL">عرض الكل</option>'; rSel.innerHTML = '<option value="" disabled selected>اختر الموظف...</option>'; DataLayer.employees.forEach(emp => { eSel.appendChild(new Option(emp.name, emp.id)); fSel.appendChild(new Option(emp.name, emp.id)); rSel.appendChild(new Option(emp.name, emp.id)); }); },
@@ -1089,7 +1046,6 @@
 
             saveFixedPhonesSalary: (val) => { DataLayer.settings.phonesFixedSalary = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); AppController.showToast('تم الحفظ'); },
 
-            // تقرير 1: كارت راتب موظف لشهر + جدول الحضور والانصراف
             printReportEmployeeSlip: () => {
                 const month = document.getElementById('reportEmpMonth').value, empId = document.getElementById('reportEmpSelect').value;
                 if (!empId) return AppController.showToast('اختر موظف', 'error');
@@ -1104,7 +1060,6 @@
                 AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}${attendanceHTML}</div>`);
             },
 
-            // تقرير 2: مسير الرواتب المجمع (بنفس منطق exportGlobalPDF لكن بشهر مستقل من قسم التقارير)
             printReportGlobalPayroll: () => {
                 const month = document.getElementById('reportPayrollMonth').value; if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
                 let html = `<div class="global-print-title">مسير الرواتب (كروت مجمعة) لشهر: <span dir="ltr">${month}</span></div><div class="bulk-print-grid">`;
@@ -1112,12 +1067,14 @@
                 html += `</div>`; AppController.printHTML(html);
             },
 
-            // تقرير 3: تراكمي الشرائح والأرباح لكل حساب فى الفرعين + صافي الربح التراكمي آخر الشهر
+            // -------------------------------------------------------------
+            // دالة طباعة تقرير الشرائح والأرباح بعد التعديل (الجدولين جنباً إلى جنب)
+            // -------------------------------------------------------------
             printReportSimsProfit: () => {
                 const month = document.getElementById('reportSimsMonth').value; if(!month) return AppController.showToast('اختر الشهر', 'error');
                 const lastDay = new Date(parseInt(month.substring(0,4)), parseInt(month.substring(5,7)), 0).getDate();
                 const endDate = `${month}-${String(lastDay).padStart(2,'0')}`;
-                // نثبّت الربح التراكمي عند آخر يوم فيه بيانات فعلية مسجلة خلال الشهر، مش عند تاريخ نهاية الشهر التقويمي (اللي ممكن يكون فاضي)
+                
                 const lastDatePhones = DataLayer.getLastDataDateInMonth('phones', month, endDate) || endDate;
                 const lastDateHuawei = DataLayer.getLastDataDateInMonth('huawei', month, endDate) || endDate;
                 const dataPhones = PosController.computeModuleData('phones', lastDatePhones);
@@ -1131,7 +1088,7 @@
                         else simsCell = `${r.cumSims1 + r.cumSims2}`;
                         return `<tr><td style="border:1px solid #000;padding:3px;">${r.acc}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${simsCell}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${r.cumProfit.toFixed(0)}</td></tr>`;
                     }).join('');
-                    return `<h3 style="font-size:14px;margin:12px 0 5px;">${title}</h3><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#eaf1e3;"><th style="border:1px solid #000;padding:3px;">الحساب</th><th style="border:1px solid #000;padding:3px;">تراكمي الشرائح</th><th style="border:1px solid #000;padding:3px;">تراكمي الفايدة</th></tr></thead><tbody>${rows}<tr style="font-weight:bold;background:#f0f0f0;"><td style="border:1px solid #000;padding:3px;">إجمالي ${title}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumSims}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumProfit.toFixed(0)}</td></tr></tbody></table>`;
+                    return `<h3 style="font-size:14px;margin:0 0 5px;text-align:center;background:#eaf1e3;padding:5px;border:1px solid #000;border-radius:4px;">${title}</h3><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#eaf1e3;"><th style="border:1px solid #000;padding:3px;">الحساب</th><th style="border:1px solid #000;padding:3px;">تراكمي الشرائح</th><th style="border:1px solid #000;padding:3px;">تراكمي الفايدة</th></tr></thead><tbody>${rows}<tr style="font-weight:bold;background:#f0f0f0;"><td style="border:1px solid #000;padding:3px;">إجمالي ${title}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumSims}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumProfit.toFixed(0)}</td></tr></tbody></table>`;
                 };
 
                 const cr = DataLayer.settings.commRates || { simRate: 5 };
@@ -1143,27 +1100,52 @@
                 const netProfitHuawei = dataHuawei.profit - commHuawei;
                 const netProfitTotal = netProfitPhones + netProfitHuawei;
 
-                const buildNetTable = (title, branchProfit, sims, comm, salary, netProfit) => `
-                    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px;">
-                        <tr style="background:#dcdcdc;"><td colspan="2" style="border:1px solid #000;padding:5px;font-weight:bold;">صافي ربح ${title}</td></tr>
-                        <tr style="background:#eaf1e3;"><td style="border:1px solid #000;padding:5px;">الربح التراكمي</td><td style="border:1px solid #000;padding:5px;text-align:left;">${branchProfit.toFixed(0)}</td></tr>
-                        <tr style="background:#f7e6e1;"><td style="border:1px solid #000;padding:5px;">عمولة الشرائح نهاية الشهر (${sims} × ${cr.simRate})</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${comm.toFixed(0)}</td></tr>
+                // دالة بناء جدول الربح الصافي المُحدثة 
+                const buildNetTable = (title, branchProfit, sims, comm, salary, netProfit, initialCap) => {
+                    let endCap = initialCap + branchProfit; // رأس المال آخر الفترة
+                    return `
+                    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:10px;">
+                        <tr style="background:#dcdcdc;"><td colspan="2" style="border:1px solid #000;padding:5px;font-weight:bold;text-align:center;">صافي ربح ${title}</td></tr>
+                        <tr style="background:#c0d8a5;font-weight:bold;"><td style="border:1px solid #000;padding:5px;">رأس المال آخر الفترة</td><td style="border:1px solid #000;padding:5px;text-align:left;">${endCap.toFixed(0)}</td></tr>
+                        <tr style="background:#eaf1e3;"><td style="border:1px solid #000;padding:5px;">رأس المال أول الفترة</td><td style="border:1px solid #000;padding:5px;text-align:left;">${initialCap.toFixed(0)}</td></tr>
+                        <tr style="background:#eaf1e3;"><td style="border:1px solid #000;padding:5px;">الربح التراكمي (إجمالي الربح)</td><td style="border:1px solid #000;padding:5px;text-align:left;">${branchProfit.toFixed(0)}</td></tr>
+                        <tr style="background:#f7e6e1;"><td style="border:1px solid #000;padding:5px;">عمولة الشرائح (${sims} × ${cr.simRate})</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${comm.toFixed(0)}</td></tr>
                         ${salary ? `<tr style="background:#f7e6e1;"><td style="border:1px solid #000;padding:5px;">رواتب ${title} (ثابت)</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${salary.toFixed(0)}</td></tr>` : ''}
                         <tr style="background:#c0d8a5;font-weight:bold;border-top:2px solid #000;"><td style="border:1px solid #000;padding:5px;">صافي الربح</td><td style="border:1px solid #000;padding:5px;text-align:left;">${netProfit.toFixed(0)}</td></tr>
                     </table>`;
+                };
 
-                let netTableHTML = `<h3 style="font-size:14px;margin:15px 0 5px;">صافي الربح لكل فرع على حدة</h3>
-                    ${buildNetTable('فرع الهواتف', dataPhones.profit, simsPhones, commPhones, fixedSalaries, netProfitPhones)}
-                    ${buildNetTable('فرع هواوي', dataHuawei.profit, simsHuawei, commHuawei, 0, netProfitHuawei)}
-                    <table style="width:100%;border-collapse:collapse;font-size:12px;">
-                        <tr style="background:#333;color:#fff;font-weight:bold;"><td style="border:1px solid #000;padding:6px;">إجمالي صافي الربح (الفرعين)</td><td style="border:1px solid #000;padding:6px;text-align:left;">${netProfitTotal.toFixed(0)}</td></tr>
-                    </table>`;
+                let html = `
+                <div style="width:100%; background:#fff; padding:10px; font-family: 'Segoe UI', Tahoma, sans-serif; direction: rtl;">
+                    <div style="text-align:center; font-size:20px; font-weight:bold; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:10px;">
+                        تقرير تراكمي الشرائح والأرباح - <span dir="ltr">${month}</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; gap: 15px; width: 100%;">
+                        <!-- العمود الأول: الهواتف مع صافي ربح الهواتف -->
+                        <div style="width: 49%;">
+                            ${buildBranchTable('فرع الهواتف', dataPhones)}
+                            ${buildNetTable('فرع الهواتف', dataPhones.profit, simsPhones, commPhones, fixedSalaries, netProfitPhones, 35000)}
+                        </div>
+                        
+                        <!-- العمود الثاني: هواوي مع صافي ربح هواوي -->
+                        <div style="width: 49%;">
+                            ${buildBranchTable('فرع هواوي', dataHuawei)}
+                            ${buildNetTable('فرع هواوي', dataHuawei.profit, simsHuawei, commHuawei, 0, netProfitHuawei, 15000)}
+                        </div>
+                    </div>
 
-                let html = `<div class="single-print-wrapper" style="width:92%;"><div class="print-container"><div class="print-header">تقرير تراكمي الشرائح والأرباح - <span dir="ltr">${month}</span></div>
-                    ${buildBranchTable('فرع الهواتف', dataPhones)}
-                    ${buildBranchTable('فرع هواوي', dataHuawei)}
-                    ${netTableHTML}
-                </div></div>`;
+                    <!-- إجمالي الربح النهائي للفرعين معاً -->
+                    <div style="margin-top:20px;">
+                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                            <tr style="background:#333; color:#fff; font-weight:bold;">
+                                <td style="border:1px solid #000; padding:10px; text-align:center;">إجمالي صافي الربح النهائي (الفرعين)</td>
+                                <td style="border:1px solid #000; padding:10px; text-align:center; font-size:16px;">${netProfitTotal.toFixed(0)}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>`;
+                
                 AppController.printHTML(html);
             },
 
