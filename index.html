@@ -43,14 +43,12 @@
         .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; color: var(--primary); }
         
         .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; width: 100%; }
-        /* إصلاح خروج الصناديق عن الإطار */
         .form-group { display: flex; flex-direction: column; width: 100%; min-width: 0; max-width: 100%; overflow: hidden; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--text-main); }
         
         input, select { width: 100%; max-width: 100%; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box; }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
         
-        /* توافق أفضل مع الآيفون لمنع التمدد */
         input[type="date"], input[type="time"], input[type="month"] { 
             direction: rtl; 
             text-align: right; 
@@ -61,7 +59,7 @@
 
         @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; gap: 12px; } }
 
-        .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; }
+        .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; flex: 1; }
         .btn:active { opacity: 0.8; }
         .btn-primary { background-color: var(--primary); color: #fff; }
         .btn-danger { background-color: var(--danger); color: #fff; }
@@ -69,8 +67,12 @@
         .btn-info { background-color: var(--info); color: #fff; }
         .btn-outline { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); }
         .mt-10 { margin-top: 10px; } .mb-15 { margin-bottom: 15px; }
+        
+        /* Flex gap for buttons */
+        .flex-gap { display: flex; gap: 10px; width: 100%; flex-wrap: nowrap; }
+        @media (max-width: 400px) { .flex-gap { flex-direction: column; } }
+
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .flex-gap { display: flex; gap: 8px; width: 100%; }
         .pos-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
         .table-responsive { overflow-x: auto; width: 100%; position: relative; }
@@ -156,7 +158,8 @@
             #printArea { display: block !important; width: 100%; direction: rtl; }
             
             @page { size: A4 portrait; margin: 5mm; }
-            .bulk-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+            .bulk-print-grid { display: block; } /* For fallback in excel, stacked */
+            @media print { .bulk-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; } }
             
             .print-container { border: 1px solid #000; padding: 5px; margin-bottom: 5px; border-radius: 4px; page-break-inside: avoid; background: #fff !important; font-family: 'Segoe UI', Arial, sans-serif; }
             .print-header { text-align: center; padding-bottom: 3px; font-size: 16px; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 5px; color: #000 !important;}
@@ -245,7 +248,11 @@
 
                 <div id="summaryCard" class="hidden mb-15">
                     <div id="slipDisplayArea"></div>
-                    <button class="btn btn-info w-100 mt-10" onclick="AppController.exportEmployeePDF()"><span class="material-icons">print</span> طباعة كرت الراتب</button>
+                    <!-- زر الطباعة والتصدير متجاورين -->
+                    <div class="flex-gap mt-10">
+                        <button class="btn btn-info" onclick="AppController.handleEmployeeReport('print', 'filterMonth', 'filterEmployee')"><span class="material-icons">print</span> طباعة الكارت</button>
+                        <button class="btn btn-primary" onclick="AppController.handleEmployeeReport('excel', 'filterMonth', 'filterEmployee')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
+                    </div>
                 </div>
 
                 <div class="table-responsive">
@@ -265,7 +272,6 @@
                     <input type="date" id="phonesDate" required onchange="PosController.loadPhonesData()">
                 </div>
                 
-                <!-- رصيد أول المدة يظهر فقط هنا ولمرة واحدة -->
                 <div id="phonesInitBoxContainer" class="form-group mb-15 hidden" style="background: var(--primary); padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <label style="color: white; margin-bottom: 8px;">رصيد أول المدة للصندوق (يظهر لأول سجل فقط!)</label>
                     <input type="number" id="phonesFirstBalance" onchange="PosController.saveFirstBalance('phones', this.value)" placeholder="أدخل الرصيد لمرة واحدة" style="background: #fff; border: none; font-size: 16px; font-weight: bold; text-align: center;">
@@ -321,7 +327,6 @@
                     <input type="date" id="huaweiDate" required onchange="PosController.loadHuaweiData()">
                 </div>
                 
-                <!-- رصيد أول المدة يظهر فقط هنا ولمرة واحدة -->
                 <div id="huaweiInitBoxContainer" class="form-group mb-15 hidden" style="background: var(--primary); padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <label style="color: white; margin-bottom: 8px;">رصيد أول المدة للصندوق (يظهر لأول سجل فقط!)</label>
                     <input type="number" id="huaweiFirstBalance" onchange="PosController.saveFirstBalance('huawei', this.value)" placeholder="أدخل الرصيد لمرة واحدة" style="background: #fff; border: none; font-size: 16px; font-weight: bold; text-align: center;">
@@ -434,7 +439,12 @@
                         <tbody id="finTableBody"></tbody>
                     </table>
                 </div>
-                <button class="btn btn-primary w-100 mt-10" onclick="AppController.exportGlobalPDF()"><span class="material-icons">print</span> طباعة مسير الرواتب (مجمع)</button>
+                
+                <!-- زر الطباعة والتصدير متجاورين -->
+                <div class="flex-gap mt-10">
+                    <button class="btn btn-info" onclick="AppController.handleReportGlobalPayroll('print', 'finMonth')"><span class="material-icons">print</span> طباعة المسير</button>
+                    <button class="btn btn-primary" onclick="AppController.handleReportGlobalPayroll('excel', 'finMonth')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
+                </div>
             </div>
         </div>
 
@@ -456,20 +466,29 @@
                     <div class="form-group"><label>الشهر</label><input type="month" id="reportEmpMonth"></div>
                     <div class="form-group"><label>الموظف</label><select id="reportEmpSelect"></select></div>
                 </div>
-                <button class="btn btn-info w-100 mb-15" onclick="AppController.printReportEmployeeSlip()"><span class="material-icons">print</span> طباعة تقرير كارت الراتب</button>
+                <div class="flex-gap mb-15">
+                    <button class="btn btn-info" onclick="AppController.handleReportEmployeeSlip('print')"><span class="material-icons">print</span> طباعة التقرير</button>
+                    <button class="btn btn-primary" onclick="AppController.handleReportEmployeeSlip('excel')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
+                </div>
 
                 <div class="prefs-section-title">2. تقرير مسير الرواتب المجمع</div>
                 <div class="form-group mb-15">
                     <label>الشهر</label><input type="month" id="reportPayrollMonth">
                 </div>
-                <button class="btn btn-info w-100 mb-15" onclick="AppController.printReportGlobalPayroll()"><span class="material-icons">print</span> طباعة مسير الرواتب المجمع</button>
+                <div class="flex-gap mb-15">
+                    <button class="btn btn-info" onclick="AppController.handleReportGlobalPayroll('print', 'reportPayrollMonth')"><span class="material-icons">print</span> طباعة المسير</button>
+                    <button class="btn btn-primary" onclick="AppController.handleReportGlobalPayroll('excel', 'reportPayrollMonth')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
+                </div>
 
                 <div class="prefs-section-title">3. تقرير تراكمي الشرائح والأرباح (الفرعين)</div>
                 <div class="form-row">
                     <div class="form-group"><label>الشهر</label><input type="month" id="reportSimsMonth"></div>
                     <div class="form-group"><label>رواتب ش. الهواتف الثابتة</label><input type="number" id="reportFixedPhonesSalary" onchange="AppController.saveFixedPhonesSalary(this.value)"></div>
                 </div>
-                <button class="btn btn-info w-100" onclick="AppController.printReportSimsProfit()"><span class="material-icons">print</span> طباعة تقرير الشرائح والأرباح</button>
+                <div class="flex-gap">
+                    <button class="btn btn-info" onclick="AppController.handleReportSimsProfit('print')"><span class="material-icons">print</span> طباعة الأرباح</button>
+                    <button class="btn btn-primary" onclick="AppController.handleReportSimsProfit('excel')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
+                </div>
                 <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">صافي ربح كل فرع = الربح التراكمي للفرع - (شرائح الفرع × عمولة الشريحة) - رواتب ش. الهواتف الثابتة (لفرع الهواتف فقط).</p>
             </div>
 
@@ -1030,23 +1049,47 @@
                 const printArea = document.getElementById('printArea'); printArea.innerHTML = htmlContent;
                 setTimeout(() => { window.print(); }, 200);
             },
+            
+            exportHTMLToExcel: (htmlContent, fileName) => {
+                // دالة التصدير للإكسيل مجهزة لدعم اللغة العربية وتنسيقات الجداول بشكل مثالي
+                let finalHtml = `
+                    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                    <head>
+                        <meta charset="utf-8">
+                        <style>
+                            body { direction: rtl; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+                            table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                            .print-bg-g-light { background-color: #eaf1e3 !important; }
+                            .print-bg-r-light { background-color: #f7e6e1 !important; }
+                            .print-bg-g-dark { background-color: #c0d8a5 !important; }
+                            .print-td-right { text-align: right; padding-right: 5px !important; }
+                            .print-td-left { text-align: left; padding-left: 5px !important; }
+                            .print-td-center { text-align: center; }
+                            .print-td-sub-val { text-align: left; padding-left: 10px; }
+                            .global-print-title { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 10px; }
+                        </style>
+                    </head>
+                    <body>${htmlContent}</body>
+                    </html>
+                `;
+                // استخدام uFEFF (BOM) لضمان قراءة Excel للملف بترميز UTF-8 وعرض العربي صحيحاً
+                let blob = new Blob(['\uFEFF' + finalHtml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+                let link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName + ".xls";
+                link.click();
+            },
 
-            exportEmployeePDF: () => {
-                const month = document.getElementById('filterMonth').value, empId = document.getElementById('filterEmployee').value;
+            handleEmployeeReport: (action, monthId = 'filterMonth', empIdElement = 'filterEmployee') => {
+                const month = document.getElementById(monthId).value, empId = document.getElementById(empIdElement).value;
+                if (!empId) return AppController.showToast('اختر موظف', 'error');
                 const s = AppController.calculateSummary(empId, month); if (!s) return;
-                AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}</div>`);
+                let html = `<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}</div>`;
+                if (action === 'print') AppController.printHTML(html);
+                else AppController.exportHTMLToExcel(html, `كارت_راتب_${s.emp.name}_${month}`);
             },
-
-            exportGlobalPDF: () => {
-                const month = document.getElementById('finMonth').value; if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
-                let html = `<div class="global-print-title">مسير الرواتب (كروت مجمعة) لشهر: <span dir="ltr">${month}</span></div><div class="bulk-print-grid">`;
-                DataLayer.employees.forEach(emp => { const s = AppController.calculateSummary(emp.id, month); if(s) html += AppController.generateSlipHTML(s, 'print'); });
-                html += `</div>`; AppController.printHTML(html);
-            },
-
-            saveFixedPhonesSalary: (val) => { DataLayer.settings.phonesFixedSalary = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); AppController.showToast('تم الحفظ'); },
-
-            printReportEmployeeSlip: () => {
+            
+            handleReportEmployeeSlip: (action) => {
                 const month = document.getElementById('reportEmpMonth').value, empId = document.getElementById('reportEmpSelect').value;
                 if (!empId) return AppController.showToast('اختر موظف', 'error');
                 const s = AppController.calculateSummary(empId, month); if (!s) return;
@@ -1057,20 +1100,25 @@
                     return `<tr><td style="border:1px solid #000;padding:3px;">${l.date}</td><td style="border:1px solid #000;padding:3px;">${l.timeIn||'-'}</td><td style="border:1px solid #000;padding:3px;">${l.timeOut||'-'}</td><td style="border:1px solid #000;padding:3px;">${hrs}</td><td style="border:1px solid #000;padding:3px;">${st}</td></tr>`;
                 }).join('');
                 let attendanceHTML = `<div style="margin-top:15px;"><h3 style="font-size:13px;margin-bottom:5px;">جدول الحضور والانصراف</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr style="background:#eee;"><th style="border:1px solid #000;padding:3px;">التاريخ</th><th style="border:1px solid #000;padding:3px;">الحضور</th><th style="border:1px solid #000;padding:3px;">الانصراف</th><th style="border:1px solid #000;padding:3px;">الساعات</th><th style="border:1px solid #000;padding:3px;">الحالة</th></tr></thead><tbody>${rows || '<tr><td colspan="5" style="text-align:center;padding:5px;border:1px solid #000;">لا يوجد سجلات لهذا الشهر</td></tr>'}</tbody></table></div>`;
-                AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}${attendanceHTML}</div>`);
+                let html = `<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}${attendanceHTML}</div>`;
+                
+                if (action === 'print') AppController.printHTML(html);
+                else AppController.exportHTMLToExcel(html, `تقرير_مفصل_${s.emp.name}_${month}`);
             },
 
-            printReportGlobalPayroll: () => {
-                const month = document.getElementById('reportPayrollMonth').value; if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
+            handleReportGlobalPayroll: (action, monthInputId) => {
+                const month = document.getElementById(monthInputId).value; if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
                 let html = `<div class="global-print-title">مسير الرواتب (كروت مجمعة) لشهر: <span dir="ltr">${month}</span></div><div class="bulk-print-grid">`;
                 DataLayer.employees.forEach(emp => { const s = AppController.calculateSummary(emp.id, month); if(s) html += AppController.generateSlipHTML(s, 'print'); });
-                html += `</div>`; AppController.printHTML(html);
+                html += `</div>`; 
+                
+                if (action === 'print') AppController.printHTML(html);
+                else AppController.exportHTMLToExcel(html, `مسير_الرواتب_المجمع_${month}`);
             },
 
-            // -------------------------------------------------------------
-            // دالة طباعة تقرير الشرائح والأرباح بعد التعديل (الجدولين جنباً إلى جنب)
-            // -------------------------------------------------------------
-            printReportSimsProfit: () => {
+            saveFixedPhonesSalary: (val) => { DataLayer.settings.phonesFixedSalary = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); AppController.showToast('تم الحفظ'); },
+
+            handleReportSimsProfit: (action) => {
                 const month = document.getElementById('reportSimsMonth').value; if(!month) return AppController.showToast('اختر الشهر', 'error');
                 const lastDay = new Date(parseInt(month.substring(0,4)), parseInt(month.substring(5,7)), 0).getDate();
                 const endDate = `${month}-${String(lastDay).padStart(2,'0')}`;
@@ -1100,9 +1148,8 @@
                 const netProfitHuawei = dataHuawei.profit - commHuawei;
                 const netProfitTotal = netProfitPhones + netProfitHuawei;
 
-                // دالة بناء جدول الربح الصافي المُحدثة 
                 const buildNetTable = (title, branchProfit, sims, comm, salary, netProfit, initialCap) => {
-                    let endCap = initialCap + branchProfit; // رأس المال آخر الفترة
+                    let endCap = initialCap + branchProfit;
                     return `
                     <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:10px;">
                         <tr style="background:#dcdcdc;"><td colspan="2" style="border:1px solid #000;padding:5px;font-weight:bold;text-align:center;">صافي ربح ${title}</td></tr>
@@ -1115,27 +1162,27 @@
                     </table>`;
                 };
 
+                // استخدام Master Table لضمان ظهور الجدولين متجاورين في PDF و Excel
                 let html = `
                 <div style="width:100%; background:#fff; padding:10px; font-family: 'Segoe UI', Tahoma, sans-serif; direction: rtl;">
                     <div style="text-align:center; font-size:20px; font-weight:bold; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:10px;">
                         تقرير تراكمي الشرائح والأرباح - <span dir="ltr">${month}</span>
                     </div>
                     
-                    <div style="display: flex; justify-content: space-between; gap: 15px; width: 100%;">
-                        <!-- العمود الأول: الهواتف مع صافي ربح الهواتف -->
-                        <div style="width: 49%;">
-                            ${buildBranchTable('فرع الهواتف', dataPhones)}
-                            ${buildNetTable('فرع الهواتف', dataPhones.profit, simsPhones, commPhones, fixedSalaries, netProfitPhones, 35000)}
-                        </div>
-                        
-                        <!-- العمود الثاني: هواوي مع صافي ربح هواوي -->
-                        <div style="width: 49%;">
-                            ${buildBranchTable('فرع هواوي', dataHuawei)}
-                            ${buildNetTable('فرع هواوي', dataHuawei.profit, simsHuawei, commHuawei, 0, netProfitHuawei, 15000)}
-                        </div>
-                    </div>
+                    <table style="width:100%; border:none; margin:0; padding:0;">
+                        <tr>
+                            <td style="width:49%; vertical-align:top; border:none; padding:0 5px;">
+                                ${buildBranchTable('فرع الهواتف', dataPhones)}
+                                ${buildNetTable('فرع الهواتف', dataPhones.profit, simsPhones, commPhones, fixedSalaries, netProfitPhones, 35000)}
+                            </td>
+                            <td style="width:2%; border:none; padding:0;"></td>
+                            <td style="width:49%; vertical-align:top; border:none; padding:0 5px;">
+                                ${buildBranchTable('فرع هواوي', dataHuawei)}
+                                ${buildNetTable('فرع هواوي', dataHuawei.profit, simsHuawei, commHuawei, 0, netProfitHuawei, 15000)}
+                            </td>
+                        </tr>
+                    </table>
 
-                    <!-- إجمالي الربح النهائي للفرعين معاً -->
                     <div style="margin-top:20px;">
                         <table style="width:100%; border-collapse:collapse; font-size:14px;">
                             <tr style="background:#333; color:#fff; font-weight:bold;">
@@ -1146,7 +1193,8 @@
                     </div>
                 </div>`;
                 
-                AppController.printHTML(html);
+                if (action === 'print') AppController.printHTML(html);
+                else AppController.exportHTMLToExcel(html, `تقرير_الشرائح_والأرباح_${month}`);
             },
 
             clearAll: () => { if(confirm('تنبيه: سيتم مسح كافة البيانات بشكل نهائي! هل أنت متأكد؟')) { StorageManager.clearAll(); location.reload(); } },
