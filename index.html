@@ -671,27 +671,28 @@
                     }
                 });
 
-                // تراكمي الفايدة لكل حساب = رصيد الحساب أول الشهر + إجمالي الشحن خلال الشهر - إجمالي التكلفة خلال الشهر
+                // تراكمي الفايدة لكل حساب = مجموع (ت. المبيعات - التكلفة) للأيام اللي فيها ت.المبيعات متسجلة فعليًا خلال الشهر
+                // - لو "ت. المبيعات" فاضية في يوم: نتجاهل مساهمة اليوم ده ونفضل عند آخر قيمة تراكمية صحيحة (مفيش هبوط وهمي)
+                // - لو "الرصيد" فاضي في يوم: نعتبره يساوي رصيد أمس (رصيد اليوم اللي قبله) عشان منحسبش تكلفة وهمية كبيرة بسبب فراغ الخانة
                 let sortedDates = [...new Set(monthData.map(d => d.date))].sort();
                 let priorRec = DataLayer.getPosPrevDaily(modId, month + '-01');
-                let openingBalance = accs.map((_, idx) => priorRec?.accounts[idx]?.balance || 0);
-                let runningPrevBalance = [...openingBalance];
-                let sumRecharge = Array(accs.length).fill(0);
-                let sumCost = Array(accs.length).fill(0);
+                let runningPrevBalance = accs.map((_, idx) => priorRec?.accounts[idx]?.balance || 0);
                 sortedDates.forEach(d => {
                     let rec = monthData.find(p => p.date === d);
                     accs.forEach((acc, idx) => {
                         if(rec.accounts[idx]) {
-                            let numRecD = parseFloat(rec.accounts[idx].recharge) || 0;
-                            let numBalD = parseFloat(rec.accounts[idx].balance) || 0;
+                            let entry = rec.accounts[idx];
+                            let hasSales = entry.sales !== undefined && entry.sales !== '' && entry.sales !== null;
+                            let hasBalance = entry.balance !== undefined && entry.balance !== '' && entry.balance !== null;
+                            let numRecD = parseFloat(entry.recharge) || 0;
+                            let numBalD = hasBalance ? (parseFloat(entry.balance) || 0) : runningPrevBalance[idx];
+                            let numSalD = parseFloat(entry.sales) || 0;
                             let costD = (runningPrevBalance[idx] + numRecD) - numBalD;
-                            sumRecharge[idx] += numRecD;
-                            sumCost[idx] += costD;
+                            if (hasSales) cumulativeProfit[idx] += (numSalD - costD);
                             runningPrevBalance[idx] = numBalD;
                         }
                     });
                 });
-                accs.forEach((acc, idx) => { cumulativeProfit[idx] = openingBalance[idx] + sumRecharge[idx] - sumCost[idx]; });
 
                 let rows = accs.map((acc, idx) => {
                     let prevBal = prevData?.accounts[idx]?.balance || 0;
