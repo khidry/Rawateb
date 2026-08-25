@@ -130,6 +130,12 @@
         .prefs-group input[type="checkbox"] { width: 18px; height: 18px; margin: 0; flex-shrink: 0; cursor: pointer; }
         .prefs-section-title { font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: 8px; margin-top: 15px; }
 
+        /* Lock Screen */
+        #lockScreen { position: fixed; inset: 0; background: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #lockScreen.hidden { display: none !important; }
+        .lock-card { background: var(--card-bg); border-radius: 12px; padding: 30px 25px; box-shadow: var(--shadow); width: 100%; max-width: 340px; text-align: center; }
+        .lock-card input { text-align: center; font-size: 22px; letter-spacing: 8px; margin-bottom: 15px; }
+
         /* Print Settings */
         #printArea { display: none; }
         @media print {
@@ -168,6 +174,17 @@
     </style>
 </head>
 <body>
+
+    <!-- شاشة قفل الدخول (تظهر فقط لو تم تفعيل رمز دخول من الإعدادات) -->
+    <div id="lockScreen" class="hidden">
+        <div class="lock-card">
+            <span class="material-icons" style="font-size:40px;color:var(--primary);">lock</span>
+            <h2 style="margin:10px 0 15px;color:var(--primary);font-size:18px;">دخول النظام</h2>
+            <input type="password" id="lockPinInput" placeholder="أدخل الرمز" inputmode="numeric">
+            <button class="btn btn-primary" onclick="AppController.checkPin()">دخول</button>
+            <p id="lockError" class="hidden" style="color:var(--danger);margin-top:10px;font-size:13px;">رمز غير صحيح</p>
+        </div>
+    </div>
 
     <!-- القائمة المنسدلة للبيان (تعمل تلقائياً) -->
     <datalist id="descList"></datalist>
@@ -222,7 +239,7 @@
 
                 <div class="table-responsive">
                     <table class="data-table">
-                        <thead><tr><th>التاريخ</th><th>الموظف</th><th>الحضور</th><th>الانصراف</th><th>الحالة</th><th>حذف</th></tr></thead>
+                        <thead><tr><th>التاريخ</th><th>الموظف</th><th>الحضور</th><th>الانصراف</th><th>عدد الساعات</th><th>الحالة</th><th>حذف</th></tr></thead>
                         <tbody id="logsTableBody"></tbody>
                     </table>
                 </div>
@@ -238,7 +255,7 @@
                 </div>
                 
                 <div class="table-responsive">
-                    <table class="data-table">
+                    <table class="data-table" style="min-width: 980px;">
                         <thead>
                             <tr>
                                 <th class="sticky-col" style="min-width: 100px;">الحساب</th>
@@ -249,6 +266,7 @@
                                 <th style="color:var(--info)">ت. المبيع</th>
                                 <th style="text-align:center;">الشرائح</th>
                                 <th style="text-align:center;">تراكمي الشهر</th>
+                                <th style="text-align:center;">تراكمي الفايدة</th>
                             </tr>
                         </thead>
                         <tbody id="phonesTableBody"></tbody>
@@ -287,7 +305,7 @@
                 </div>
                 
                 <div class="table-responsive">
-                    <table class="data-table">
+                    <table class="data-table" style="min-width: 980px;">
                         <thead>
                             <tr>
                                 <th class="sticky-col" style="min-width: 100px;">الحساب</th>
@@ -298,6 +316,7 @@
                                 <th style="color:var(--info)">ت. المبيع</th>
                                 <th style="text-align:center;">الشرائح</th>
                                 <th style="text-align:center;">تراكمي الشهر</th>
+                                <th style="text-align:center;">تراكمي الفايدة</th>
                             </tr>
                         </thead>
                         <tbody id="huaweiTableBody"></tbody>
@@ -420,6 +439,56 @@
                     <input type="checkbox" id="cleanPrintToggle" style="width: 22px; height: 22px;"> طباعة نظيفة (إخفاء البنود الصفرية من الكروت)
                 </label>
             </div>
+
+            <div class="card mb-15">
+                <h2>التقارير</h2>
+
+                <div class="prefs-section-title">1. تقرير كارت الراتب لموظف (مع جدول الحضور والانصراف)</div>
+                <div class="form-row">
+                    <div class="form-group"><label>الشهر</label><input type="month" id="reportEmpMonth"></div>
+                    <div class="form-group"><label>الموظف</label><select id="reportEmpSelect"></select></div>
+                </div>
+                <button class="btn btn-info w-100 mb-15" onclick="AppController.printReportEmployeeSlip()"><span class="material-icons">print</span> طباعة تقرير كارت الراتب</button>
+
+                <div class="prefs-section-title">2. تقرير مسير الرواتب المجمع</div>
+                <div class="form-group mb-15">
+                    <label>الشهر</label><input type="month" id="reportPayrollMonth">
+                </div>
+                <button class="btn btn-info w-100 mb-15" onclick="AppController.printReportGlobalPayroll()"><span class="material-icons">print</span> طباعة مسير الرواتب المجمع</button>
+
+                <div class="prefs-section-title">3. تقرير تراكمي الشرائح والأرباح (الفرعين)</div>
+                <div class="form-row">
+                    <div class="form-group"><label>الشهر</label><input type="month" id="reportSimsMonth"></div>
+                    <div class="form-group"><label>رواتب ش. الهواتف الثابتة</label><input type="number" id="reportFixedPhonesSalary" onchange="AppController.saveFixedPhonesSalary(this.value)"></div>
+                </div>
+                <button class="btn btn-info w-100" onclick="AppController.printReportSimsProfit()"><span class="material-icons">print</span> طباعة تقرير الشرائح والأرباح</button>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">صافي ربح كل فرع = الربح التراكمي للفرع - (شرائح الفرع × عمولة الشريحة) - رواتب ش. الهواتف الثابتة (لفرع الهواتف فقط).</p>
+            </div>
+
+            <div class="card mb-15">
+                <h2>نسب العمولات</h2>
+                <div class="form-row">
+                    <div class="form-group"><label>عمولة تابي (لكل عملية)</label><input type="number" id="commTabby" onchange="AppController.saveCommRate('tabby', this.value)"></div>
+                    <div class="form-group"><label>عمولة تمارا (لكل عملية)</label><input type="number" id="commTamara" onchange="AppController.saveCommRate('tamara', this.value)"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>عمولة مورا (لكل عملية)</label><input type="number" id="commMora" onchange="AppController.saveCommRate('mora', this.value)"></div>
+                    <div class="form-group"><label>عمولة الشريحة (هواتف/هواوي)</label><input type="number" id="commSimRate" onchange="AppController.saveCommRate('simRate', this.value)"></div>
+                </div>
+                <p style="font-size:11px; color:var(--text-muted);">هذه النسب بتتحسب تلقائي في كل كروت الرواتب الجديدة. تغييرها هيغيّر حساب الرواتب من لحظة الحفظ.</p>
+            </div>
+
+            <div class="card mb-15">
+                <h2>الأمان</h2>
+                <button class="btn btn-primary w-100 mb-10" onclick="AppController.setPin()"><span class="material-icons">lock</span> تعيين / تغيير رمز الدخول</button>
+                <button class="btn btn-outline w-100" onclick="AppController.removePin()"><span class="material-icons">lock_open</span> إزالة رمز الدخول</button>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">تنبيه: الرمز حماية أساسية داخل المتصفح فقط، وليس بديلاً عن حماية الجهاز نفسه أو نسخة احتياطية آمنة.</p>
+            </div>
+
+            <div class="card mb-15">
+                <h2>سجل العمليات (آخر التعديلات)</h2>
+                <div id="activityLogList" style="max-height:280px; overflow-y:auto;"></div>
+            </div>
             
             <div class="card">
                 <h2>النظام والبيانات</h2>
@@ -517,23 +586,26 @@
             clearAll: () => localStorage.clear()
         };
 
+
         const DataLayer = {
             settings: StorageManager.get('db_settings') || { initBoxPhones: 0, initBoxHuawei: 0 },
             employees: StorageManager.get('db_employees'), logs: StorageManager.get('db_logs'), financials: StorageManager.get('db_financials'), 
             posDaily: StorageManager.get('db_pos_daily'), posTrans: StorageManager.get('db_pos_trans'), posSims: StorageManager.get('db_pos_sims'),
-            posExpenses: StorageManager.get('db_pos_expenses'),
+            posExpenses: StorageManager.get('db_pos_expenses'), activityLog: StorageManager.get('db_activity_log'),
 
             saveSettings: (key, val) => { DataLayer.settings[key] = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); },
+            saveCommRate: (key, val) => { if(!DataLayer.settings.commRates) DataLayer.settings.commRates = {}; DataLayer.settings.commRates[key] = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); },
+            logActivity: (action) => { DataLayer.activityLog.unshift({ ts: new Date().toISOString(), action }); if(DataLayer.activityLog.length > 300) DataLayer.activityLog = DataLayer.activityLog.slice(0, 300); StorageManager.set('db_activity_log', DataLayer.activityLog); },
             
-            addEmployee: (name, salary, hours, vacations, prefs) => { DataLayer.employees.push({ id: 'emp_' + Date.now(), name, salary: parseFloat(salary), hours: parseFloat(hours), vacations: parseFloat(vacations), prefs: prefs }); StorageManager.set('db_employees', DataLayer.employees); },
-            updateEmployee: (id, name, salary, hours, vacations, prefs) => { const idx = DataLayer.employees.findIndex(e => e.id === id); if(idx > -1) { DataLayer.employees[idx].name = name; DataLayer.employees[idx].salary = parseFloat(salary); DataLayer.employees[idx].hours = parseFloat(hours); DataLayer.employees[idx].vacations = parseFloat(vacations); DataLayer.employees[idx].prefs = prefs; StorageManager.set('db_employees', DataLayer.employees); } },
-            deleteEmployee: (id) => { DataLayer.employees = DataLayer.employees.filter(e => e.id !== id); StorageManager.set('db_employees', DataLayer.employees); },
+            addEmployee: (name, salary, hours, vacations, prefs) => { DataLayer.employees.push({ id: 'emp_' + Date.now(), name, salary: parseFloat(salary), hours: parseFloat(hours), vacations: parseFloat(vacations), prefs: prefs }); StorageManager.set('db_employees', DataLayer.employees); DataLayer.logActivity(`إضافة موظف جديد: ${name}`); },
+            updateEmployee: (id, name, salary, hours, vacations, prefs) => { const idx = DataLayer.employees.findIndex(e => e.id === id); if(idx > -1) { DataLayer.employees[idx].name = name; DataLayer.employees[idx].salary = parseFloat(salary); DataLayer.employees[idx].hours = parseFloat(hours); DataLayer.employees[idx].vacations = parseFloat(vacations); DataLayer.employees[idx].prefs = prefs; StorageManager.set('db_employees', DataLayer.employees); DataLayer.logActivity(`تعديل بيانات الموظف: ${name}`); } },
+            deleteEmployee: (id) => { const emp = DataLayer.employees.find(e => e.id === id); DataLayer.employees = DataLayer.employees.filter(e => e.id !== id); StorageManager.set('db_employees', DataLayer.employees); DataLayer.logActivity(`حذف الموظف: ${emp ? emp.name : id}`); },
             
-            saveLog: (empId, date, timeIn, timeOut, status, logId = null) => { if (logId) { const idx = DataLayer.logs.findIndex(l => l.id === logId); if (idx > -1) { DataLayer.logs[idx].timeIn = timeIn; DataLayer.logs[idx].timeOut = timeOut; DataLayer.logs[idx].status = status; } } else { DataLayer.logs.push({ id: 'log_' + Date.now() + Math.floor(Math.random()*100), empId, date, timeIn: timeIn||'', timeOut: timeOut||'', status }); } StorageManager.set('db_logs', DataLayer.logs); },
-            deleteLog: (id) => { DataLayer.logs = DataLayer.logs.filter(l => l.id !== id); StorageManager.set('db_logs', DataLayer.logs); },
+            saveLog: (empId, date, timeIn, timeOut, status, logId = null) => { const empName = (DataLayer.employees.find(e=>e.id===empId)||{}).name || empId; if (logId) { const idx = DataLayer.logs.findIndex(l => l.id === logId); if (idx > -1) { DataLayer.logs[idx].timeIn = timeIn; DataLayer.logs[idx].timeOut = timeOut; DataLayer.logs[idx].status = status; } } else { DataLayer.logs.push({ id: 'log_' + Date.now() + Math.floor(Math.random()*100), empId, date, timeIn: timeIn||'', timeOut: timeOut||'', status }); } StorageManager.set('db_logs', DataLayer.logs); DataLayer.logActivity(`تسجيل دوام (${status}) للموظف ${empName} بتاريخ ${date}`); },
+            deleteLog: (id) => { const log = DataLayer.logs.find(l=>l.id===id); DataLayer.logs = DataLayer.logs.filter(l => l.id !== id); StorageManager.set('db_logs', DataLayer.logs); if(log) DataLayer.logActivity(`حذف سجل دوام بتاريخ ${log.date}`); },
             
-            getFinancials: (empId, month) => { let fin = DataLayer.financials.find(f => f.empId === empId && f.month === month); if (!fin) { let prevFins = DataLayer.financials.filter(f => f.empId === empId && f.month < month).sort((a,b) => b.month.localeCompare(a.month)); if(prevFins.length > 0) { fin = { ...prevFins[0], month: month }; } else { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: 0, salTransfer: 0, salDrawer: 0, salTailor: 0 }; } } if (fin.tamara === undefined) fin.tamara = 0; if (fin.shippingCredit === undefined) fin.shippingCredit = 0; if (fin.salCash === undefined) { fin.salCash = 0; fin.salTransfer = 0; fin.salDrawer = 0; fin.salTailor = 0; } return fin; },
-            updateFinancials: (empId, month, field, value) => { let finIndex = DataLayer.financials.findIndex(f => f.empId === empId && f.month === month); let valNum = parseFloat(value) || 0; if (finIndex > -1) { DataLayer.financials[finIndex][field] = valNum; } else { let newFin = DataLayer.getFinancials(empId, month); newFin[field] = valNum; DataLayer.financials.push(newFin); } StorageManager.set('db_financials', DataLayer.financials); },
+            getFinancials: (empId, month) => { let fin = DataLayer.financials.find(f => f.empId === empId && f.month === month); if (!fin) { let prevFins = DataLayer.financials.filter(f => f.empId === empId && f.month < month).sort((a,b) => b.month.localeCompare(a.month)); if(prevFins.length > 0) { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: prevFins[0].salCash || 0, salTransfer: prevFins[0].salTransfer || 0, salDrawer: prevFins[0].salDrawer || 0, salTailor: prevFins[0].salTailor || 0 }; } else { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: 0, salTransfer: 0, salDrawer: 0, salTailor: 0 }; } } if (fin.tamara === undefined) fin.tamara = 0; if (fin.shippingCredit === undefined) fin.shippingCredit = 0; if (fin.salCash === undefined) { fin.salCash = 0; fin.salTransfer = 0; fin.salDrawer = 0; fin.salTailor = 0; } return fin; },
+            updateFinancials: (empId, month, field, value) => { let finIndex = DataLayer.financials.findIndex(f => f.empId === empId && f.month === month); let valNum = parseFloat(value) || 0; if (finIndex > -1) { DataLayer.financials[finIndex][field] = valNum; } else { let newFin = DataLayer.getFinancials(empId, month); newFin[field] = valNum; DataLayer.financials.push(newFin); } StorageManager.set('db_financials', DataLayer.financials); const empName = (DataLayer.employees.find(e=>e.id===empId)||{}).name || empId; DataLayer.logActivity(`تعديل بند مالي (${field}) للموظف ${empName} لشهر ${month}: ${valNum}`); },
 
             getPosDaily: (module, date) => { let rec = DataLayer.posDaily.find(p => p.module === module && p.date === date); if(!rec) { rec = { module, date, accounts: {}, totalCash: 0 }; } return rec; },
             getPosPrevDaily: (module, currentDate) => { let past = DataLayer.posDaily.filter(p => p.module === module && p.date < currentDate).sort((a,b) => b.date.localeCompare(a.date)); return past.length > 0 ? past[0] : null; },
@@ -541,12 +613,12 @@
             
             getPosTrans: (module, date) => DataLayer.posTrans.filter(t => t.module === module && t.date === date),
             getAllPosTrans: (module) => DataLayer.posTrans.filter(t => t.module === module),
-            savePosTrans: (module, date, type, desc, amount, id=null) => { if(id) { let idx = DataLayer.posTrans.findIndex(t=>t.id===id); if(idx>-1){ DataLayer.posTrans[idx].type=type; DataLayer.posTrans[idx].desc=desc; DataLayer.posTrans[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posTrans.push({ id: 'tr_'+Date.now()+Math.random(), module, date, type, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_trans', DataLayer.posTrans); },
-            deletePosTrans: (id) => { DataLayer.posTrans = DataLayer.posTrans.filter(t => t.id !== id); StorageManager.set('db_pos_trans', DataLayer.posTrans); },
+            savePosTrans: (module, date, type, desc, amount, id=null) => { if(id) { let idx = DataLayer.posTrans.findIndex(t=>t.id===id); if(idx>-1){ DataLayer.posTrans[idx].type=type; DataLayer.posTrans[idx].desc=desc; DataLayer.posTrans[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posTrans.push({ id: 'tr_'+Date.now()+Math.random(), module, date, type, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_trans', DataLayer.posTrans); DataLayer.logActivity(`حركة ${type==='add'?'إضافة':'خصم'} (${module}) بتاريخ ${date}: ${desc} - ${amount}`); },
+            deletePosTrans: (id) => { const t = DataLayer.posTrans.find(x=>x.id===id); DataLayer.posTrans = DataLayer.posTrans.filter(t => t.id !== id); StorageManager.set('db_pos_trans', DataLayer.posTrans); if(t) DataLayer.logActivity(`حذف حركة (${t.module}) بتاريخ ${t.date}: ${t.desc}`); },
             
             getPosExpenses: (module, date) => (DataLayer.posExpenses || []).filter(e => e.module === module && e.date === date),
-            savePosExpense: (module, date, desc, amount, id=null) => { if(!DataLayer.posExpenses) DataLayer.posExpenses = []; if(id) { let idx = DataLayer.posExpenses.findIndex(e=>e.id===id); if(idx>-1){ DataLayer.posExpenses[idx].desc=desc; DataLayer.posExpenses[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posExpenses.push({ id: 'exp_'+Date.now()+Math.random(), module, date, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_expenses', DataLayer.posExpenses); },
-            deletePosExpense: (id) => { if(!DataLayer.posExpenses) return; DataLayer.posExpenses = DataLayer.posExpenses.filter(e => e.id !== id); StorageManager.set('db_pos_expenses', DataLayer.posExpenses); },
+            savePosExpense: (module, date, desc, amount, id=null) => { if(!DataLayer.posExpenses) DataLayer.posExpenses = []; if(id) { let idx = DataLayer.posExpenses.findIndex(e=>e.id===id); if(idx>-1){ DataLayer.posExpenses[idx].desc=desc; DataLayer.posExpenses[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posExpenses.push({ id: 'exp_'+Date.now()+Math.random(), module, date, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_expenses', DataLayer.posExpenses); DataLayer.logActivity(`مصروف (${module}) بتاريخ ${date}: ${desc} - ${amount}`); },
+            deletePosExpense: (id) => { if(!DataLayer.posExpenses) return; const e = DataLayer.posExpenses.find(x=>x.id===id); DataLayer.posExpenses = DataLayer.posExpenses.filter(e => e.id !== id); StorageManager.set('db_pos_expenses', DataLayer.posExpenses); if(e) DataLayer.logActivity(`حذف مصروف (${e.module}) بتاريخ ${e.date}: ${e.desc}`); },
 
             getEmpSimsDaily: (module, date) => DataLayer.posSims.filter(s => s.module === module && s.date === date),
             saveEmpSimsDaily: (module, date, empId, count) => { 
@@ -561,6 +633,8 @@
                 DataLayer.updateFinancials(empId, month, fieldMap[module], total);
             }
         };
+
+        if (!DataLayer.settings.commRates) DataLayer.settings.commRates = { tabby: 20, tamara: 20, mora: 100, simRate: 5 };
 
         const formatHours = (decimalHours) => { let hrs = Math.floor(Math.abs(decimalHours)); let mins = Math.round((Math.abs(decimalHours) - hrs) * 60); if(mins === 60){ hrs++; mins = 0;} return `${hrs}:${mins.toString().padStart(2, '0')}`; };
 
@@ -578,56 +652,56 @@
                 list.innerHTML = Array.from(unique).map(d => `<option value="${d}">`).join('');
             },
 
-            loadModuleData: (modId) => {
-                const date = document.getElementById(modId + 'Date').value; if(!date) return;
-                const tbody = document.getElementById(modId + 'TableBody'); tbody.innerHTML = '';
+            computeModuleData: (modId, date) => {
                 const accs = PosController.modules[modId].accs; let month = date.substring(0, 7);
-                
-                let todayData = DataLayer.getPosDaily(modId, date); let prevData = DataLayer.getPosPrevDaily(modId, date); 
-                let totalSales = 0; let totalBalances = 0;
-                
+                let todayData = DataLayer.getPosDaily(modId, date); let prevData = DataLayer.getPosPrevDaily(modId, date);
+                let totalSales = 0, totalBalances = 0;
+
                 let cumulativeSims1 = Array(accs.length).fill(0);
                 let cumulativeSims2 = Array(accs.length).fill(0);
+                let cumulativeProfit = Array(accs.length).fill(0);
 
                 let monthData = DataLayer.posDaily.filter(p => p.module === modId && p.date.startsWith(month) && p.date <= date);
-                monthData.forEach(dayRecord => { 
-                    for(let i=0; i<accs.length; i++) { 
-                        if(dayRecord.accounts[i]) { 
+                monthData.forEach(dayRecord => {
+                    for(let i=0; i<accs.length; i++) {
+                        if(dayRecord.accounts[i]) {
                             cumulativeSims1[i] += (parseFloat(dayRecord.accounts[i].sims1) || 0) + (parseFloat(dayRecord.accounts[i].sims) || 0);
                             cumulativeSims2[i] += (parseFloat(dayRecord.accounts[i].sims2) || 0);
-                        } 
-                    } 
+                        }
+                    }
                 });
 
-                accs.forEach((acc, idx) => {
+                // تراكمي الفايدة لكل حساب = رصيد الحساب أول الشهر + إجمالي الشحن خلال الشهر - إجمالي التكلفة خلال الشهر
+                let sortedDates = [...new Set(monthData.map(d => d.date))].sort();
+                let priorRec = DataLayer.getPosPrevDaily(modId, month + '-01');
+                let openingBalance = accs.map((_, idx) => priorRec?.accounts[idx]?.balance || 0);
+                let runningPrevBalance = [...openingBalance];
+                let sumRecharge = Array(accs.length).fill(0);
+                let sumCost = Array(accs.length).fill(0);
+                sortedDates.forEach(d => {
+                    let rec = monthData.find(p => p.date === d);
+                    accs.forEach((acc, idx) => {
+                        if(rec.accounts[idx]) {
+                            let numRecD = parseFloat(rec.accounts[idx].recharge) || 0;
+                            let numBalD = parseFloat(rec.accounts[idx].balance) || 0;
+                            let costD = (runningPrevBalance[idx] + numRecD) - numBalD;
+                            sumRecharge[idx] += numRecD;
+                            sumCost[idx] += costD;
+                            runningPrevBalance[idx] = numBalD;
+                        }
+                    });
+                });
+                accs.forEach((acc, idx) => { cumulativeProfit[idx] = openingBalance[idx] + sumRecharge[idx] - sumCost[idx]; });
+
+                let rows = accs.map((acc, idx) => {
                     let prevBal = prevData?.accounts[idx]?.balance || 0;
                     let todayRec = todayData.accounts[idx]?.recharge || ''; let todayBal = todayData.accounts[idx]?.balance || ''; let todaySal = todayData.accounts[idx]?.sales || '';
                     let todaySims1 = todayData.accounts[idx]?.sims1 !== undefined ? todayData.accounts[idx]?.sims1 : (todayData.accounts[idx]?.sims || '');
                     let todaySims2 = todayData.accounts[idx]?.sims2 || '';
-                    
                     let numRec = parseFloat(todayRec)||0; let numBal = parseFloat(todayBal)||0; let numSal = parseFloat(todaySal)||0;
                     let cost = (prevBal + numRec) - numBal; totalSales += numSal; totalBalances += numBal;
-
                     let isDoubleSim = (acc === 'ي. سوا' || acc === 'ي. فريندى');
-
-                    let simsHTML = isDoubleSim 
-                        ? `<div style="display:flex; gap:2px; justify-content:center; min-width: 74px;"><input type="number" class="fin-input-sm" value="${todaySims1}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sims1', this.value)"><input type="number" class="fin-input-sm" value="${todaySims2}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sims2', this.value)"></div>`
-                        : `<input type="number" class="fin-input" value="${todaySims1}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sims1', this.value)">`;
-                        
-                    let cumHTML = isDoubleSim
-                        ? `<span style="color:var(--info)">${cumulativeSims1[idx]}</span> <span style="color:#ccc">|</span> <span style="color:var(--danger)">${cumulativeSims2[idx]}</span>`
-                        : `<span style="color:var(--primary)">${cumulativeSims1[idx]}</span>`;
-
-                    tbody.innerHTML += `<tr>
-                        <td class="sticky-col"><strong>${acc}</strong></td>
-                        <td>${prevBal}</td>
-                        <td><input type="number" class="fin-input" value="${todayRec}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'recharge', this.value)"></td>
-                        <td><input type="number" class="fin-input" value="${todayBal}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'balance', this.value)"></td>
-                        <td><input type="number" class="fin-input" value="${cost}" readonly></td>
-                        <td><input type="number" class="fin-input" value="${todaySal}" onchange="PosController.saveCell('${modId}', '${date}', ${idx}, 'sales', this.value)"></td>
-                        <td style="text-align:center;">${simsHTML}</td>
-                        <td style="font-weight:bold; text-align:center; font-size:14px;">${cumHTML}</td>
-                    </tr>`;
+                    return { acc, idx, prevBal, todayRec, todayBal, todaySal, numRec, numBal, numSal, cost, todaySims1, todaySims2, isDoubleSim, cumSims1: cumulativeSims1[idx], cumSims2: cumulativeSims2[idx], cumProfit: cumulativeProfit[idx] };
                 });
 
                 let prevCash = prevData?.totalCash;
@@ -635,32 +709,74 @@
 
                 let trans = DataLayer.getPosTrans(modId, date);
                 let totalAdd = trans.filter(t=>t.type==='add').reduce((s,t)=>s+t.amount,0); let totalSub = trans.filter(t=>t.type==='sub').reduce((s,t)=>s+t.amount,0);
-                let netTrans = totalAdd - totalSub; 
-                
+                let netTrans = totalAdd - totalSub;
+
                 let expenses = DataLayer.getPosExpenses(modId, date);
                 let dailyExp = expenses.reduce((s,e) => s + e.amount, 0);
-
                 let finalCash = prevCash + totalSales + netTrans - dailyExp;
 
-                // Profit Logic (Balance Sheet Equation)
                 let allTrans = DataLayer.getAllPosTrans(modId);
-                // إجمالي المدين (عليه لنا = sub) - إجمالي الدائن (له علينا = add)
                 let netLedger = allTrans.filter(t=>t.type==='sub').reduce((s,t)=>s+t.amount,0) - allTrans.filter(t=>t.type==='add').reduce((s,t)=>s+t.amount,0);
-                
-                // رأس المال
                 let initialCap = modId === 'phones' ? 35000 : 15000;
-                
-                // الربح = الصندوق + الأرصدة + صافي المدين - رأس المال
                 let profit = finalCash + totalBalances + netLedger - initialCap;
 
-                todayData.totalCash = finalCash; DataLayer.savePosDaily(modId, date, todayData);
-                document.getElementById(modId + 'PrevTotal').textContent = prevCash.toFixed(0); 
-                document.getElementById(modId + 'TotalSales').textContent = totalSales.toFixed(0);
-                document.getElementById(modId + 'NetAddSub').textContent = (netTrans > 0 ? '+' : '') + netTrans.toFixed(0); 
-                document.getElementById(modId + 'FinalTotal').textContent = finalCash.toFixed(0);
-                document.getElementById(modId + 'TotalBalances').textContent = totalBalances.toFixed(0);
-                document.getElementById(modId + 'Profit').textContent = (profit > 0 ? '+' : '') + profit.toFixed(0);
-                document.getElementById(modId + 'Profit').style.color = profit >= 0 ? '#fff' : '#ffcdd2';
+                let totalCumSims = rows.reduce((s,r)=>s+r.cumSims1+r.cumSims2, 0);
+                let totalCumProfit = rows.reduce((s,r)=>s+r.cumProfit, 0);
+                let totalTodaySims = rows.reduce((s,r)=> s + (parseFloat(r.todaySims1)||0) + (parseFloat(r.todaySims2)||0), 0);
+                let totalPrevBal = rows.reduce((s,r)=>s+r.prevBal, 0);
+                let totalRecSum = rows.reduce((s,r)=>s+r.numRec, 0);
+                let totalCostSum = rows.reduce((s,r)=>s+r.cost, 0);
+
+                return { modId, date, month, rows, todayData, prevCash, totalSales, totalBalances, netTrans, dailyExp, finalCash, netLedger, profit, totalCumSims, totalCumProfit, totalTodaySims, totalPrevBal, totalRecSum, totalCostSum };
+            },
+
+            loadModuleData: (modId) => {
+                const date = document.getElementById(modId + 'Date').value; if(!date) return;
+                const tbody = document.getElementById(modId + 'TableBody'); tbody.innerHTML = '';
+                const data = PosController.computeModuleData(modId, date);
+
+                data.rows.forEach(r => {
+                    let simsHTML = r.isDoubleSim 
+                        ? `<div style="display:flex; gap:2px; justify-content:center; min-width: 74px;"><input type="number" class="fin-input-sm" value="${r.todaySims1}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'sims1', this.value)"><input type="number" class="fin-input-sm" value="${r.todaySims2}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'sims2', this.value)"></div>`
+                        : `<input type="number" class="fin-input" value="${r.todaySims1}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'sims1', this.value)">`;
+                        
+                    let cumHTML = r.isDoubleSim
+                        ? `<span style="color:var(--info)">${r.cumSims1}</span> <span style="color:#ccc">|</span> <span style="color:var(--danger)">${r.cumSims2}</span>`
+                        : `<span style="color:var(--primary)">${r.cumSims1}</span>`;
+
+                    tbody.innerHTML += `<tr>
+                        <td class="sticky-col"><strong>${r.acc}</strong></td>
+                        <td>${r.prevBal}</td>
+                        <td><input type="number" class="fin-input" value="${r.todayRec}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'recharge', this.value)"></td>
+                        <td><input type="number" class="fin-input" value="${r.todayBal}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'balance', this.value)"></td>
+                        <td><input type="number" class="fin-input" value="${r.cost}" readonly></td>
+                        <td><input type="number" class="fin-input" value="${r.todaySal}" onchange="PosController.saveCell('${modId}', '${date}', ${r.idx}, 'sales', this.value)"></td>
+                        <td style="text-align:center;">${simsHTML}</td>
+                        <td style="font-weight:bold; text-align:center; font-size:14px;">${cumHTML}</td>
+                        <td style="font-weight:bold; text-align:center; font-size:13px; color:${r.cumProfit>=0?'var(--primary)':'var(--danger)'}">${r.cumProfit.toFixed(0)}</td>
+                    </tr>`;
+                });
+
+                tbody.innerHTML += `<tr style="font-weight:bold; border-top:2px solid var(--text-main); background:var(--bg-color);">
+                    <td class="sticky-col" style="background:var(--bg-color);">الإجمالي</td>
+                    <td>${data.totalPrevBal.toFixed(0)}</td>
+                    <td>${data.totalRecSum.toFixed(0)}</td>
+                    <td>${data.totalBalances.toFixed(0)}</td>
+                    <td>${data.totalCostSum.toFixed(0)}</td>
+                    <td>${data.totalSales.toFixed(0)}</td>
+                    <td style="text-align:center;">${data.totalTodaySims}</td>
+                    <td style="text-align:center;">${data.totalCumSims}</td>
+                    <td style="text-align:center; color:${data.totalCumProfit>=0?'var(--primary)':'var(--danger)'}">${data.totalCumProfit.toFixed(0)}</td>
+                </tr>`;
+
+                data.todayData.totalCash = data.finalCash; DataLayer.savePosDaily(modId, date, data.todayData);
+                document.getElementById(modId + 'PrevTotal').textContent = data.prevCash.toFixed(0); 
+                document.getElementById(modId + 'TotalSales').textContent = data.totalSales.toFixed(0);
+                document.getElementById(modId + 'NetAddSub').textContent = (data.netTrans > 0 ? '+' : '') + data.netTrans.toFixed(0); 
+                document.getElementById(modId + 'FinalTotal').textContent = data.finalCash.toFixed(0);
+                document.getElementById(modId + 'TotalBalances').textContent = data.totalBalances.toFixed(0);
+                document.getElementById(modId + 'Profit').textContent = (data.profit > 0 ? '+' : '') + data.profit.toFixed(0);
+                document.getElementById(modId + 'Profit').style.color = data.profit >= 0 ? '#fff' : '#ffcdd2';
             },
             saveCell: (modId, date, accIdx, field, val) => { let data = DataLayer.getPosDaily(modId, date); if(!data.accounts[accIdx]) data.accounts[accIdx] = {}; data.accounts[accIdx][field] = parseFloat(val) || 0; DataLayer.savePosDaily(modId, date, data); PosController.loadModuleData(modId); },
             loadPhonesData: () => PosController.loadModuleData('phones'), loadHuaweiData: () => PosController.loadModuleData('huawei'),
@@ -717,7 +833,14 @@
         const AppController = {
             init: () => {
                 if (localStorage.getItem('ui_theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
-                
+
+                const storedPin = localStorage.getItem('db_pin');
+                if (storedPin && sessionStorage.getItem('app_unlocked') !== 'true') { document.getElementById('lockScreen').classList.remove('hidden'); document.getElementById('lockPinInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') AppController.checkPin(); }); }
+
+                const cr = DataLayer.settings.commRates || { tabby: 20, tamara: 20, mora: 100, simRate: 5 };
+                document.getElementById('commTabby').value = cr.tabby; document.getElementById('commTamara').value = cr.tamara;
+                document.getElementById('commMora').value = cr.mora; document.getElementById('commSimRate').value = cr.simRate;
+
                 const cleanPrintToggle = document.getElementById('cleanPrintToggle');
                 cleanPrintToggle.checked = localStorage.getItem('clean_print') === 'true';
                 cleanPrintToggle.addEventListener('change', (e) => { localStorage.setItem('clean_print', e.target.checked); AppController.renderLogs(); });
@@ -733,6 +856,8 @@
                 document.getElementById('entryDate').valueAsDate = today;
                 document.getElementById('filterMonth').value = currentMonth; document.getElementById('finMonth').value = currentMonth;
                 document.getElementById('phonesDate').valueAsDate = today; document.getElementById('huaweiDate').valueAsDate = today;
+                document.getElementById('reportEmpMonth').value = currentMonth; document.getElementById('reportPayrollMonth').value = currentMonth; document.getElementById('reportSimsMonth').value = currentMonth;
+                document.getElementById('reportFixedPhonesSalary').value = DataLayer.settings.phonesFixedSalary !== undefined ? DataLayer.settings.phonesFixedSalary : 2600;
 
                 AppController.populateDropdowns(); AppController.renderStaff(); AppController.renderLogs();
                 PosController.loadPhonesData(); PosController.loadHuaweiData();
@@ -751,6 +876,7 @@
                         if (target === 'view-financials') AppController.renderFinancials();
                         if (target === 'view-phones') PosController.loadPhonesData();
                         if (target === 'view-huawei') PosController.loadHuaweiData();
+                        if (target === 'view-settings') AppController.renderActivityLog();
                     });
                 });
 
@@ -762,6 +888,7 @@
                 document.getElementById('forceReloadBtn').addEventListener('click', () => { window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); });
             },
 
+            saveCommRate: (key, val) => { DataLayer.saveCommRate(key, val); AppController.showToast('تم حفظ نسبة العمولة'); },
             saveInitBox: (mod, val) => {
                 DataLayer.saveSettings(mod === 'phones' ? 'initBoxPhones' : 'initBoxHuawei', val);
                 PosController.loadPhonesData(); PosController.loadHuaweiData();
@@ -769,7 +896,7 @@
             },
             
             showToast: (msg, type = 'success') => { const t = document.getElementById('toast'); t.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`; t.style.backgroundColor = type === 'success' ? 'var(--text-main)' : 'var(--danger)'; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); },
-            populateDropdowns: () => { const eSel = document.getElementById('entryEmployee'), fSel = document.getElementById('filterEmployee'); eSel.innerHTML = '<option value="" disabled selected>اختر الموظف...</option>'; fSel.innerHTML = '<option value="ALL">عرض الكل</option>'; DataLayer.employees.forEach(emp => { eSel.appendChild(new Option(emp.name, emp.id)); fSel.appendChild(new Option(emp.name, emp.id)); }); },
+            populateDropdowns: () => { const eSel = document.getElementById('entryEmployee'), fSel = document.getElementById('filterEmployee'), rSel = document.getElementById('reportEmpSelect'); eSel.innerHTML = '<option value="" disabled selected>اختر الموظف...</option>'; fSel.innerHTML = '<option value="ALL">عرض الكل</option>'; rSel.innerHTML = '<option value="" disabled selected>اختر الموظف...</option>'; DataLayer.employees.forEach(emp => { eSel.appendChild(new Option(emp.name, emp.id)); fSel.appendChild(new Option(emp.name, emp.id)); rSel.appendChild(new Option(emp.name, emp.id)); }); },
             renderStaff: () => { const list = document.getElementById('staffList'); list.innerHTML = ''; DataLayer.employees.forEach(emp => { let vac = emp.vacations !== undefined ? emp.vacations : 4; list.innerHTML += `<li><div><strong>${emp.name}</strong><br><small style="color:var(--text-muted)">الراتب: ${emp.salary} | ساعات: ${emp.hours} | إجازات: ${vac}</small></div><div class="flex-gap" style="width:auto;"><button class="icon-btn text-info" onclick="AppController.loadEditEmployee('${emp.id}')"><span class="material-icons">edit</span></button><button class="icon-btn text-danger" onclick="AppController.handleDeleteEmployee('${emp.id}')"><span class="material-icons">delete</span></button></div></li>`; }); },
             handleSaveEmployee: (e) => { e.preventDefault(); const id = document.getElementById('editEmpId').value, name = document.getElementById('newEmpName').value; const salary = document.getElementById('newEmpSalary').value, hours = document.getElementById('newEmpHours').value, vac = document.getElementById('newEmpVacations').value; const prefs = { showSalCash: document.getElementById('prefSalCash').checked, showSalTransfer: document.getElementById('prefSalTransfer').checked, showSalDrawer: document.getElementById('prefSalDrawer').checked, showSalTailor: document.getElementById('prefSalTailor').checked, showUnusedOff: document.getElementById('prefUnusedOff').checked, showOvertime: document.getElementById('prefOvertime').checked, showSalesComm: document.getElementById('prefSalesComm').checked, showSimComm: document.getElementById('prefSimComm').checked, showAbsence: document.getElementById('prefAbsence').checked, showDelay: document.getElementById('prefDelay').checked, showAdvances: document.getElementById('prefAdvances').checked, showPurchases: document.getElementById('prefPurchases').checked, showShipping: document.getElementById('prefShipping').checked, showFinalNet: document.getElementById('prefFinalNet').checked }; if(id) { DataLayer.updateEmployee(id, name, salary, hours, vac, prefs); AppController.showToast('تم تعديل الموظف'); } else { DataLayer.addEmployee(name, salary, hours, vac, prefs); AppController.showToast('تمت الإضافة'); } AppController.cancelEditEmployee(); AppController.populateDropdowns(); AppController.renderStaff(); AppController.updateEntryFormState(); },
             loadEditEmployee: (id) => { const emp = DataLayer.employees.find(e => e.id === id); if(!emp) return; document.getElementById('editEmpId').value = emp.id; document.getElementById('newEmpName').value = emp.name; document.getElementById('newEmpSalary').value = emp.salary; document.getElementById('newEmpHours').value = emp.hours; document.getElementById('newEmpVacations').value = emp.vacations !== undefined ? emp.vacations : 4; const prefs = emp.prefs || { showUnusedOff: true, showOvertime: true, showSalesComm: true, showSimComm: true, showAbsence: true, showDelay: true, showAdvances: true, showPurchases: true, showShipping: true, showFinalNet: true }; ['SalCash','SalTransfer','SalDrawer','SalTailor','UnusedOff','Overtime','SalesComm','SimComm','Absence','Delay','Advances','Purchases','Shipping','FinalNet'].forEach(p => { let el = document.getElementById('pref'+p); if(el) el.checked = prefs['show'+p] || false; if(p!=='SalCash'&&p!=='SalTransfer'&&p!=='SalDrawer'&&p!=='SalTailor'&&prefs['show'+p]===undefined) el.checked = true; }); document.getElementById('btnSubmitStaff').innerHTML = '<span class="material-icons">save</span> حفظ التعديلات'; document.getElementById('btnCancelEdit').classList.remove('hidden'); window.scrollTo(0,0); },
@@ -793,7 +920,8 @@
                 let diffHours = actualHours - expectedHours; let overTimeHrs = diffHours > 0 ? diffHours : 0; let delayHrs = diffHours < 0 ? Math.abs(diffHours) : 0;
                 let overTimeVal = overTimeHrs * hourlyRate; let delayVal = delayHrs * hourlyRate;
                 let unusedOffDays = allowedVacations - effectiveVac; let unusedOffVal = unusedOffDays * dailyRate; let absenceVal = effectiveAbs * dailyRate;
-                let comm1 = (fin.tabby * 20) + (fin.tamara * 20) + (fin.mora * 100); let comm2 = (fin.simPhones * 5) + (fin.simHuawei * 5); let commissions = comm1 + comm2;
+                const cr = DataLayer.settings.commRates || { tabby: 20, tamara: 20, mora: 100, simRate: 5 };
+                let comm1 = (fin.tabby * cr.tabby) + (fin.tamara * cr.tamara) + (fin.mora * cr.mora); let comm2 = (fin.simPhones * cr.simRate) + (fin.simHuawei * cr.simRate); let commissions = comm1 + comm2;
                 let deductions = fin.advances + fin.purchases + fin.shippingCredit; 
                 let netBeforeDeductions = baseSalary + unusedOffVal + overTimeVal + commissions - absenceVal - delayVal; let finalSalary = netBeforeDeductions - deductions;
                 return { emp, month, logs, fin, baseSalary, allowedVacations, unusedOffDays, unusedOffVal, overTimeHrs, overTimeVal, delayHrs, delayVal, effectiveVac, effectiveAbs, absenceVal, commissions, comm1, comm2, deductions, netBeforeDeductions, finalSalary };
@@ -849,7 +977,9 @@
                 tbody.innerHTML = '';
                 filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(log => {
                     let st = log.status === 'WORK' ? '<span class="status-badge status-work">عمل</span>' : (log.status === 'VACATION' ? '<span class="status-badge status-vacation">إجازة</span>' : '<span class="status-badge status-absent">غياب</span>');
-                    tbody.innerHTML += `<tr><td><span dir="ltr">${log.date}</span></td><td>${DataLayer.employees.find(e=>e.id===log.empId)?.name||''}</td><td><span dir="ltr">${log.timeIn||'-'}</span></td><td><span dir="ltr">${log.timeOut||'-'}</span></td><td>${st}</td><td><button class="icon-btn text-danger" onclick="AppController.handleDeleteLog('${log.id}')"><span class="material-icons">close</span></button></td></tr>`;
+                    let hoursText = '-';
+                    if (log.status === 'WORK' && log.timeIn && log.timeOut) { let d1 = new Date(`2000-01-01T${log.timeIn}`), d2 = new Date(`2000-01-01T${log.timeOut}`); if (d2 < d1) d2.setDate(d2.getDate() + 1); hoursText = formatHours((d2 - d1) / (1000 * 60 * 60)); }
+                    tbody.innerHTML += `<tr><td><span dir="ltr">${log.date}</span></td><td>${DataLayer.employees.find(e=>e.id===log.empId)?.name||''}</td><td><span dir="ltr">${log.timeIn||'-'}</span></td><td><span dir="ltr">${log.timeOut||'-'}</span></td><td><span dir="ltr">${hoursText}</span></td><td>${st}</td><td><button class="icon-btn text-danger" onclick="AppController.handleDeleteLog('${log.id}')"><span class="material-icons">close</span></button></td></tr>`;
                 });
             },
 
@@ -893,9 +1023,86 @@
                 html += `</div>`; AppController.printHTML(html);
             },
 
+            saveFixedPhonesSalary: (val) => { DataLayer.settings.phonesFixedSalary = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); AppController.showToast('تم الحفظ'); },
+
+            // تقرير 1: كارت راتب موظف لشهر + جدول الحضور والانصراف
+            printReportEmployeeSlip: () => {
+                const month = document.getElementById('reportEmpMonth').value, empId = document.getElementById('reportEmpSelect').value;
+                if (!empId) return AppController.showToast('اختر موظف', 'error');
+                const s = AppController.calculateSummary(empId, month); if (!s) return;
+                let rows = s.logs.slice().sort((a,b) => new Date(a.date) - new Date(b.date)).map(l => {
+                    let st = l.status === 'WORK' ? 'عمل' : (l.status === 'VACATION' ? 'إجازة' : 'غياب');
+                    let hrs = '-';
+                    if (l.status === 'WORK' && l.timeIn && l.timeOut) { let d1 = new Date(`2000-01-01T${l.timeIn}`), d2 = new Date(`2000-01-01T${l.timeOut}`); if (d2 < d1) d2.setDate(d2.getDate() + 1); hrs = formatHours((d2 - d1) / (1000 * 60 * 60)); }
+                    return `<tr><td style="border:1px solid #000;padding:3px;">${l.date}</td><td style="border:1px solid #000;padding:3px;">${l.timeIn||'-'}</td><td style="border:1px solid #000;padding:3px;">${l.timeOut||'-'}</td><td style="border:1px solid #000;padding:3px;">${hrs}</td><td style="border:1px solid #000;padding:3px;">${st}</td></tr>`;
+                }).join('');
+                let attendanceHTML = `<div style="margin-top:15px;"><h3 style="font-size:13px;margin-bottom:5px;">جدول الحضور والانصراف</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr style="background:#eee;"><th style="border:1px solid #000;padding:3px;">التاريخ</th><th style="border:1px solid #000;padding:3px;">الحضور</th><th style="border:1px solid #000;padding:3px;">الانصراف</th><th style="border:1px solid #000;padding:3px;">الساعات</th><th style="border:1px solid #000;padding:3px;">الحالة</th></tr></thead><tbody>${rows || '<tr><td colspan="5" style="text-align:center;padding:5px;border:1px solid #000;">لا يوجد سجلات لهذا الشهر</td></tr>'}</tbody></table></div>`;
+                AppController.printHTML(`<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}${attendanceHTML}</div>`);
+            },
+
+            // تقرير 2: مسير الرواتب المجمع (بنفس منطق exportGlobalPDF لكن بشهر مستقل من قسم التقارير)
+            printReportGlobalPayroll: () => {
+                const month = document.getElementById('reportPayrollMonth').value; if(DataLayer.employees.length === 0) return AppController.showToast('لا يوجد موظفين', 'error');
+                let html = `<div class="global-print-title">مسير الرواتب (كروت مجمعة) لشهر: <span dir="ltr">${month}</span></div><div class="bulk-print-grid">`;
+                DataLayer.employees.forEach(emp => { const s = AppController.calculateSummary(emp.id, month); if(s) html += AppController.generateSlipHTML(s, 'print'); });
+                html += `</div>`; AppController.printHTML(html);
+            },
+
+            // تقرير 3: تراكمي الشرائح والأرباح لكل حساب فى الفرعين + صافي الربح التراكمي آخر الشهر
+            printReportSimsProfit: () => {
+                const month = document.getElementById('reportSimsMonth').value; if(!month) return AppController.showToast('اختر الشهر', 'error');
+                const lastDay = new Date(parseInt(month.substring(0,4)), parseInt(month.substring(5,7)), 0).getDate();
+                const endDate = `${month}-${String(lastDay).padStart(2,'0')}`;
+                const dataPhones = PosController.computeModuleData('phones', endDate);
+                const dataHuawei = PosController.computeModuleData('huawei', endDate);
+
+                const buildBranchTable = (title, data) => {
+                    let rows = data.rows.map(r => `<tr><td style="border:1px solid #000;padding:3px;">${r.acc}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${r.cumSims1 + r.cumSims2}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${r.cumProfit.toFixed(0)}</td></tr>`).join('');
+                    return `<h3 style="font-size:14px;margin:12px 0 5px;">${title}</h3><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#eaf1e3;"><th style="border:1px solid #000;padding:3px;">الحساب</th><th style="border:1px solid #000;padding:3px;">تراكمي الشرائح</th><th style="border:1px solid #000;padding:3px;">تراكمي الفايدة</th></tr></thead><tbody>${rows}<tr style="font-weight:bold;background:#f0f0f0;"><td style="border:1px solid #000;padding:3px;">إجمالي ${title}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumSims}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumProfit.toFixed(0)}</td></tr></tbody></table>`;
+                };
+
+                const cr = DataLayer.settings.commRates || { simRate: 5 };
+                const fixedSalaries = DataLayer.settings.phonesFixedSalary !== undefined ? DataLayer.settings.phonesFixedSalary : 2600;
+
+                const simsPhones = dataPhones.totalCumSims; const simsHuawei = dataHuawei.totalCumSims;
+                const commPhones = simsPhones * cr.simRate; const commHuawei = simsHuawei * cr.simRate;
+                const netProfitPhones = dataPhones.profit - commPhones - fixedSalaries;
+                const netProfitHuawei = dataHuawei.profit - commHuawei;
+                const netProfitTotal = netProfitPhones + netProfitHuawei;
+
+                const buildNetTable = (title, branchProfit, sims, comm, salary, netProfit) => `
+                    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px;">
+                        <tr style="background:#dcdcdc;"><td colspan="2" style="border:1px solid #000;padding:5px;font-weight:bold;">صافي ربح ${title}</td></tr>
+                        <tr style="background:#eaf1e3;"><td style="border:1px solid #000;padding:5px;">الربح التراكمي</td><td style="border:1px solid #000;padding:5px;text-align:left;">${branchProfit.toFixed(0)}</td></tr>
+                        <tr style="background:#f7e6e1;"><td style="border:1px solid #000;padding:5px;">عمولة الشرائح نهاية الشهر (${sims} × ${cr.simRate})</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${comm.toFixed(0)}</td></tr>
+                        ${salary ? `<tr style="background:#f7e6e1;"><td style="border:1px solid #000;padding:5px;">رواتب ${title} (ثابت)</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${salary.toFixed(0)}</td></tr>` : ''}
+                        <tr style="background:#c0d8a5;font-weight:bold;border-top:2px solid #000;"><td style="border:1px solid #000;padding:5px;">صافي الربح</td><td style="border:1px solid #000;padding:5px;text-align:left;">${netProfit.toFixed(0)}</td></tr>
+                    </table>`;
+
+                let netTableHTML = `<h3 style="font-size:14px;margin:15px 0 5px;">صافي الربح لكل فرع على حدة</h3>
+                    ${buildNetTable('فرع الهواتف', dataPhones.profit, simsPhones, commPhones, fixedSalaries, netProfitPhones)}
+                    ${buildNetTable('فرع هواوي', dataHuawei.profit, simsHuawei, commHuawei, 0, netProfitHuawei)}
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                        <tr style="background:#333;color:#fff;font-weight:bold;"><td style="border:1px solid #000;padding:6px;">إجمالي صافي الربح (الفرعين)</td><td style="border:1px solid #000;padding:6px;text-align:left;">${netProfitTotal.toFixed(0)}</td></tr>
+                    </table>`;
+
+                let html = `<div class="single-print-wrapper" style="width:92%;"><div class="print-container"><div class="print-header">تقرير تراكمي الشرائح والأرباح - <span dir="ltr">${month}</span></div>
+                    ${buildBranchTable('فرع الهواتف', dataPhones)}
+                    ${buildBranchTable('فرع هواوي', dataHuawei)}
+                    ${netTableHTML}
+                </div></div>`;
+                AppController.printHTML(html);
+            },
+
             clearAll: () => { if(confirm('تنبيه: سيتم مسح كافة البيانات بشكل نهائي! هل أنت متأكد؟')) { StorageManager.clearAll(); location.reload(); } },
-            backupJSON: () => { const b = new Blob([JSON.stringify({ employees: DataLayer.employees, logs: DataLayer.logs, financials: DataLayer.financials, posDaily: DataLayer.posDaily, posTrans: DataLayer.posTrans, posSims: DataLayer.posSims, posExpenses: DataLayer.posExpenses, settings: DataLayer.settings })], { type: 'application/json' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `backup_${new Date().toISOString().substring(0,10)}.json`; l.click(); },
-            restoreJSON: (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const data = JSON.parse(event.target.result); if(data.employees) StorageManager.set('db_employees', data.employees); if(data.logs) StorageManager.set('db_logs', data.logs); if(data.financials) StorageManager.set('db_financials', data.financials); if(data.posDaily) StorageManager.set('db_pos_daily', data.posDaily); if(data.posTrans) StorageManager.set('db_pos_trans', data.posTrans); if(data.posSims) StorageManager.set('db_pos_sims', data.posSims); if(data.posExpenses) StorageManager.set('db_pos_expenses', data.posExpenses); if(data.settings) StorageManager.set('db_settings', data.settings); alert('تم استرجاع البيانات بنجاح!'); window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); } catch { alert('ملف غير صالح'); } }; reader.readAsText(file); }
+            backupJSON: () => { const b = new Blob([JSON.stringify({ employees: DataLayer.employees, logs: DataLayer.logs, financials: DataLayer.financials, posDaily: DataLayer.posDaily, posTrans: DataLayer.posTrans, posSims: DataLayer.posSims, posExpenses: DataLayer.posExpenses, settings: DataLayer.settings, activityLog: DataLayer.activityLog })], { type: 'application/json' }); const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = `backup_${new Date().toISOString().substring(0,10)}.json`; l.click(); },
+            restoreJSON: (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const data = JSON.parse(event.target.result); if(data.employees) StorageManager.set('db_employees', data.employees); if(data.logs) StorageManager.set('db_logs', data.logs); if(data.financials) StorageManager.set('db_financials', data.financials); if(data.posDaily) StorageManager.set('db_pos_daily', data.posDaily); if(data.posTrans) StorageManager.set('db_pos_trans', data.posTrans); if(data.posSims) StorageManager.set('db_pos_sims', data.posSims); if(data.posExpenses) StorageManager.set('db_pos_expenses', data.posExpenses); if(data.settings) StorageManager.set('db_settings', data.settings); if(data.activityLog) StorageManager.set('db_activity_log', data.activityLog); alert('تم استرجاع البيانات بنجاح!'); window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); } catch { alert('ملف غير صالح'); } }; reader.readAsText(file); },
+
+            checkPin: () => { const val = document.getElementById('lockPinInput').value; const stored = localStorage.getItem('db_pin'); if (stored && btoa(val) === stored) { sessionStorage.setItem('app_unlocked', 'true'); document.getElementById('lockScreen').classList.add('hidden'); document.getElementById('lockError').classList.add('hidden'); document.getElementById('lockPinInput').value = ''; } else { document.getElementById('lockError').classList.remove('hidden'); } },
+            setPin: () => { const p1 = prompt('أدخل رمز دخول جديد (أرقام يفضل):'); if(p1 === null || p1 === '') return; const p2 = prompt('أكّد الرمز:'); if(p1 !== p2) return alert('الرمزين غير متطابقين، حاول تاني'); localStorage.setItem('db_pin', btoa(p1)); sessionStorage.setItem('app_unlocked', 'true'); AppController.showToast('تم تعيين رمز الدخول'); },
+            removePin: () => { if(!localStorage.getItem('db_pin')) return AppController.showToast('لا يوجد رمز مفعّل حاليًا', 'error'); if(confirm('إزالة رمز الدخول؟ أي حد هيقدر يفتح النظام من غير رمز.')) { localStorage.removeItem('db_pin'); AppController.showToast('تم إزالة الرمز'); } },
+
+            renderActivityLog: () => { const el = document.getElementById('activityLogList'); if(!el) return; if(!DataLayer.activityLog || DataLayer.activityLog.length === 0) { el.innerHTML = '<p style="font-size:12px;color:var(--text-muted);">لا يوجد سجل بعد</p>'; return; } el.innerHTML = DataLayer.activityLog.slice(0, 60).map(a => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;"><span dir="ltr" style="color:var(--text-muted);">${new Date(a.ts).toLocaleString('ar-EG')}</span><br>${a.action}</div>`).join(''); }
         };
 
         document.addEventListener('DOMContentLoaded', AppController.init);
