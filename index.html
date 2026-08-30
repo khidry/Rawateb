@@ -60,7 +60,7 @@
 
         @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; gap: 12px; } }
 
-        .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; flex: 1; }
+        .btn { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; transition: 0.2s; width: 100%; flex: 1;}
         .btn:active { opacity: 0.8; }
         .btn-primary { background-color: var(--primary); color: #fff; }
         .btn-danger { background-color: var(--danger); color: #fff; }
@@ -80,7 +80,7 @@
         .data-table th, .data-table td { padding: 8px 5px; border-bottom: 1px solid var(--border); font-size: 13px; }
         .data-table th { background-color: var(--bg-color); font-weight: bold; white-space: nowrap; }
         
-        /* حل مشكلة اختفاء العمود الثابت في الآيفون */
+        /* حل مشكلة اختفاء العمود الثابت */
         .sticky-col { 
             position: sticky; right: 0; z-index: 2; 
             box-shadow: -2px 0 5px rgba(0,0,0,0.05); 
@@ -157,14 +157,23 @@
 
         /* Print Settings */
         #printArea { display: none; }
+        
+        /* تقارير اليومية والدفاتر */
+        .report-table { width: 100%; border-collapse: collapse; font-weight: bold; font-size: 14px; margin-bottom: 15px; color: var(--text-main); }
+        .report-table td, .report-table th { padding: 8px 5px; border: 1px solid var(--border); }
+        .report-bg-g-light { background-color: var(--green-light) !important; }
+        .report-bg-r-light { background-color: var(--red-light) !important; }
+        .report-bg-g-dark { background-color: var(--green-dark) !important; }
+
         @media print {
             body { background: #fff !important; color: #000 !important; }
             .app-header, .app-main, .bottom-nav, .toast, .modal-overlay { display: none !important; }
             #printArea { display: block !important; width: 100%; direction: rtl; }
             
             @page { size: A4 portrait; margin: 5mm; }
-            .bulk-print-grid { display: block; }
-            @media print { .bulk-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; } }
+            
+            /* التصغير التلقائي (90%) لتجميع مسير الرواتب في صفحة واحدة */
+            .bulk-print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; zoom: 0.88; }
             
             .print-container { border: 1px solid #000; padding: 5px; margin-bottom: 5px; border-radius: 4px; page-break-inside: avoid; background: #fff !important; font-family: 'Segoe UI', Arial, sans-serif; }
             .print-header { text-align: center; padding-bottom: 3px; font-size: 16px; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 5px; color: #000 !important;}
@@ -190,6 +199,12 @@
             .single-print-wrapper .print-header { font-size: 24px; padding-bottom:10px; margin-bottom: 15px;}
             .single-print-wrapper .print-table { font-size: 14px;}
             .single-print-wrapper .print-td-left { font-size: 18px;}
+
+            .report-table { font-size: 11px; color: #000 !important; }
+            .report-table td, .report-table th { border: 1px solid #000; color: #000 !important; }
+            .report-bg-g-light { background-color: #eaf1e3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .report-bg-r-light { background-color: #f7e6e1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .report-bg-g-dark { background-color: #c0d8a5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -200,7 +215,7 @@
             <span class="material-icons" style="font-size:40px;color:var(--primary);">lock</span>
             <h2 style="margin:10px 0 15px;color:var(--primary);font-size:18px;">دخول النظام</h2>
             <input type="password" id="lockPinInput" placeholder="أدخل الرمز" inputmode="numeric">
-            <button class="btn btn-primary" onclick="AppController.checkPin()">دخول</button>
+            <button class="btn btn-primary w-100" onclick="AppController.checkPin()">دخول</button>
             <p id="lockError" class="hidden" style="color:var(--danger);margin-top:10px;font-size:13px;">رمز غير صحيح</p>
         </div>
     </div>
@@ -220,11 +235,11 @@
     <main class="app-main">
 
         <div id="pwaPrompt" class="install-banner hidden">
-            <span>لتجربة أسرع وأفضل، أضف التطبيق للشاشة الرئيسية لجوالك (اضغط أيقونة المشاركة ⇪ ثم Add to Home Screen).</span>
+            <span>لتجربة أسرع وأفضل، أضف التطبيق للشاشة الرئيسية لجوالك.</span>
             <button class="icon-btn" onclick="document.getElementById('pwaPrompt').classList.add('hidden')" style="color:white"><span class="material-icons">close</span></button>
         </div>
         
-        <!-- 1. شاشة الإدخال والسجلات -->
+        <!-- 1. شاشة الدوام -->
         <div id="view-entry" class="view active">
             <div class="card">
                 <h2>إدارة دوام اليوم</h2>
@@ -244,7 +259,13 @@
             </div>
 
             <div class="card">
-                <h2>سجلات الدوام والرواتب</h2>
+                <div class="flex-between mb-15">
+                    <h2 style="margin:0; border:none;">سجلات الدوام</h2>
+                    <button class="btn btn-outline" style="width:auto; padding:6px 12px;" onclick="document.getElementById('logsTableWrapper').classList.toggle('hidden')">
+                        <span class="material-icons">visibility_off</span> إخفاء/إظهار الجدول
+                    </button>
+                </div>
+                
                 <div class="form-row mb-15">
                     <div class="form-group"><label>الشهر</label><input type="month" id="filterMonth" onchange="AppController.renderLogs()"></div>
                     <div class="form-group"><label>الموظف (لعرض التفاصيل)</label><select id="filterEmployee" onchange="AppController.renderLogs()"><option value="ALL">عرض الكل</option></select></div>
@@ -253,12 +274,12 @@
                 <div id="summaryCard" class="hidden mb-15">
                     <div id="slipDisplayArea"></div>
                     <div class="flex-gap mt-10">
-                        <button class="btn btn-info" onclick="AppController.handleEmployeeReport('print', 'filterMonth', 'filterEmployee')"><span class="material-icons">print</span> طباعة الكارت</button>
+                        <button class="btn btn-info" onclick="AppController.handleEmployeeReport('print', 'filterMonth', 'filterEmployee')"><span class="material-icons">print</span> طباعة كرت الراتب</button>
                         <button class="btn btn-primary" onclick="AppController.handleEmployeeReport('excel', 'filterMonth', 'filterEmployee')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
                     </div>
                 </div>
 
-                <div class="table-responsive">
+                <div id="logsTableWrapper" class="table-responsive">
                     <table class="data-table">
                         <thead><tr><th>التاريخ</th><th>الموظف</th><th>الحضور</th><th>الانصراف</th><th>عدد الساعات</th><th>الحالة</th><th>حذف</th></tr></thead>
                         <tbody id="logsTableBody"></tbody>
@@ -317,10 +338,9 @@
                     <button class="btn btn-outline" onclick="PosController.openTransactionsModal('phones')"><span class="material-icons">sync_alt</span> الإضافة والخصم</button>
                     <button class="btn btn-outline" onclick="PosController.openExpensesModal('phones')"><span class="material-icons">money_off</span> المصروفات والرواتب</button>
                     <button class="btn btn-outline" onclick="PosController.openLedgerModal('phones')"><span class="material-icons">menu_book</span> عملاء وموردين</button>
-                    <button class="btn btn-outline" onclick="PosController.openEmpSimsModal('phones')"><span class="material-icons">sim_card</span> مبيعات الموظفين</button>
+                    <button class="btn btn-primary" onclick="PosController.openEmpSimsModal('phones')"><span class="material-icons">sim_card</span> مبيعات الموظفين</button>
                 </div>
                 
-                <!-- أزرار اليومية الشاملة -->
                 <div class="flex-gap mt-15" style="border-top: 1px solid var(--border); padding-top: 15px;">
                     <button class="btn btn-info" onclick="PosController.handleDailyReport('phones', 'print')"><span class="material-icons">print</span> طباعة يومية الفرع</button>
                     <button class="btn btn-primary" onclick="PosController.handleDailyReport('phones', 'excel')"><span class="material-icons">table_view</span> تصدير اليومية لإكسيل</button>
@@ -378,10 +398,9 @@
                     <button class="btn btn-outline" onclick="PosController.openTransactionsModal('huawei')"><span class="material-icons">sync_alt</span> الإضافة والخصم</button>
                     <button class="btn btn-outline" onclick="PosController.openExpensesModal('huawei')"><span class="material-icons">money_off</span> المصروفات والرواتب</button>
                     <button class="btn btn-outline" onclick="PosController.openLedgerModal('huawei')"><span class="material-icons">menu_book</span> عملاء وموردين</button>
-                    <button class="btn btn-outline" onclick="PosController.openEmpSimsModal('huawei')"><span class="material-icons">sim_card</span> مبيعات الموظفين</button>
+                    <button class="btn btn-primary" onclick="PosController.openEmpSimsModal('huawei')"><span class="material-icons">sim_card</span> مبيعات الموظفين</button>
                 </div>
                 
-                <!-- أزرار اليومية الشاملة -->
                 <div class="flex-gap mt-15" style="border-top: 1px solid var(--border); padding-top: 15px;">
                     <button class="btn btn-info" onclick="PosController.handleDailyReport('huawei', 'print')"><span class="material-icons">print</span> طباعة يومية الفرع</button>
                     <button class="btn btn-primary" onclick="PosController.handleDailyReport('huawei', 'excel')"><span class="material-icons">table_view</span> تصدير اليومية لإكسيل</button>
@@ -437,15 +456,19 @@
         <div id="view-financials" class="view">
             <div class="card">
                 <div class="flex-between mb-15">
-                    <h2>المالية (للشهر المحدد ينسخ من السابق)</h2>
+                    <h2>المالية (الإضافات والخصومات)</h2>
                     <input type="month" id="finMonth" onchange="AppController.renderFinancials()" style="width: auto; padding: 5px;">
                 </div>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">إذا كنت تستخدم الإكسيل للحضور والانصراف، أدخل إجمالي أيام الغياب وساعات التأخير والإضافي هنا وسيقوم النظام بحسابها في كارت الراتب.</p>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th class="sticky-col">الموظف</th>
-                                <th style="color: #607d8b">أساسي كاش</th><th style="color: #607d8b">تحويل</th><th style="color: #607d8b">شحن</th><th style="color: #607d8b">خياط</th>
+                                <th style="color: var(--warning)">أيام الغياب</th>
+                                <th style="color: var(--primary)">س. إضافي</th>
+                                <th style="color: var(--danger)">س. تأخير</th>
+                                <th style="color: #607d8b">كاش</th><th style="color: #607d8b">تحويل</th><th style="color: #607d8b">شحن</th><th style="color: #607d8b">خياط</th>
                                 <th style="color: var(--danger)">سلف</th><th style="color: var(--danger)">آجل نظام</th><th style="color: var(--danger)">آجل شحن</th>
                                 <th style="color: var(--primary)">تابي</th><th style="color: var(--primary)">تمارا</th><th style="color: var(--primary)">مورا</th>
                                 <th style="color: var(--primary)">هواتف</th><th style="color: var(--primary)">هواوي</th>
@@ -456,14 +479,27 @@
                 </div>
                 
                 <div class="flex-gap mt-10">
-                    <button class="btn btn-info" onclick="AppController.handleReportGlobalPayroll('print', 'finMonth')"><span class="material-icons">print</span> طباعة المسير</button>
+                    <button class="btn btn-info" onclick="AppController.handleReportGlobalPayroll('print', 'finMonth')"><span class="material-icons">print</span> طباعة مسير الرواتب</button>
                     <button class="btn btn-primary" onclick="AppController.handleReportGlobalPayroll('excel', 'finMonth')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
                 </div>
             </div>
         </div>
 
-        <!-- 6. شاشة الإعدادات -->
+        <!-- 6. شاشة الإعدادات والتقارير -->
         <div id="view-settings" class="view">
+
+            <div class="card mb-15">
+                <h2>إدارة ظهور الأقسام (الشريط السفلي)</h2>
+                <div class="prefs-group">
+                    <label><input type="checkbox" id="navEntry" onchange="AppController.saveNavState()"> إدارة الدوام</label>
+                    <label><input type="checkbox" id="navPhones" onchange="AppController.saveNavState()"> ش. هواتف</label>
+                    <label><input type="checkbox" id="navHuawei" onchange="AppController.saveNavState()"> ش. هواوي</label>
+                    <label><input type="checkbox" id="navStaff" onchange="AppController.saveNavState()"> الموظفين</label>
+                    <label><input type="checkbox" id="navFinancials" onchange="AppController.saveNavState()"> المالية</label>
+                    <label><input type="checkbox" id="navSettings" onchange="AppController.saveNavState()"> الإعدادات</label>
+                </div>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">استخدم هذه الخيارات لإخفاء الأقسام التي لا تستخدمها لتخفيف الواجهة. يمكنك إخفاء الهواتف أو هواوي إذا لم تكن بحاجة إليها.</p>
+            </div>
             
             <div class="card mb-15">
                 <h2>إعدادات الطباعة</h2>
@@ -473,7 +509,7 @@
             </div>
 
             <div class="card mb-15">
-                <h2>التقارير الشاملة</h2>
+                <h2>التقارير المجمعة</h2>
 
                 <div class="prefs-section-title">1. تقرير كارت الراتب لموظف</div>
                 <div class="form-row">
@@ -481,7 +517,7 @@
                     <div class="form-group"><label>الموظف</label><select id="reportEmpSelect"></select></div>
                 </div>
                 <div class="flex-gap mb-15">
-                    <button class="btn btn-info" onclick="AppController.handleReportEmployeeSlip('print')"><span class="material-icons">print</span> طباعة التقرير</button>
+                    <button class="btn btn-info" onclick="AppController.handleReportEmployeeSlip('print')"><span class="material-icons">print</span> طباعة تقرير كارت الراتب</button>
                     <button class="btn btn-primary" onclick="AppController.handleReportEmployeeSlip('excel')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
                 </div>
 
@@ -490,7 +526,7 @@
                     <label>الشهر</label><input type="month" id="reportPayrollMonth">
                 </div>
                 <div class="flex-gap mb-15">
-                    <button class="btn btn-info" onclick="AppController.handleReportGlobalPayroll('print', 'reportPayrollMonth')"><span class="material-icons">print</span> طباعة المسير</button>
+                    <button class="btn btn-info" onclick="AppController.handleReportGlobalPayroll('print', 'reportPayrollMonth')"><span class="material-icons">print</span> طباعة مسير الرواتب</button>
                     <button class="btn btn-primary" onclick="AppController.handleReportGlobalPayroll('excel', 'reportPayrollMonth')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
                 </div>
 
@@ -500,7 +536,7 @@
                     <div class="form-group"><label>رواتب ش. الهواتف الثابتة</label><input type="number" id="reportFixedPhonesSalary" onchange="AppController.saveFixedPhonesSalary(this.value)"></div>
                 </div>
                 <div class="flex-gap mb-15">
-                    <button class="btn btn-info" onclick="AppController.handleReportSimsProfit('print')"><span class="material-icons">print</span> طباعة الأرباح</button>
+                    <button class="btn btn-info" onclick="AppController.handleReportSimsProfit('print')"><span class="material-icons">print</span> طباعة تقرير الشرائح والأرباح</button>
                     <button class="btn btn-primary" onclick="AppController.handleReportSimsProfit('excel')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
                 </div>
                 
@@ -509,12 +545,11 @@
                     <div class="form-group"><label>الشهر</label><input type="month" id="ledgerReportMonth"></div>
                     <div class="form-group"><label>الحساب المطلوب</label><select id="ledgerReportAccount" onclick="AppController.populateLedgerAccounts()"><option value="" disabled selected>اضغط لجلب الحسابات...</option></select></div>
                 </div>
-                <div class="flex-gap">
+                <div class="flex-gap mb-15">
                     <button class="btn btn-info" onclick="AppController.handleLedgerReport('print')"><span class="material-icons">print</span> طباعة الدفتر</button>
                     <button class="btn btn-primary" onclick="AppController.handleLedgerReport('excel')"><span class="material-icons">table_view</span> تصدير إكسيل</button>
                 </div>
-                <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">يتيح لك دفتر الأستاذ متابعة الحركات التفصيلية اليومية (مدين، دائن، ورصيد) لأي حساب شبكة أو أي عميل/مورد تم التسجيل له في الإضافة والخصم.</p>
-
+                <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">يتيح لك دفتر الأستاذ متابعة الحركات التفصيلية اليومية لأي حساب شبكة أو عميل/مورد.</p>
             </div>
 
             <div class="card mb-15">
@@ -530,25 +565,17 @@
             </div>
 
             <div class="card mb-15">
-                <h2>الأمان</h2>
+                <h2>الأمان والبيانات</h2>
                 <button class="btn btn-primary w-100 mb-10" onclick="AppController.setPin()"><span class="material-icons">lock</span> تعيين / تغيير رمز الدخول</button>
-                <button class="btn btn-outline w-100" onclick="AppController.removePin()"><span class="material-icons">lock_open</span> إزالة رمز الدخول</button>
-            </div>
-
-            <div class="card mb-15">
-                <h2>سجل العمليات (آخر التعديلات)</h2>
-                <div id="activityLogList" style="max-height:280px; overflow-y:auto;"></div>
-            </div>
-            
-            <div class="card">
-                <h2>النظام والبيانات</h2>
-                <button id="forceReloadBtn" class="btn btn-warning w-100 mb-15"><span class="material-icons">refresh</span> تحديث إجباري ومسح الكاش</button>
+                <button class="btn btn-outline w-100 mb-15" onclick="AppController.removePin()"><span class="material-icons">lock_open</span> إزالة رمز الدخول</button>
+                
                 <button id="backupBtn" class="btn btn-outline w-100 mb-10"><span class="material-icons">cloud_download</span> حفظ نسخة احتياطية</button>
                 <label class="btn btn-outline w-100 mb-15" style="display:block; text-align:center; cursor:pointer;">
                     <span class="material-icons" style="vertical-align:middle;">cloud_upload</span> استرجاع نسخة <input type="file" id="restoreFile" accept=".json" class="hidden">
                 </label>
                 <button id="clearDataBtn" class="btn btn-danger w-100"><span class="material-icons">delete_forever</span> مسح كل البيانات نهائياً</button>
             </div>
+            
         </div>
 
     </main>
@@ -649,7 +676,6 @@
             clearAll: () => localStorage.clear()
         };
 
-
         const DataLayer = {
             settings: StorageManager.getObj('db_settings'),
             employees: StorageManager.getArr('db_employees'), logs: StorageManager.getArr('db_logs'), financials: StorageManager.getArr('db_financials'), 
@@ -658,17 +684,16 @@
 
             saveSettings: (key, val) => { DataLayer.settings[key] = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); },
             saveCommRate: (key, val) => { if(!DataLayer.settings.commRates) DataLayer.settings.commRates = {}; DataLayer.settings.commRates[key] = parseFloat(val) || 0; StorageManager.set('db_settings', DataLayer.settings); },
-            logActivity: (action) => { DataLayer.activityLog.unshift({ ts: new Date().toISOString(), action }); if(DataLayer.activityLog.length > 300) DataLayer.activityLog = DataLayer.activityLog.slice(0, 300); StorageManager.set('db_activity_log', DataLayer.activityLog); },
             
-            addEmployee: (name, salary, hours, vacations, prefs) => { DataLayer.employees.push({ id: 'emp_' + Date.now(), name, salary: parseFloat(salary), hours: parseFloat(hours), vacations: parseFloat(vacations), prefs: prefs }); StorageManager.set('db_employees', DataLayer.employees); DataLayer.logActivity(`إضافة موظف جديد: ${name}`); },
-            updateEmployee: (id, name, salary, hours, vacations, prefs) => { const idx = DataLayer.employees.findIndex(e => e.id === id); if(idx > -1) { DataLayer.employees[idx].name = name; DataLayer.employees[idx].salary = parseFloat(salary); DataLayer.employees[idx].hours = parseFloat(hours); DataLayer.employees[idx].vacations = parseFloat(vacations); DataLayer.employees[idx].prefs = prefs; StorageManager.set('db_employees', DataLayer.employees); DataLayer.logActivity(`تعديل بيانات الموظف: ${name}`); } },
-            deleteEmployee: (id) => { const emp = DataLayer.employees.find(e => e.id === id); DataLayer.employees = DataLayer.employees.filter(e => e.id !== id); StorageManager.set('db_employees', DataLayer.employees); DataLayer.logActivity(`حذف الموظف: ${emp ? emp.name : id}`); },
+            addEmployee: (name, salary, hours, vacations, prefs) => { DataLayer.employees.push({ id: 'emp_' + Date.now(), name, salary: parseFloat(salary), hours: parseFloat(hours), vacations: parseFloat(vacations), prefs: prefs }); StorageManager.set('db_employees', DataLayer.employees); },
+            updateEmployee: (id, name, salary, hours, vacations, prefs) => { const idx = DataLayer.employees.findIndex(e => e.id === id); if(idx > -1) { DataLayer.employees[idx].name = name; DataLayer.employees[idx].salary = parseFloat(salary); DataLayer.employees[idx].hours = parseFloat(hours); DataLayer.employees[idx].vacations = parseFloat(vacations); DataLayer.employees[idx].prefs = prefs; StorageManager.set('db_employees', DataLayer.employees); } },
+            deleteEmployee: (id) => { DataLayer.employees = DataLayer.employees.filter(e => e.id !== id); StorageManager.set('db_employees', DataLayer.employees); },
             
-            saveLog: (empId, date, timeIn, timeOut, status, logId = null) => { const empName = (DataLayer.employees.find(e=>e.id===empId)||{}).name || empId; if (logId) { const idx = DataLayer.logs.findIndex(l => l.id === logId); if (idx > -1) { DataLayer.logs[idx].timeIn = timeIn; DataLayer.logs[idx].timeOut = timeOut; DataLayer.logs[idx].status = status; } } else { DataLayer.logs.push({ id: 'log_' + Date.now() + Math.floor(Math.random()*100), empId, date, timeIn: timeIn||'', timeOut: timeOut||'', status }); } StorageManager.set('db_logs', DataLayer.logs); DataLayer.logActivity(`تسجيل دوام (${status}) للموظف ${empName} بتاريخ ${date}`); },
-            deleteLog: (id) => { const log = DataLayer.logs.find(l=>l.id===id); DataLayer.logs = DataLayer.logs.filter(l => l.id !== id); StorageManager.set('db_logs', DataLayer.logs); if(log) DataLayer.logActivity(`حذف سجل دوام بتاريخ ${log.date}`); },
+            saveLog: (empId, date, timeIn, timeOut, status, logId = null) => { if (logId) { const idx = DataLayer.logs.findIndex(l => l.id === logId); if (idx > -1) { DataLayer.logs[idx].timeIn = timeIn; DataLayer.logs[idx].timeOut = timeOut; DataLayer.logs[idx].status = status; } } else { DataLayer.logs.push({ id: 'log_' + Date.now() + Math.floor(Math.random()*100), empId, date, timeIn: timeIn||'', timeOut: timeOut||'', status }); } StorageManager.set('db_logs', DataLayer.logs); },
+            deleteLog: (id) => { DataLayer.logs = DataLayer.logs.filter(l => l.id !== id); StorageManager.set('db_logs', DataLayer.logs); },
             
-            getFinancials: (empId, month) => { let fin = DataLayer.financials.find(f => f.empId === empId && f.month === month); if (!fin) { let prevFins = DataLayer.financials.filter(f => f.empId === empId && f.month < month).sort((a,b) => b.month.localeCompare(a.month)); if(prevFins.length > 0) { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: prevFins[0].salCash || 0, salTransfer: prevFins[0].salTransfer || 0, salDrawer: prevFins[0].salDrawer || 0, salTailor: prevFins[0].salTailor || 0 }; } else { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: 0, salTransfer: 0, salDrawer: 0, salTailor: 0 }; } } if (fin.tamara === undefined) fin.tamara = 0; if (fin.shippingCredit === undefined) fin.shippingCredit = 0; if (fin.salCash === undefined) { fin.salCash = 0; fin.salTransfer = 0; fin.salDrawer = 0; fin.salTailor = 0; } return fin; },
-            updateFinancials: (empId, month, field, value) => { let finIndex = DataLayer.financials.findIndex(f => f.empId === empId && f.month === month); let valNum = parseFloat(value) || 0; if (finIndex > -1) { DataLayer.financials[finIndex][field] = valNum; } else { let newFin = DataLayer.getFinancials(empId, month); newFin[field] = valNum; DataLayer.financials.push(newFin); } StorageManager.set('db_financials', DataLayer.financials); const empName = (DataLayer.employees.find(e=>e.id===empId)||{}).name || empId; DataLayer.logActivity(`تعديل بند مالي (${field}) للموظف ${empName} لشهر ${month}: ${valNum}`); },
+            getFinancials: (empId, month) => { let fin = DataLayer.financials.find(f => f.empId === empId && f.month === month); if (!fin) { let prevFins = DataLayer.financials.filter(f => f.empId === empId && f.month < month).sort((a,b) => b.month.localeCompare(a.month)); if(prevFins.length > 0) { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: prevFins[0].salCash || 0, salTransfer: prevFins[0].salTransfer || 0, salDrawer: prevFins[0].salDrawer || 0, salTailor: prevFins[0].salTailor || 0, absentDays: 0, otHours: 0, delayHours: 0 }; } else { fin = { empId, month, advances: 0, purchases: 0, shippingCredit: 0, tabby: 0, tamara: 0, mora: 0, simPhones: 0, simHuawei: 0, salCash: 0, salTransfer: 0, salDrawer: 0, salTailor: 0, absentDays: 0, otHours: 0, delayHours: 0 }; } } if (fin.tamara === undefined) fin.tamara = 0; if (fin.shippingCredit === undefined) fin.shippingCredit = 0; if (fin.salCash === undefined) { fin.salCash = 0; fin.salTransfer = 0; fin.salDrawer = 0; fin.salTailor = 0; } if (fin.absentDays === undefined) fin.absentDays = 0; if (fin.otHours === undefined) fin.otHours = 0; if (fin.delayHours === undefined) fin.delayHours = 0; return fin; },
+            updateFinancials: (empId, month, field, value) => { let finIndex = DataLayer.financials.findIndex(f => f.empId === empId && f.month === month); let valNum = parseFloat(value) || 0; if (finIndex > -1) { DataLayer.financials[finIndex][field] = valNum; } else { let newFin = DataLayer.getFinancials(empId, month); newFin[field] = valNum; DataLayer.financials.push(newFin); } StorageManager.set('db_financials', DataLayer.financials); },
 
             getPosDaily: (module, date) => { let rec = DataLayer.posDaily.find(p => p.module === module && p.date === date); if(!rec) { rec = { module, date, accounts: {}, totalCash: 0 }; } return rec; },
             getPosPrevDaily: (module, currentDate) => { let past = DataLayer.posDaily.filter(p => p.module === module && p.date < currentDate).sort((a,b) => b.date.localeCompare(a.date)); return past.length > 0 ? past[0] : null; },
@@ -677,12 +702,12 @@
             
             getPosTrans: (module, date) => DataLayer.posTrans.filter(t => t.module === module && t.date === date),
             getAllPosTrans: (module) => DataLayer.posTrans.filter(t => t.module === module),
-            savePosTrans: (module, date, type, desc, amount, id=null) => { if(id) { let idx = DataLayer.posTrans.findIndex(t=>t.id===id); if(idx>-1){ DataLayer.posTrans[idx].type=type; DataLayer.posTrans[idx].desc=desc; DataLayer.posTrans[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posTrans.push({ id: 'tr_'+Date.now()+Math.random(), module, date, type, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_trans', DataLayer.posTrans); DataLayer.logActivity(`حركة ${type==='add'?'إضافة':'خصم'} (${module}) بتاريخ ${date}: ${desc} - ${amount}`); },
-            deletePosTrans: (id) => { const t = DataLayer.posTrans.find(x=>x.id===id); DataLayer.posTrans = DataLayer.posTrans.filter(t => t.id !== id); StorageManager.set('db_pos_trans', DataLayer.posTrans); if(t) DataLayer.logActivity(`حذف حركة (${t.module}) بتاريخ ${t.date}: ${t.desc}`); },
+            savePosTrans: (module, date, type, desc, amount, id=null) => { if(id) { let idx = DataLayer.posTrans.findIndex(t=>t.id===id); if(idx>-1){ DataLayer.posTrans[idx].type=type; DataLayer.posTrans[idx].desc=desc; DataLayer.posTrans[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posTrans.push({ id: 'tr_'+Date.now()+Math.random(), module, date, type, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_trans', DataLayer.posTrans); },
+            deletePosTrans: (id) => { DataLayer.posTrans = DataLayer.posTrans.filter(t => t.id !== id); StorageManager.set('db_pos_trans', DataLayer.posTrans); },
             
             getPosExpenses: (module, date) => (DataLayer.posExpenses || []).filter(e => e.module === module && e.date === date),
-            savePosExpense: (module, date, desc, amount, id=null) => { if(!DataLayer.posExpenses) DataLayer.posExpenses = []; if(id) { let idx = DataLayer.posExpenses.findIndex(e=>e.id===id); if(idx>-1){ DataLayer.posExpenses[idx].desc=desc; DataLayer.posExpenses[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posExpenses.push({ id: 'exp_'+Date.now()+Math.random(), module, date, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_expenses', DataLayer.posExpenses); DataLayer.logActivity(`مصروف (${module}) بتاريخ ${date}: ${desc} - ${amount}`); },
-            deletePosExpense: (id) => { if(!DataLayer.posExpenses) return; const e = DataLayer.posExpenses.find(x=>x.id===id); DataLayer.posExpenses = DataLayer.posExpenses.filter(e => e.id !== id); StorageManager.set('db_pos_expenses', DataLayer.posExpenses); if(e) DataLayer.logActivity(`حذف مصروف (${e.module}) بتاريخ ${e.date}: ${e.desc}`); },
+            savePosExpense: (module, date, desc, amount, id=null) => { if(!DataLayer.posExpenses) DataLayer.posExpenses = []; if(id) { let idx = DataLayer.posExpenses.findIndex(e=>e.id===id); if(idx>-1){ DataLayer.posExpenses[idx].desc=desc; DataLayer.posExpenses[idx].amount=parseFloat(amount)||0;} } else { DataLayer.posExpenses.push({ id: 'exp_'+Date.now()+Math.random(), module, date, desc, amount: parseFloat(amount)||0 }); } StorageManager.set('db_pos_expenses', DataLayer.posExpenses); },
+            deletePosExpense: (id) => { if(!DataLayer.posExpenses) return; DataLayer.posExpenses = DataLayer.posExpenses.filter(e => e.id !== id); StorageManager.set('db_pos_expenses', DataLayer.posExpenses); },
 
             getEmpSimsDaily: (module, date) => DataLayer.posSims.filter(s => s.module === module && s.date === date),
             saveEmpSimsDaily: (module, date, empId, count) => { 
@@ -699,6 +724,7 @@
         };
 
         if (!DataLayer.settings.commRates) DataLayer.settings.commRates = { tabby: 20, tamara: 20, mora: 100, simRate: 5 };
+        if (!DataLayer.settings.navVis) DataLayer.settings.navVis = { entry: true, phones: true, huawei: true, staff: true, financials: true, settings: true };
 
         const formatHours = (decimalHours) => { let hrs = Math.floor(Math.abs(decimalHours)); let mins = Math.round((Math.abs(decimalHours) - hrs) * 60); if(mins === 60){ hrs++; mins = 0;} return `${hrs}:${mins.toString().padStart(2, '0')}`; };
 
@@ -911,29 +937,29 @@
                 PosController.showModal('modalEmpSims');
             },
             saveEmpSims: (empId, count) => { DataLayer.saveEmpSimsDaily(PosController.currentModalModule, PosController.currentModalDate, empId, count); PosController.openEmpSimsModal(PosController.currentModalModule); },
-            
-            // دالة جديدة لتوليد HTML شامل لصفحة الهواتف / هواوي
+
+            // تقرير اليومية الشامل
             generateDailyReportHTML: (modId, date) => {
                 const data = PosController.computeModuleData(modId, date);
                 const title = PosController.modules[modId].title;
                 
-                let mainTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">جدول الأرصدة والمبيعات</h3><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;" border="1">
-                <tr style="background:#eaf1e3;"><th>الحساب</th><th>رصيد أمس</th><th>شحن (+)</th><th>الرصيد (-)</th><th>التكلفة (=)</th><th>ت. المبيع</th><th>الشرائح</th></tr>`;
+                let mainTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">جدول الأرصدة والمبيعات</h3><table class="report-table">
+                <tr class="report-bg-g-light"><th>الحساب</th><th>رصيد أمس</th><th>شحن (+)</th><th>الرصيد (-)</th><th>التكلفة (=)</th><th>ت. المبيع</th><th>الشرائح</th></tr>`;
                 data.rows.forEach(r => {
                     let sims = r.isDoubleSim ? `${r.todaySims1} / ${r.todaySims2}` : r.todaySims1;
                     mainTable += `<tr><td style="padding:5px">${r.acc}</td><td style="text-align:center;padding:5px">${r.prevBal}</td><td style="text-align:center;padding:5px">${r.todayRec}</td><td style="text-align:center;padding:5px">${r.todayBal}</td><td style="text-align:center;padding:5px">${r.cost}</td><td style="text-align:center;padding:5px">${r.todaySal}</td><td style="text-align:center;padding:5px">${sims}</td></tr>`;
                 });
                 mainTable += `<tr style="font-weight:bold;background:#f0f0f0;"><td style="padding:5px">الإجمالي</td><td style="text-align:center;padding:5px">${data.totalPrevBal.toFixed(0)}</td><td style="text-align:center;padding:5px">${data.totalRecSum.toFixed(0)}</td><td style="text-align:center;padding:5px">${data.totalBalances.toFixed(0)}</td><td style="text-align:center;padding:5px">${data.totalCostSum.toFixed(0)}</td><td style="text-align:center;padding:5px">${data.totalSales.toFixed(0)}</td><td style="text-align:center;padding:5px">${data.totalTodaySims}</td></tr></table>`;
 
-                let summaryTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">ملخص الصندوق</h3><table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px;text-align:center;" border="1">
-                <tr style="background:#eaf1e3;"><th style="padding:8px">رصيد أمس</th><th style="padding:8px">ت. المبيعات</th><th style="padding:8px">إضافة/خصم</th><th style="padding:8px">المصروفات</th><th style="padding:8px;background:#c0d8a5">الصندوق اليوم</th></tr>
-                <tr><td style="padding:8px">${data.prevCash.toFixed(0)}</td><td style="padding:8px">${data.totalSales.toFixed(0)}</td><td style="padding:8px">${data.netTrans.toFixed(0)}</td><td style="padding:8px">${data.dailyExp.toFixed(0)}</td><td style="font-weight:bold;background:#c0d8a5;padding:8px">${data.finalCash.toFixed(0)}</td></tr></table>`;
+                let summaryTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">ملخص الصندوق</h3><table class="report-table" style="text-align:center;">
+                <tr class="report-bg-g-light"><th style="padding:8px">رصيد أمس</th><th style="padding:8px">ت. المبيعات</th><th style="padding:8px">إضافة/خصم</th><th style="padding:8px">المصروفات</th><th style="padding:8px;" class="report-bg-g-dark">الصندوق اليوم</th></tr>
+                <tr><td style="padding:8px">${data.prevCash.toFixed(0)}</td><td style="padding:8px">${data.totalSales.toFixed(0)}</td><td style="padding:8px">${data.netTrans.toFixed(0)}</td><td style="padding:8px">${data.dailyExp.toFixed(0)}</td><td style="font-weight:bold;padding:8px" class="report-bg-g-dark">${data.finalCash.toFixed(0)}</td></tr></table>`;
 
                 let trans = DataLayer.getPosTrans(modId, date);
                 let transTable = '';
                 if(trans.length > 0) {
-                    transTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">الإضافة والخصم</h3><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;" border="1">
-                    <tr style="background:#eaf1e3;"><th style="padding:5px">النوع</th><th style="padding:5px">المبلغ</th><th style="padding:5px">البيان</th></tr>`;
+                    transTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">الإضافة والخصم</h3><table class="report-table">
+                    <tr class="report-bg-g-light"><th style="padding:5px">النوع</th><th style="padding:5px">المبلغ</th><th style="padding:5px">البيان</th></tr>`;
                     trans.forEach(t => { transTable += `<tr><td style="text-align:center;padding:5px">${t.type==='add'?'إضافة (+)':'خصم (-)'}</td><td style="text-align:center;padding:5px">${t.amount}</td><td style="padding:5px">${t.desc}</td></tr>`; });
                     transTable += `</table>`;
                 }
@@ -941,8 +967,8 @@
                 let exps = DataLayer.getPosExpenses(modId, date);
                 let expTable = '';
                 if(exps.length > 0) {
-                    expTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">المصروفات والرواتب</h3><table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;" border="1">
-                    <tr style="background:#f7e6e1;"><th style="padding:5px">المبلغ</th><th style="padding:5px">البيان</th></tr>`;
+                    expTable = `<h3 style="text-align:center;margin-bottom:10px;font-size:16px;">المصروفات والرواتب</h3><table class="report-table">
+                    <tr class="report-bg-r-light"><th style="padding:5px">المبلغ</th><th style="padding:5px">البيان</th></tr>`;
                     exps.forEach(e => { expTable += `<tr><td style="text-align:center;padding:5px">${e.amount}</td><td style="padding:5px">${e.desc}</td></tr>`; });
                     expTable += `</table>`;
                 }
@@ -955,7 +981,6 @@
                     ${expTable}
                 </div>`;
             },
-            
             handleDailyReport: (modId, action) => {
                 const date = document.getElementById(modId + 'Date').value;
                 const title = PosController.modules[modId].title;
@@ -992,6 +1017,7 @@
                 document.getElementById('ledgerReportMonth').value = currentMonth;
                 document.getElementById('reportFixedPhonesSalary').value = DataLayer.settings.phonesFixedSalary !== undefined ? DataLayer.settings.phonesFixedSalary : 2600;
 
+                AppController.applyNavState();
                 AppController.populateDropdowns(); AppController.renderStaff(); AppController.renderLogs();
                 PosController.loadPhonesData(); PosController.loadHuaweiData();
 
@@ -1021,6 +1047,39 @@
                 document.getElementById('forceReloadBtn').addEventListener('click', () => { window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); });
             },
 
+            // التحكم في ظهور واختفاء الأقسام (الفوتر)
+            saveNavState: () => {
+                DataLayer.settings.navVis = {
+                    entry: document.getElementById('navEntry').checked,
+                    phones: document.getElementById('navPhones').checked,
+                    huawei: document.getElementById('navHuawei').checked,
+                    staff: document.getElementById('navStaff').checked,
+                    financials: document.getElementById('navFinancials').checked,
+                    settings: document.getElementById('navSettings').checked
+                };
+                StorageManager.set('db_settings', DataLayer.settings);
+                AppController.applyNavState();
+                AppController.showToast('تم تحديث ظهور الأقسام');
+            },
+            
+            applyNavState: () => {
+                let vis = DataLayer.settings.navVis || { entry:true, phones:true, huawei:true, staff:true, financials:true, settings:true };
+                
+                if(document.getElementById('navEntry')) document.getElementById('navEntry').checked = vis.entry;
+                if(document.getElementById('navPhones')) document.getElementById('navPhones').checked = vis.phones;
+                if(document.getElementById('navHuawei')) document.getElementById('navHuawei').checked = vis.huawei;
+                if(document.getElementById('navStaff')) document.getElementById('navStaff').checked = vis.staff;
+                if(document.getElementById('navFinancials')) document.getElementById('navFinancials').checked = vis.financials;
+                if(document.getElementById('navSettings')) document.getElementById('navSettings').checked = vis.settings;
+
+                let btnEntry = document.querySelector('[data-target="view-entry"]'); if(btnEntry) btnEntry.style.display = vis.entry ? 'flex' : 'none';
+                let btnPhones = document.querySelector('[data-target="view-phones"]'); if(btnPhones) btnPhones.style.display = vis.phones ? 'flex' : 'none';
+                let btnHuawei = document.querySelector('[data-target="view-huawei"]'); if(btnHuawei) btnHuawei.style.display = vis.huawei ? 'flex' : 'none';
+                let btnStaff = document.querySelector('[data-target="view-staff"]'); if(btnStaff) btnStaff.style.display = vis.staff ? 'flex' : 'none';
+                let btnFinancials = document.querySelector('[data-target="view-financials"]'); if(btnFinancials) btnFinancials.style.display = vis.financials ? 'flex' : 'none';
+                let btnSettings = document.querySelector('[data-target="view-settings"]'); if(btnSettings) btnSettings.style.display = vis.settings ? 'flex' : 'none';
+            },
+
             saveCommRate: (key, val) => { DataLayer.saveCommRate(key, val); AppController.showToast('تم حفظ نسبة العمولة'); },
             
             showToast: (msg, type = 'success') => { const t = document.getElementById('toast'); t.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`; t.style.backgroundColor = type === 'success' ? 'var(--text-main)' : 'var(--danger)'; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); },
@@ -1041,17 +1100,29 @@
                 const fin = DataLayer.getFinancials(empId, month); 
                 const allowedVacations = emp.vacations !== undefined ? emp.vacations : 4;
                 const baseSalary = emp.salary, dailyHours = emp.hours; const dailyRate = baseSalary / 30, hourlyRate = dailyRate / dailyHours;
-                let vacCount = 0, absCount = 0, actualHours = 0; const uniqueDays = new Set();
-                logs.forEach(l => { if (l.status === 'VACATION') vacCount++; else if (l.status === 'ABSENT') absCount++; else if (l.status === 'WORK' && l.timeIn && l.timeOut) { uniqueDays.add(l.date); let d1 = new Date(`2000-01-01T${l.timeIn}`), d2 = new Date(`2000-01-01T${l.timeOut}`); if (d2 < d1) d2.setDate(d2.getDate() + 1); actualHours += (d2 - d1) / (1000 * 60 * 60); } });
-                let expectedHours = uniqueDays.size * dailyHours; let effectiveVac = vacCount, effectiveAbs = absCount;
-                if (effectiveVac > allowedVacations) { effectiveAbs += (effectiveVac - allowedVacations); effectiveVac = allowedVacations; }
-                let diffHours = actualHours - expectedHours; let overTimeHrs = diffHours > 0 ? diffHours : 0; let delayHrs = diffHours < 0 ? Math.abs(diffHours) : 0;
-                let overTimeVal = overTimeHrs * hourlyRate; let delayVal = delayHrs * hourlyRate;
-                let unusedOffDays = allowedVacations - effectiveVac; let unusedOffVal = unusedOffDays * dailyRate; let absenceVal = effectiveAbs * dailyRate;
+                
+                // الاعتماد على المدخلات اليدوية من جدول المالية للغياب والتأخير والإضافي
+                let inputAbsDays = parseFloat(fin.absentDays) || 0;
+                let inputOtHrs = parseFloat(fin.otHours) || 0;
+                let inputDelayHrs = parseFloat(fin.delayHours) || 0;
+
+                let effectiveVac = Math.min(inputAbsDays, allowedVacations);
+                let effectiveAbs = Math.max(0, inputAbsDays - allowedVacations);
+                let unusedOffDays = allowedVacations - effectiveVac;
+
+                let overTimeHrs = inputOtHrs;
+                let delayHrs = inputDelayHrs;
+
+                let overTimeVal = overTimeHrs * hourlyRate;
+                let delayVal = delayHrs * hourlyRate;
+                let unusedOffVal = unusedOffDays * dailyRate;
+                let absenceVal = effectiveAbs * dailyRate;
+                
                 const cr = DataLayer.settings.commRates || { tabby: 20, tamara: 20, mora: 100, simRate: 5 };
                 let comm1 = (fin.tabby * cr.tabby) + (fin.tamara * cr.tamara) + (fin.mora * cr.mora); let comm2 = (fin.simPhones * cr.simRate) + (fin.simHuawei * cr.simRate); let commissions = comm1 + comm2;
                 let deductions = fin.advances + fin.purchases + fin.shippingCredit; 
                 let netBeforeDeductions = baseSalary + unusedOffVal + overTimeVal + commissions - absenceVal - delayVal; let finalSalary = netBeforeDeductions - deductions;
+                
                 return { emp, month, logs, fin, baseSalary, allowedVacations, unusedOffDays, unusedOffVal, overTimeHrs, overTimeVal, delayHrs, delayVal, effectiveVac, effectiveAbs, absenceVal, commissions, comm1, comm2, deductions, netBeforeDeductions, finalSalary };
             },
 
@@ -1117,6 +1188,9 @@
                     const fin = DataLayer.getFinancials(emp.id, month);
                     tbody.innerHTML += `<tr>
                         <td class="sticky-col"><strong>${emp.name}</strong></td>
+                        <td><input type="number" class="fin-input" value="${fin.absentDays}" onchange="AppController.updateFin('${emp.id}','absentDays',this.value)"></td>
+                        <td><input type="number" class="fin-input" value="${fin.otHours}" onchange="AppController.updateFin('${emp.id}','otHours',this.value)"></td>
+                        <td><input type="number" class="fin-input" value="${fin.delayHours}" onchange="AppController.updateFin('${emp.id}','delayHours',this.value)"></td>
                         <td><input type="number" class="fin-input" value="${fin.salCash}" onchange="AppController.updateFin('${emp.id}','salCash',this.value)"></td>
                         <td><input type="number" class="fin-input" value="${fin.salTransfer}" onchange="AppController.updateFin('${emp.id}','salTransfer',this.value)"></td>
                         <td><input type="number" class="fin-input" value="${fin.salDrawer}" onchange="AppController.updateFin('${emp.id}','salDrawer',this.value)"></td>
@@ -1146,9 +1220,11 @@
                         <style>
                             body { direction: rtl; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
                             table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-                            .print-bg-g-light { background-color: #eaf1e3 !important; }
-                            .print-bg-r-light { background-color: #f7e6e1 !important; }
-                            .print-bg-g-dark { background-color: #c0d8a5 !important; }
+                            table, th, td { border: 1px solid #000; }
+                            th, td { padding: 5px; }
+                            .print-bg-g-light, .report-bg-g-light { background-color: #eaf1e3 !important; }
+                            .print-bg-r-light, .report-bg-r-light { background-color: #f7e6e1 !important; }
+                            .print-bg-g-dark, .report-bg-g-dark { background-color: #c0d8a5 !important; }
                             .print-td-right { text-align: right; padding-right: 5px !important; }
                             .print-td-left { text-align: left; padding-left: 5px !important; }
                             .print-td-center { text-align: center; }
@@ -1174,7 +1250,7 @@
                 if (action === 'print') AppController.printHTML(html);
                 else AppController.exportHTMLToExcel(html, `كارت_راتب_${s.emp.name}_${month}`);
             },
-            
+
             handleReportEmployeeSlip: (action) => {
                 const month = document.getElementById('reportEmpMonth').value, empId = document.getElementById('reportEmpSelect').value;
                 if (!empId) return AppController.showToast('اختر موظف', 'error');
@@ -1183,9 +1259,9 @@
                     let st = l.status === 'WORK' ? 'عمل' : (l.status === 'VACATION' ? 'إجازة' : 'غياب');
                     let hrs = '-';
                     if (l.status === 'WORK' && l.timeIn && l.timeOut) { let d1 = new Date(`2000-01-01T${l.timeIn}`), d2 = new Date(`2000-01-01T${l.timeOut}`); if (d2 < d1) d2.setDate(d2.getDate() + 1); hrs = formatHours((d2 - d1) / (1000 * 60 * 60)); }
-                    return `<tr><td style="border:1px solid #000;padding:3px;">${l.date}</td><td style="border:1px solid #000;padding:3px;">${l.timeIn||'-'}</td><td style="border:1px solid #000;padding:3px;">${l.timeOut||'-'}</td><td style="border:1px solid #000;padding:3px;">${hrs}</td><td style="border:1px solid #000;padding:3px;">${st}</td></tr>`;
+                    return `<tr><td style="border:1px solid #000;padding:3px;text-align:center;">${l.date}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${l.timeIn||'-'}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${l.timeOut||'-'}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${hrs}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${st}</td></tr>`;
                 }).join('');
-                let attendanceHTML = `<div style="margin-top:15px;"><h3 style="font-size:13px;margin-bottom:5px;">جدول الحضور والانصراف</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr style="background:#eee;"><th style="border:1px solid #000;padding:3px;">التاريخ</th><th style="border:1px solid #000;padding:3px;">الحضور</th><th style="border:1px solid #000;padding:3px;">الانصراف</th><th style="border:1px solid #000;padding:3px;">الساعات</th><th style="border:1px solid #000;padding:3px;">الحالة</th></tr></thead><tbody>${rows || '<tr><td colspan="5" style="text-align:center;padding:5px;border:1px solid #000;">لا يوجد سجلات لهذا الشهر</td></tr>'}</tbody></table></div>`;
+                let attendanceHTML = `<div style="margin-top:15px;"><h3 style="font-size:13px;margin-bottom:5px;">جدول الحضور والانصراف</h3><table class="report-table"><thead><tr class="report-bg-g-light"><th style="border:1px solid #000;padding:3px;">التاريخ</th><th style="border:1px solid #000;padding:3px;">الحضور</th><th style="border:1px solid #000;padding:3px;">الانصراف</th><th style="border:1px solid #000;padding:3px;">الساعات</th><th style="border:1px solid #000;padding:3px;">الحالة</th></tr></thead><tbody>${rows || '<tr><td colspan="5" style="text-align:center;padding:5px;border:1px solid #000;">لا يوجد سجلات لهذا الشهر</td></tr>'}</tbody></table></div>`;
                 let html = `<div class="single-print-wrapper">${AppController.generateSlipHTML(s, 'print')}${attendanceHTML}</div>`;
                 
                 if (action === 'print') AppController.printHTML(html);
@@ -1222,7 +1298,7 @@
                         else simsCell = `${r.cumSims1 + r.cumSims2}`;
                         return `<tr><td style="border:1px solid #000;padding:3px;">${r.acc}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${simsCell}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${r.cumProfit.toFixed(0)}</td></tr>`;
                     }).join('');
-                    return `<h3 style="font-size:14px;margin:0 0 5px;text-align:center;background:#eaf1e3;padding:5px;border:1px solid #000;border-radius:4px;">${title}</h3><table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#eaf1e3;"><th style="border:1px solid #000;padding:3px;">الحساب</th><th style="border:1px solid #000;padding:3px;">تراكمي الشرائح</th><th style="border:1px solid #000;padding:3px;">تراكمي الفايدة</th></tr></thead><tbody>${rows}<tr style="font-weight:bold;background:#f0f0f0;"><td style="border:1px solid #000;padding:3px;">إجمالي ${title}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumSims}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumProfit.toFixed(0)}</td></tr></tbody></table>`;
+                    return `<h3 style="font-size:14px;margin:0 0 5px;text-align:center;background:#eaf1e3;padding:5px;border:1px solid #000;border-radius:4px;">${title}</h3><table class="report-table"><thead><tr class="report-bg-g-light"><th style="border:1px solid #000;padding:3px;">الحساب</th><th style="border:1px solid #000;padding:3px;">تراكمي الشرائح</th><th style="border:1px solid #000;padding:3px;">تراكمي الفايدة</th></tr></thead><tbody>${rows}<tr style="font-weight:bold;background:#f0f0f0;"><td style="border:1px solid #000;padding:3px;">إجمالي ${title}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumSims}</td><td style="border:1px solid #000;padding:3px;text-align:center;">${data.totalCumProfit.toFixed(0)}</td></tr></tbody></table>`;
                 };
 
                 const cr = DataLayer.settings.commRates || { simRate: 5 };
@@ -1237,14 +1313,14 @@
                 const buildNetTable = (title, branchProfit, sims, comm, salary, netProfit, initialCap) => {
                     let endCap = initialCap + branchProfit;
                     return `
-                    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:10px;">
+                    <table class="report-table" style="margin-top:10px;">
                         <tr style="background:#dcdcdc;"><td colspan="2" style="border:1px solid #000;padding:5px;font-weight:bold;text-align:center;">صافي ربح ${title}</td></tr>
-                        <tr style="background:#c0d8a5;font-weight:bold;"><td style="border:1px solid #000;padding:5px;">رأس المال آخر الفترة</td><td style="border:1px solid #000;padding:5px;text-align:left;">${endCap.toFixed(0)}</td></tr>
-                        <tr style="background:#eaf1e3;"><td style="border:1px solid #000;padding:5px;">رأس المال أول الفترة</td><td style="border:1px solid #000;padding:5px;text-align:left;">${initialCap.toFixed(0)}</td></tr>
-                        <tr style="background:#eaf1e3;"><td style="border:1px solid #000;padding:5px;">الربح التراكمي (إجمالي الربح)</td><td style="border:1px solid #000;padding:5px;text-align:left;">${branchProfit.toFixed(0)}</td></tr>
-                        <tr style="background:#f7e6e1;"><td style="border:1px solid #000;padding:5px;">عمولة الشرائح (${sims} × ${cr.simRate})</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${comm.toFixed(0)}</td></tr>
-                        ${salary ? `<tr style="background:#f7e6e1;"><td style="border:1px solid #000;padding:5px;">رواتب ${title} (ثابت)</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${salary.toFixed(0)}</td></tr>` : ''}
-                        <tr style="background:#c0d8a5;font-weight:bold;border-top:2px solid #000;"><td style="border:1px solid #000;padding:5px;">صافي الربح</td><td style="border:1px solid #000;padding:5px;text-align:left;">${netProfit.toFixed(0)}</td></tr>
+                        <tr class="report-bg-g-dark" style="font-weight:bold;"><td style="border:1px solid #000;padding:5px;">رأس المال آخر الفترة</td><td style="border:1px solid #000;padding:5px;text-align:left;">${endCap.toFixed(0)}</td></tr>
+                        <tr class="report-bg-g-light"><td style="border:1px solid #000;padding:5px;">رأس المال أول الفترة</td><td style="border:1px solid #000;padding:5px;text-align:left;">${initialCap.toFixed(0)}</td></tr>
+                        <tr class="report-bg-g-light"><td style="border:1px solid #000;padding:5px;">الربح التراكمي (إجمالي الربح)</td><td style="border:1px solid #000;padding:5px;text-align:left;">${branchProfit.toFixed(0)}</td></tr>
+                        <tr class="report-bg-r-light"><td style="border:1px solid #000;padding:5px;">عمولة الشرائح (${sims} × ${cr.simRate})</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${comm.toFixed(0)}</td></tr>
+                        ${salary ? `<tr class="report-bg-r-light"><td style="border:1px solid #000;padding:5px;">رواتب ${title} (ثابت)</td><td style="border:1px solid #000;padding:5px;text-align:left;">-${salary.toFixed(0)}</td></tr>` : ''}
+                        <tr class="report-bg-g-dark" style="font-weight:bold;border-top:2px solid #000;"><td style="border:1px solid #000;padding:5px;">صافي الربح</td><td style="border:1px solid #000;padding:5px;text-align:left;">${netProfit.toFixed(0)}</td></tr>
                     </table>`;
                 };
 
@@ -1269,10 +1345,10 @@
                     </table>
 
                     <div style="margin-top:20px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                        <table class="report-table">
                             <tr style="background:#333; color:#fff; font-weight:bold;">
-                                <td style="border:1px solid #000; padding:10px; text-align:center;">إجمالي صافي الربح النهائي (الفرعين)</td>
-                                <td style="border:1px solid #000; padding:10px; text-align:center; font-size:16px;">${netProfitTotal.toFixed(0)}</td>
+                                <td style="border:1px solid #000; padding:10px; text-align:center; color:#fff;">إجمالي صافي الربح النهائي (الفرعين)</td>
+                                <td style="border:1px solid #000; padding:10px; text-align:center; font-size:16px; color:#fff;">${netProfitTotal.toFixed(0)}</td>
                             </tr>
                         </table>
                     </div>
@@ -1281,8 +1357,7 @@
                 if (action === 'print') AppController.printHTML(html);
                 else AppController.exportHTMLToExcel(html, `تقرير_الشرائح_والأرباح_${month}`);
             },
-            
-            // دوال دفتر الأستاذ الجديد
+
             populateLedgerAccounts: () => {
                 const sel = document.getElementById('ledgerReportAccount');
                 const currentVal = sel.value;
@@ -1305,8 +1380,8 @@
                 let isNetwork = accRaw.includes('(هواتف)') || accRaw.includes('(هواوي)');
                 let html = `<div style="direction:rtl;font-family:Arial,sans-serif;padding:20px;background:#fff;color:#000;">
                     <h2 style="text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;">دفتر أستاذ: <span style="color:#2196f3">${accRaw}</span> | شهر: <span dir="ltr">${month}</span></h2>
-                    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:15px;text-align:center;" border="1">
-                    <tr style="background:#eaf1e3;"><th style="padding:6px;">التاريخ</th><th style="padding:6px;">مدين (عليه/مسحوب)</th><th style="padding:6px;">دائن (له/شحن)</th><th style="padding:6px;">الرصيد</th><th style="padding:6px;">البيان</th></tr>`;
+                    <table class="report-table">
+                    <tr class="report-bg-g-light"><th style="padding:6px;">التاريخ</th><th style="padding:6px;">مدين (عليه/مسحوب)</th><th style="padding:6px;">دائن (له/شحن)</th><th style="padding:6px;">الرصيد</th><th style="padding:6px;">البيان</th></tr>`;
 
                 let records = [];
                 let runningBal = 0;
@@ -1319,7 +1394,7 @@
                     let accIdx = PosController.modules[mod].accs.indexOf(accName);
                     if(priorRec && priorRec.accounts[accIdx]) runningBal = parseFloat(priorRec.accounts[accIdx].balance) || 0;
 
-                    html += `<tr style="background:#f0f0f0;font-weight:bold;"><td style="padding:6px;">رصيد سابق</td><td style="padding:6px;">-</td><td style="padding:6px;">-</td><td style="padding:6px;">${runningBal.toFixed(0)}</td><td style="padding:6px;">رصيد مرحل</td></tr>`;
+                    html += `<tr style="background:#f0f0f0;font-weight:bold;"><td style="padding:6px; text-align:center;">رصيد سابق</td><td style="padding:6px; text-align:center;">-</td><td style="padding:6px; text-align:center;">-</td><td style="padding:6px; text-align:center;">${runningBal.toFixed(0)}</td><td style="padding:6px; text-align:center;">رصيد مرحل</td></tr>`;
 
                     let monthData = DataLayer.posDaily.filter(p => p.module === mod && p.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
                     monthData.forEach(day => {
@@ -1329,7 +1404,7 @@
                             let currentBal = parseFloat(dAcc.balance) || 0;
                             let cost = (runningBal + rec) - currentBal; 
                             runningBal = currentBal;
-                            records.push(`<tr><td style="padding:6px;">${day.date}</td><td style="padding:6px;">${cost.toFixed(0)}</td><td style="padding:6px;">${rec.toFixed(0)}</td><td style="padding:6px;font-weight:bold;">${runningBal.toFixed(0)}</td><td style="padding:6px;">حركة يومية</td></tr>`);
+                            records.push(`<tr><td style="padding:6px; text-align:center;">${day.date}</td><td style="padding:6px; text-align:center;">${cost.toFixed(0)}</td><td style="padding:6px; text-align:center;">${rec.toFixed(0)}</td><td style="padding:6px;font-weight:bold; text-align:center;">${runningBal.toFixed(0)}</td><td style="padding:6px; text-align:center;">حركة يومية</td></tr>`);
                         }
                     });
                 } else {
@@ -1339,7 +1414,7 @@
                     runningBal = priorTrans.reduce((sum, t) => sum + (t.type === 'sub' ? t.amount : -t.amount), 0); 
                     
                     let balText = runningBal > 0 ? runningBal + ' عليه' : (runningBal < 0 ? Math.abs(runningBal) + ' له' : '0');
-                    html += `<tr style="background:#f0f0f0;font-weight:bold;"><td style="padding:6px;">رصيد سابق</td><td style="padding:6px;">-</td><td style="padding:6px;">-</td><td dir="ltr" style="padding:6px;">${balText}</td><td style="padding:6px;">رصيد مرحل</td></tr>`;
+                    html += `<tr style="background:#f0f0f0;font-weight:bold;"><td style="padding:6px; text-align:center;">رصيد سابق</td><td style="padding:6px; text-align:center;">-</td><td style="padding:6px; text-align:center;">-</td><td dir="ltr" style="padding:6px; text-align:center;">${balText}</td><td style="padding:6px; text-align:center;">رصيد مرحل</td></tr>`;
 
                     let monthTrans = allTrans.filter(t => t.date >= month + '-01');
                     monthTrans.forEach(t => {
@@ -1347,11 +1422,11 @@
                         let daen = t.type === 'add' ? t.amount : 0; 
                         runningBal += (maden - daen);
                         let runText = runningBal > 0 ? runningBal + ' عليه' : (runningBal < 0 ? Math.abs(runningBal) + ' له' : '0');
-                        records.push(`<tr><td style="padding:6px;">${t.date}</td><td style="padding:6px;">${maden||'-'}</td><td style="padding:6px;">${daen||'-'}</td><td dir="ltr" style="padding:6px;font-weight:bold;">${runText}</td><td style="padding:6px;">إضافة/خصم</td></tr>`);
+                        records.push(`<tr><td style="padding:6px; text-align:center;">${t.date}</td><td style="padding:6px; text-align:center;">${maden||'-'}</td><td style="padding:6px; text-align:center;">${daen||'-'}</td><td dir="ltr" style="padding:6px;font-weight:bold; text-align:center;">${runText}</td><td style="padding:6px; text-align:center;">إضافة/خصم</td></tr>`);
                     });
                 }
 
-                if(records.length === 0) records.push(`<tr><td colspan="5" style="padding:15px;">لا توجد حركات مسجلة لهذا الحساب في الشهر المحدد</td></tr>`);
+                if(records.length === 0) records.push(`<tr><td colspan="5" style="padding:15px; text-align:center;">لا توجد حركات مسجلة لهذا الحساب في الشهر المحدد</td></tr>`);
                 html += records.join('') + `</table></div>`;
 
                 if(action === 'print') AppController.printHTML(html);
